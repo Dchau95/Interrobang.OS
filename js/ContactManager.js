@@ -2,6 +2,7 @@
 
 
 //function ContactManager() {
+//    this.currentState = "";
 //    this.findContact = function() {
 //        "use strict";
 //        var szContact = "Matt Wischoff";
