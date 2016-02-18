@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<body>
+<p id = "test"></p>
+<script type="text/javascript">
+
+
+
+var poke = ["I wanna be the very best like no one ever was, to catch them is the real test to train them is my cause, POKEMON!" ];
+
+var hi = [1,5,6,7,11,93,63,38,3,5,9,5,2];
+alert(hi.sort(CompareForSort));
+var fr = function(){
+document.write(poke)
+};
+function CompareForSort(first, second)
+{
+    if (first == second)
+        return 0;
+    if (first < second)
+        return -2;
+    else
+        return 2; 
+}
+
+
+
+
+</script>
+<button type = "button" onclick = "fr()">CLICK</button>
+
+
+
+</body>
+</html>
+
+ 
