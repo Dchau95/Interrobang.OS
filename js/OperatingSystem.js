@@ -3,7 +3,7 @@ var operatingSystem = function () {
     //var qJobQueue = 
     //llIOQueue =
     var arrDirectory = {};
-
+    
     //Mode: read or write
     //Flags
     //return error code or nothing
@@ -35,14 +35,15 @@ var operatingSystem = function () {
         return arrDirectory[fileName][position].length();
     };
     //return num of bytes / length of string
-    var write = function (filePointer, string) {
-        
+    var write = function (fileName, contents) {
+        arrDirectory[fileName].push(contents);
+        return contents.length();
     };
-    var length = function () {
-        
+    var length = function (fileName) {
+        return arrDirectory[fileName].join("").length();
     };
-    var seek = function (position) {
-        
+    var seek = function (fileName, position) {
+        return arrDirectory[fileName][position];
     };
     var position = function () {
         
