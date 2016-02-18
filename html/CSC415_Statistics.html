@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!-- Haoxian ZHeng , CSC415 -->
+<html>
+    <h3>
+       Statistics Information Process 
+    </h3>
+    <body>
+        <button onclick="getMin()">Get Minimum</button>
+        <button onclick="getMean()">Get Mean</button>
+        <button onclick="getMode()">Get Mode</button>
+        <button onclick="getMedian()">Get Median</button>
+        <button onclick="getMax()">Get Maximum</button>
+
+
+        <p id="result"></p>
+
+        <script>
+            var statInfo = [2,2,5,7,7,
+                           8,10,10,13,16,
+                           18,19,21,21,28,
+                           28,29,33,33,41,
+                           46,47,49,50,50,
+                           52,53,55,56,57,
+                           57,60,60,64,72,
+                           73,73,75,75,77,
+                           83,84,85,87,87,
+                           88,90,93,95,100];
+            
+            
+            
+
+
+            function getMin(){
+                var minimum = 999;
+                for (var i = 0; i < statInfo.length; i++){
+                    if(statInfo[i] <= minimum){
+                        minimum = statInfo[i];
+                    }
+                 }
+                 document.getElementById("result").innerHTML = minimum;
+
+            }
+            
+            function getMean(){
+                var mean = 0;
+                for (var i = 0; i < statInfo.length; i++){
+                    mean += statInfo[i];
+                }
+                mean /= statInfo.length + 1;
+                document.getElementById("result").innerHTML = mean.toFixed(3);
+            }
+            function getMode(){
+                var counter = {};
+                var mode = [];
+                var max = 0;
+                for (var i in statInfo) {
+                    if (!(statInfo[i] in counter))
+                        counter[statInfo[i]] = 0;
+                    counter[statInfo[i]]++;
+
+                    if (counter[statInfo[i]] == max) 
+                        mode.push(statInfo[i]);
+                    else if (counter[statInfo[i]] > max) {
+                        max = counter[statInfo[i]];
+                        mode = [statInfo[i]];
+                    }
+                }
+                
+                
+            document.getElementById("result").innerHTML = mode;
+
+            }
+            function getMedian(){
+                median = statInfo[statInfo.length/2]
+            document.getElementById("result").innerHTML = median;
+
+            }
+            function getMax(){
+                var maximum = 0;
+                for (var i = 0; i < statInfo.length; i++){
+                    if(statInfo[i] > maximum){
+                        maximum = statInfo[i];
+                    }
+                 }
+                 document.getElementById("result").innerHTML = maximum;
+            }
+
+        </script>
+    </body>
+</html>
