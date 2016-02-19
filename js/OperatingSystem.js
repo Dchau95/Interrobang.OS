@@ -1,52 +1,57 @@
-var operatingSystem = function () {
+function OperatingSystem() {
     "use strict";
     //var qJobQueue = 
     //llIOQueue =
-    var arrDirectory = {};
+    this.arrDirectory = {};
     
     //Mode: read or write
     //Flags
     //return error code or nothing
-    var open = function (fileName, mode) {
-        if (fileName in arrDirectory) {
+    this.open = function (fileName, mode) {
+        if (fileName in this.arrDirectory) {
             return 1;
         } else {
             return -1;
         }
     };
     //Flags, returns an error code
-    var close = function (fileName) {
+    this.close = function (fileName) {
         
     };
-    var create = function (fileName, contents) {
-        arrDirectory[fileName] = contents.match(/.{1,100}/g);
+    this.create = function (fileName, contents) {
+        this.arrDirectory[fileName] = contents.match(/.{1,100}/g);
+        console.log("Did it");
     };
     //returns an error code
-    var delet = function (fileName) {
-        if (fileName in arrDirectory) {
-            delete arrDirectory[fileName];
+    this.delet = function (fileName) {
+        if (fileName in this.arrDirectory) {
+            delete this.arrDirectory[fileName];
             return 1;
         } else {
             return -1;
         }
     };
     //return num of Bytes / length of string
-    var read = function (fileName, position) {
-        return arrDirectory[fileName][position].length();
+    this.read = function (fileName, position) {
+        return this.arrDirectory[fileName][position].length();
     };
     //return num of bytes / length of string
-    var write = function (fileName, contents) {
-        arrDirectory[fileName].push(contents);
+    this.write = function (fileName, contents) {
+        this.arrDirectory[fileName].push(contents);
         return contents.length();
     };
-    var length = function (fileName) {
-        return arrDirectory[fileName].join("").length();
+    this.length = function (fileName) {
+        return this.arrDirectory[fileName].join("").length();
     };
-    var seek = function (fileName, position) {
-        return arrDirectory[fileName][position];
+    this.seek = function (fileName, position) {
+        return this.arrDirectory[fileName][position];
     };
-    var position = function () {
+    this.position = function () {
         
     };
     
-};
+    this.main = function () {
+        this.create("test.CSV", "Hello");
+    };
+    
+}

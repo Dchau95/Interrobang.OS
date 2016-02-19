@@ -1,4 +1,4 @@
-/*global findContact*/
+/*global OperatingSystem*/
 var contactManager = null;
 
 function testingInputOutput() {
@@ -6,6 +6,7 @@ function testingInputOutput() {
 //    var contactManager = new ContactManager();
 //    var test = contactManager.findContact(aryContactCsv);
     //var test = findContact(aryContactCsv);
-    var derp = new File();
-    return test;
+    var derp = new OperatingSystem();
+    derp.main();
+    console.log(derp.arrDirectory["test.CSV"]);
 }
