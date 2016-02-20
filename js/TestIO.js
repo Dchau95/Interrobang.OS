@@ -6,7 +6,7 @@ function testingInputOutput() {
 //    var contactManager = new ContactManager();
 //    var test = contactManager.findContact(aryContactCsv);
     //var test = findContact(aryContactCsv);
-    var derp = new OperatingSystem();
-    derp.main();
-    console.log(derp.arrDirectory["test.CSV"]);
+    var test = new OperatingSystem();
+    test.create("test.CSV", "helo heloo helo heloo helo heloo helo heloo helo heloo");
+    console.log(arrDirectory["test.CSV"]);
 }

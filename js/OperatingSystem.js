@@ -5,7 +5,7 @@ function OperatingSystem() {
     //Flags
     //return error code or nothing
     this.open = function (fileName, mode) {
-        if (fileName in this.arrDirectory) {
+        if (fileName in arrDirectory) {
             return 1;
         } else {
             return -1;
@@ -14,17 +14,21 @@ function OperatingSystem() {
     
     //Flags, returns an error code
     this.close = function (fileName) {
-        
+        if (fileName in arrOpenFiles) {
+            return 1;
+        } else {
+            return -1;
+        }
     };
     
     this.create = function (fileName, contents) {
-        this.arrDirectory[fileName] = contents.match(/.{1,100}/g);
-        console.log("Did it");
+        //arrDirectory[fileName] = contents.match(/.{1,100}/g);
+        return 1;
     };
     //returns an error code
     this.delet = function (fileName) {
-        if (fileName in this.arrDirectory) {
-            delete this.arrDirectory[fileName];
+        if (fileName in arrDirectory) {
+            delete arrDirectory[fileName];
             return 1;
         } else {
             return -1;
@@ -33,21 +37,21 @@ function OperatingSystem() {
     
     //return num of Bytes / length of string
     this.read = function (fileName, position) {
-        return this.arrDirectory[fileName][position].length();
+        return arrDirectory[fileName][position].length();
     };
     
     //return num of bytes / length of string
     this.write = function (fileName, contents) {
-        this.arrDirectory[fileName].push(contents);
+        arrDirectory[fileName] = contents.match(/.{1,100}/g);
         return contents.length();
     };
     
     this.length = function (fileName) {
-        return this.arrDirectory[fileName].join("").length();
+        return arrDirectory[fileName].join("").length();
     };
     
     this.seek = function (fileName, position) {
-        return this.arrDirectory[fileName][position];
+        return arrDirectory[fileName][position];
     };
     
     this.position = function () {
@@ -55,7 +59,6 @@ function OperatingSystem() {
     };
     
     this.endOfFile = function () {
-        
-    }
-    
+        //Do if statement, if pointer is at the end of array
+    } 
 }

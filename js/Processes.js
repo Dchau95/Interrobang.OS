@@ -14,6 +14,7 @@ var hashProcesses = {
         {
             balance += arr[i];
         }
+        return balance;
     },
     "VectorCalculate" : function (vectorList)
     {
@@ -160,5 +161,6 @@ var hashProcesses = {
                 else
                 return 2; 
             })
+        return arrNum;
     }
 }
