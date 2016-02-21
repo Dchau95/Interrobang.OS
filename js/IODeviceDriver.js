@@ -1,9 +1,7 @@
 /*jslint white: true */
-var hashDirectory = {};
+var arrDirectory = {};
 
-var arrOpenFiles = [];
-
-var arrProcessesQueue = [
+var arrOpenFiles = [
     {
         nProcessID: 0,
         szFileName: "",
@@ -18,48 +16,62 @@ function onMessage(event) {
     
     switch (task.sysCall) {
         case "Open File": {
-            arrOpenFiles.push(task.FileName);
-            arrProcessesQueue.push({
+            arrOpenFiles.push({
                 nProcessID: task.ProcessID,
-                szFileName: task.FileName,
+                szFileName: task.fileName,
                 szMode: task.Mode,
                 nPosition: 0,
                 nLength: hashDirectory[task.FileName].join("").length()
             });
+            task.filePointer = arrProcessesQueue.length - 1;
+            postMessage(task);
         } break;
         case "Close File": {
-            arrOpenFiles.splice(arrOpenFiles.indexOf(task.FileName), 1);
+           delete arrOpenFiles[task.filePointer] 
+            task.filePointer = 0;
+            postMessage(task);
         } break;
         case "Create File": {
-            arrOpenFiles.push(task.FileName);
-            arrProcessesQueue.push({
+            arrOpenFiles.push({
                 nProcessID: task.ProcessID,
-                szFileName: task.FileName,
-                szMode: task.Mode,
+                szFileName: task.fileName,
+                szMode: task.mode,
                 nPosition: 0,
                 nLength: 0
             });
+            task.filePointer = arrProcessesQueue.length - 1;
+            postMessage(task);
         } break;
         case "Delete File": {
             //Do something with error code
+            postMessage(task);
         } break;
         case "Read File": {
-            
+            task.data = arrDirectory[arrOpenFiles[task.filePointer].szFileName][nPosition+1];
+            task.length = task.data.length;
+            task.position = arrOpenFiles[task.filePointer].nPosition + 1;
+            postMessage(task);
         } break;
         case "Write File": {
-            
+            task.length = task.data.length;
+            task.position = arrOpenFiles[task.filePointer].nPosition + 1;
+            postMessage(task);
         } break;
-        case "Length of File": {
-            
+        case "Length of File": {        
+            task.length = arrDirectory[fileName].join("").length();
+            postMessage (task);
         } break;
         case "Seek": {
-            
+            arrOpenFiles [task.filePointer].nPosition = task.position;
+            postMessage(task);
         } break;
         case "Position of File": {
-            
+            //Call Position function
+            postMessage(task);
         } break;
         case "End of File": {
-            
+            //EOF function
+            postMessage(task);
         } break;
     }
 }

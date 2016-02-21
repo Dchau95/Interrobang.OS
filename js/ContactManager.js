@@ -1,38 +1,13 @@
-//Two different ways of creating a function and making it belong to the class
-
-
-//function ContactManager() {
-//    this.currentState = "";
-//    this.findContact = function() {
-//        "use strict";
-//        var szContact = "Matt Wischoff";
-//        var nIndex;
-//        for (nIndex = 0; nIndex < aryContactCsv.length; nIndex++) {
-//            if (szContact === aryContactCsv[nIndex]) {
-//                return szContact;
-//            }
-//        }
-//    }
-//}
-
 function findContact(aryContactCsv) {
     "use strict";
+    var str = aryContactCsv.split(", ");
     var szContact = "Matt Wischoff";
-    var nIndex;
-    for (nIndex = 0; nIndex < aryContactCsv.length; nIndex++) {
-        if (szContact === aryContactCsv[nIndex]) {
-            return szContact;
-        }
+    var arrContact = {};
+    for (var nIndex = 0; nIndex<str.length; nIndex++){
+        var temp = str[nIndex].split(": ");
+        arrContact[temp[0]] = temp[1];
+    }
+    if (szContact in arrContact){
+        return szContact;
     }
 }
-
-//ContactManager.prototype.findContact = function(aryContactCsv) {
-//    "use strict";
-//    var szContact = "Matt Wischoff";
-//    var nIndex;
-//    for (nIndex = 0; nIndex < aryContactCsv.length; nIndex++) {
-//        if (szContact === aryContactCsv[nIndex]) {
-//            return szContact;
-//        }
-//    }
-//}
