@@ -13,6 +13,16 @@
  * Initial version: October 21, 2004
  */
 
+var hashProcessStates = {
+    Ready : "Ready",
+    Waiting : "Waiting",
+    Running : "Running",
+    Starting : "Starting",
+    Stopping : "Stopping"
+};
+
+var currentState = hashProcessStates.Ready;
+
 function shortestPath(aryEdges, iNumVertices, startVertex) {
     var aryDone = new Array(iNumVertices);
     aryDone[startVertex] = true;

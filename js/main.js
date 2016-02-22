@@ -14,21 +14,32 @@ function onMessageProcess(event) {
     
     nProcessID += 1;
     
+    console.log(""+event.data);
+    console.log(nProcessID);
+    
     device.postMessage(task);
 }
 
 function onMessageDevice(event) {
     var task = event.data;
     
+    console.log("Something here");
     worker.postMessage(task);
 }
 
 function testingInputOutput() {
     "use strict";
-    if (worker1) { return; }
+    console.log("Something here 1");
+    if (worker1) {
+        console.log("Something here 2");
+        return;
+    }
     
+    console.log("Something here 3");
     worker1 = new Worker("ContactManager.js");
+    worker1.postMessage("Hello");
     worker1.onmessage = onMessageProcess;
+    
     
     worker2 = new Worker("BankProcess.js");
     worker2.onmessage = onMessageProcess;
@@ -38,9 +49,6 @@ function testingInputOutput() {
     
     worker4 = new Worker("ReadFile.js");
     worker4.onmessage = onMessageProcess;
-    
-    worker5 = new Worker("ShortestPath.js");
-    worker5.onmessage = onMessageProcess;
     
     worker6 = new Worker("StatisticsCalculate.js");
     worker6.onmessage = onMessageProcess;
@@ -54,7 +62,7 @@ function testingInputOutput() {
 }
 
 function stopInputOutput() {
-    if (!worker) { return; }
+    if (!worker1) { return; }
     worker1.terminate();
     worker1 = undefined;
     
@@ -66,9 +74,6 @@ function stopInputOutput() {
     
     worker4.terminate();
     worker4 = undefined;
-    
-    worker5.terminate();
-    worker5 = undefined;
     
     worker6.terminate();
     worker6 = undefined;

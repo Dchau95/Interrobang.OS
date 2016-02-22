@@ -16,7 +16,9 @@
 *	A string similar to the usrpwdlist string passed in, but with the password changed
 *	for the appropriate username															*/
 
-function passwordChanger(usrpwdlist, username, password){
+function passwordChanger(usrpwdlist){
+    var username = "gamrgod88";
+    var password = "l337420";
 	var delimiters = /[,/:]/;
 	var usrpwdsplit = usrpwdlist.split(delimiters);
 	var returnstr = "";

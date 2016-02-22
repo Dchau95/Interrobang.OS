@@ -5,6 +5,7 @@ function getMin(statInfo) {
             minimum = statInfo[i];
         }
     }
+    return minimum;
 }
 
 function getMean(statInfo) {
@@ -13,6 +14,7 @@ function getMean(statInfo) {
         mean += statInfo[i];
     }
     mean /= statInfo.length + 1;
+    return mean;
 }
 
 function getMode(statInfo) {
@@ -31,9 +33,10 @@ function getMode(statInfo) {
             mode = [statInfo[i]];
         }
     }
+    return mode;
 }
 function getMedian(statInfo) {
-    var median = statInfo[statInfo.length/2]
+    return statInfo[statInfo.length/2];
 }
 
 function getMax(statInfo) {
@@ -43,14 +46,17 @@ function getMax(statInfo) {
             maximum = statInfo[i];
         }
     }
+    return maximum;
 }
 
 function calculateStatistics(statInfoCsv) {
     var statInfo = statInfoCsv.split(", ").map(Number);
     
-    getMax(statInfo);
-    getMedian(statInfo);
-    getMode(statInfo);
-    getMean(statInfo);
-    getMin(statInfo);
+    var max = getMax(statInfo);
+    var median = getMedian(statInfo);
+    var mode = getMode(statInfo);
+    var mean = getMean(statInfo);
+    var min = getMin(statInfo);
+    
+    return "Maximum = "+max+" Medium = "+median+" Mode = "+mode+" Mean = "+mean+" Minimum = "min;
 } 

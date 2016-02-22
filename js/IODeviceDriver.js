@@ -1,4 +1,14 @@
 /*jslint white: true */
+var hashProcessStates = {
+    Ready : "Ready",
+    Waiting : "Waiting",
+    Running : "Running",
+    Starting : "Starting",
+    Stopping : "Stopping"
+};
+
+var currentState = hashProcessStates.Ready;
+
 var arrDirectory = {};
 
 var arrOpenFiles = [
