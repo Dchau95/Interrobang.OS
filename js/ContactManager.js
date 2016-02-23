@@ -1,5 +1,6 @@
 function findContact(aryContactCsv) {
     "use strict";
+    console.log("Starting up contact process");
     var str = aryContactCsv.split(", ");
     var szContact = "Matt Wischoff";
     var arrContact = {};
@@ -10,4 +11,5 @@ function findContact(aryContactCsv) {
     if (szContact in arrContact){
         return szContact;
     }
+    console.log("pausing contact process");
 }

@@ -17,6 +17,7 @@
 *	for the appropriate username															*/
 
 function passwordChanger(usrpwdlist){
+    console.log("Starting password process");
     var username = "gamrgod88";
     var password = "l337420";
 	var delimiters = /[,/:]/;
@@ -28,5 +29,6 @@ function passwordChanger(usrpwdlist){
 		}
 		returnstr = returnstr + usrpwdsplit[i] + ":" + usrpwdsplit[i+1] + ",";
 	}
+    console.log("Ending password process");
 	return returnstr;
 }

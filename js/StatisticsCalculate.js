@@ -50,6 +50,7 @@ function getMax(statInfo) {
 }
 
 function calculateStatistics(statInfoCsv) {
+    console.log("Starting stats process");
     var statInfo = statInfoCsv.split(", ").map(Number);
     
     var max = getMax(statInfo);
@@ -57,6 +58,7 @@ function calculateStatistics(statInfoCsv) {
     var mode = getMode(statInfo);
     var mean = getMean(statInfo);
     var min = getMin(statInfo);
+    console.log("Ending stats process");
     
     return "Maximum = "+max+" Medium = "+median+" Mode = "+mode+" Mean = "+mean+" Minimum = "min;
 } 

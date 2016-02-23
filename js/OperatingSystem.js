@@ -10,12 +10,12 @@ var IOStop = 1;
 var firstToStopWaiting = 0;
 
 var statesQueue = [
-    { process1 : "Ready" },
-    { process2 : "Ready" },
-    { process3 : "Ready" },
-    { process4 : "Ready" },
-    { process5 : "Ready" },
-    { process6 : "Ready" }
+    { process1 : "Waiting" },
+    { process2 : "Waiting" },
+    { process3 : "Waiting" },
+    { process4 : "Waiting" },
+    { process5 : "Waiting" },
+    { process6 : "Waiting" }
 ]
 
 var worker1 = null;
@@ -48,14 +48,18 @@ function onMessageProcess(event) {
 }
 
 function onMessageDevice(event) {
-    var task = event.data;
-    
+    var task = event.data;    
     console.log("Something here");
-    worker.postMessage(task);
+    if(task.sysCall === "Read File"){
+        worker2.postMessage(task);
+    }
+    //Put all workers into an array
+    //Call worker at index something
 }
 
 function testingInputOutput() {
     "use strict";
+    var os = new OperatingSystem();
     console.log("Something here 1");
     if (worker1) {
         console.log("Something here 2");
@@ -66,40 +70,59 @@ function testingInputOutput() {
     device.onmessage = onMessageDevice;
     
     console.log("Something here 3");
-    worker1 = new Worker("ContactManager.js");
-    worker1.onmessage = onMessageProcess;
+    //worker1 = new Worker("ContactManager.js");
+    //worker1.onmessage = onMessageProcess;
     
     worker2 = new Worker("BankProcess.js");
-    worker2.onmessage = onMessageProcess;
+    //worker2.onmessage = onMessageProcess;
     
-    worker3 = new Worker("passwordchanger.js");
-    worker3.onmessage = onMessageProcess;
+    while(statesQueue)
     
-    worker4 = new Worker("ReadFile.js");
-    worker4.onmessage = onMessageProcess;
-    
-    worker5 = new Worker("StatisticsCalculate.js");
-    worker5.onmessage = onMessageProcess;
-    
-    worker6 = new Worker("VectorCalculate.js");
-    worker6.onmessage = onMessageProcess;
-    
-    while(IOStop !== 0) {
-        for(int i = 0; i<statesQueue.length; i++){
-            if("Running" in statesQueue[i]) {
-                
-            }
-            if("Ready" in statesQueue[i]) {
-                
-            }
-            if("Waiting" in statesQueue[i]) {
-                firstToStopWaiting = 1;
-                
-            }
-        }
+    if(statesQueue[1].process2 === "Waiting") {
+        console.log("This if statement");
+        firstToStopWaiting = 1;
+        os.open("Bank.CSV", "Read");      
     }
+    
+    if(statesQueue[1].process2 === "Waiting"){
+        console.log("That if statement");
+        statesQueue[2].process2 = "Running";
+        os.read("Bank.CSV", 0);
+    }
+    
+    
+//    worker3 = new Worker("passwordchanger.js");
+//    //worker3.onmessage = onMessageProcess;
+//    
+//    worker4 = new Worker("ReadFile.js");
+//    //worker4.onmessage = onMessageProcess;
+//    
+//    worker5 = new Worker("StatisticsCalculate.js");
+//    //worker5.onmessage = onMessageProcess;
+//    
+//    worker6 = new Worker("VectorCalculate.js");
+    //worker6.onmessage = onMessageProcess;
+    
+//    while(IOStop !== 0) {
+//        for(int i = 0; i<statesQueue.length; i++){
+//            if("Running" in statesQueue[i]) {
+//                
+//            }
+//            if("Ready" in statesQueue[i]) {
+//                
+//            }
+//            if("Waiting" in statesQueue[i]) {
+//                firstToStopWaiting = 1;
+//                
+//            }
+//        }
+//    }
 }
 
+/************************************************
+*   stopInputOutput()
+*   stops all workers
+*************************************************/
 function stopInputOutput() {
     if (!worker1) { return; }
     worker1.terminate();
@@ -138,8 +161,8 @@ function OperatingSystem() {
             fileName : fileName,
             mode : mode,
         };
-        postMessage(task);	
-        if (fileName in arrDirectory) {
+        device.postMessage(task);	
+        if (fileName in hashDirectory) {
             return 1;
         } else {
             return -1;
@@ -152,7 +175,7 @@ function OperatingSystem() {
             sysCall : "Close File", 
             filePointer : filePointer,
         };
-			postMessage(task);
+        device.postMessage(task);
         if (fileName in arrOpenFiles) {
             return 1;
         } else {
@@ -161,13 +184,13 @@ function OperatingSystem() {
     };
     
     this.create = function (fileName, contents, mode) {
-        //arrDirectory[fileName] = contents.match(/.{1,100}/g);
+        //hashDirectory[fileName] = contents.match(/.{1,100}/g);
         var task = { 
             sysCall : "Create File", 
             name : fileName,
             mode : mode,
         };
-        postMessage(task);	
+        device.postMessage(task);	
         return 1;
     };
     //returns an error code
@@ -176,9 +199,9 @@ function OperatingSystem() {
             sysCall : "Delete File", 
             name : fileName,
         };
-        postMessage(task);
-        if (fileName in arrDirectory) {
-            delete arrDirectory[fileName];
+        device.postMessage(task);
+        if (fileName in hashDirectory) {
+            delete hashDirectory[fileName];
             return 1;
         } else {
             return -1;
@@ -189,11 +212,12 @@ function OperatingSystem() {
     this.read = function (fileName, position) {
         var task = { 
             sysCall : "Read File", 
+            fileName: fileName,
             filePointer : position,
-            len : arrDirectory[fileName].join("").length(),
+            length : hashDirectory[fileName].length,
         };
-        postMessage(task);
-        return arrDirectory[fileName][position].length();
+        device.postMessage(task);
+        return hashDirectory[fileName].length;
     };
     
     //return num of bytes / length of string
@@ -203,9 +227,9 @@ function OperatingSystem() {
             filePointer : filePointer,
             data : contents,
         };
-        postMessage(task);
-        arrDirectory[fileName] = contents.match(/.{1,100}/g);
-        return contents.length();
+        device.postMessage(task);
+        hashDirectory[fileName] = contents.match(/.{1,100}/g);
+        return contents.length;
     };
     
     this.length = function (fileName, filePointer) {
@@ -213,8 +237,8 @@ function OperatingSystem() {
             sysCall : "Length of File", 
             filePointer : filePointer,  
         };
-        postMessage(task);
-        return arrDirectory[fileName].join("").length();
+        device.postMessage(task);
+        return hashDirectory[fileName].length;
     };
     
     this.seek = function (fileName, position, filePointer) {
@@ -223,8 +247,8 @@ function OperatingSystem() {
             filePointer : filePointer,
             position : position,
         };
-        postMessage(task);
-        return arrDirectory[fileName][position];
+        device.postMessage(task);
+        return hashDirectory[fileName][position];
     };
     
     this.position = function (filePointer) {
@@ -232,7 +256,7 @@ function OperatingSystem() {
             sysCall : "Position of File", 
             filePointer : fp,  
         };
-        postMessage(task);
+        device.postMessage(task);
         
     };
     
@@ -242,6 +266,8 @@ function OperatingSystem() {
             sysCall : "End of File", 
             filePointer : filePointer,
         };
-        postMessage(task);
+        device.postMessage(task);
     } 
 }
+
+this.addEventListener('message', onMessageDevice, false);

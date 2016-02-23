@@ -9,7 +9,9 @@ var hashProcessStates = {
 
 var currentState = hashProcessStates.Ready;
 
-var arrDirectory = {};
+var hashDirectory = {
+    "Bank.CSV": "100, -50, 200, 300, -1000, 2000"
+};
 
 var arrOpenFiles = [
     {
@@ -17,7 +19,8 @@ var arrOpenFiles = [
         szFileName: "",
         szMode: "",
         nPosition: 0,
-        nLength: 0
+        nLength: 0,
+        contents: [],
     }
 ];
 
@@ -31,9 +34,9 @@ function onMessage(event) {
                 szFileName: task.fileName,
                 szMode: task.Mode,
                 nPosition: 0,
-                nLength: hashDirectory[task.FileName].join("").length()
+                nLength: hashDirectory[task.fileName].length
             });
-            task.filePointer = arrProcessesQueue.length - 1;
+            //task.filePointer = arrProcessesQueue.length - 1;
             postMessage(task);
         } break;
         case "Close File": {
@@ -49,7 +52,7 @@ function onMessage(event) {
                 nPosition: 0,
                 nLength: 0
             });
-            task.filePointer = arrProcessesQueue.length - 1;
+            //task.filePointer = arrProcessesQueue.length - 1;
             postMessage(task);
         } break;
         case "Delete File": {
@@ -57,7 +60,8 @@ function onMessage(event) {
             postMessage(task);
         } break;
         case "Read File": {
-            task.data = arrDirectory[arrOpenFiles[task.filePointer].szFileName][nPosition+1];
+            //task.data = hashDirectory[arrOpenFiles[task.filePointer].szFileName][nPosition+1];
+            task.data = hashDirectory[task.fileName];
             task.length = task.data.length;
             task.position = arrOpenFiles[task.filePointer].nPosition + 1;
             postMessage(task);
@@ -68,7 +72,7 @@ function onMessage(event) {
             postMessage(task);
         } break;
         case "Length of File": {        
-            task.length = arrDirectory[fileName].join("").length();
+            task.length = hashDirectory[fileName].length;
             postMessage (task);
         } break;
         case "Seek": {
