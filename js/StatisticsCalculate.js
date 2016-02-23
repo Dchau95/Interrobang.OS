@@ -1,3 +1,13 @@
+onmessage = function (event){
+    console.log(event);
+    console.log(event.data);
+    console.log(event.data.data);
+    console.log("Got the message");
+    var arrCsv = event.data.data;
+    calculateStatistics(arrCsv);
+    postMessage()
+}
+
 function getMin(statInfo) {
     var minimum = 999;
     for (var i = 0; i < statInfo.length; i++){

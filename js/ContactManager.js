@@ -1,3 +1,13 @@
+onmessage = function (event){
+    console.log(event);
+    console.log(event.data);
+    console.log(event.data.data);
+    console.log("Got the message");
+    var arrCsv = event.data.data;
+    findContact(arrCsv);
+    postMessage();
+}
+
 function findContact(aryContactCsv) {
     "use strict";
     console.log("Starting up contact process");
