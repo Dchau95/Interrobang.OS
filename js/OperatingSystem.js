@@ -104,17 +104,17 @@ function testingInputOutput() {
                 console.log("Process 2 is ready");
                 statesQueue[0].process2 = "Running";
             }
-//        else if (statesQueue[0].process2 === "Running")
-//        {
-//            os.read("Bank.CSV", 0);
-//            console.log("Process 2 is running");
-//            if(os.endOfFile(1, "Bank.CSV")){
-//                statesQueue[0].process2 = "Stopping";
-//            }else{
-//                statesQueue[0].process2 = "Waiting"
-//            }
-//        }
-        else if (statesQueue[0].process2 === "Stop")
+        else if (statesQueue[0].process2 === "Running")
+        {
+            os.read("Bank.CSV", 1);
+            console.log("Process 2 is running");
+            if(os.endOfFile(1, "Bank.CSV")){
+                statesQueue[0].process2 = "Stopping";
+            }else{
+                statesQueue[0].process2 = "Waiting"
+            }
+        }
+        else if (statesQueue[0].process2 === "Stopping")
         {
             console.log("Process 2 has stopped");
             statesQueue.splice(0,1);

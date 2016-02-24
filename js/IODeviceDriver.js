@@ -38,7 +38,6 @@ function onMessage(event) {
                 nLength: hashDirectory[task.fileName].length,
                 contents: hashDirectory[task.fileName].match(/.{1,100}/g)
             });
-            //task.filePointer = arrProcessesQueue.length - 1;
             postMessage(task);
         } break;
         case "Close File": {
@@ -65,8 +64,8 @@ function onMessage(event) {
             postMessage(task);
         } break;
         case "Read File": {
-            task.data = arrOpenFiles[task.filePointer].nPosition;
-            //task.data = hashDirectory[task.fileName];
+            console.log(task.filePointer);
+            task.data = arrOpenFiles[task.filePointer].contents;
             task.length = task.data.length;
             task.position = arrOpenFiles[task.filePointer].nPosition + 1;
             postMessage(task);
