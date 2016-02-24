@@ -35,7 +35,7 @@ function onMessage(event) {
                 szFileName: task.fileName,
                 szMode: task.Mode,
                 nPosition: 0,
-                nLength: hashDirectory[task.fileName].length,
+                nLength: hashDirectory[task.fileName].match(/.{1,100}/g).length,
                 contents: hashDirectory[task.fileName].match(/.{1,100}/g)
             });
             postMessage(task);
@@ -66,8 +66,8 @@ function onMessage(event) {
         case "Read File": {
             console.log(task.filePointer);
             task.data = arrOpenFiles[task.filePointer].contents;
-            task.length = task.data.length;
             task.position = arrOpenFiles[task.filePointer].nPosition + 1;
+            arrOpenFiles[task.filePointer].nPosition += 1;
             postMessage(task);
         } break;
         case "Write File": {
@@ -87,14 +87,19 @@ function onMessage(event) {
             //Call Position function
             postMessage(task);
         } break;
-//        case "End of File": {
-//            //EOF function
+        case "End of File": {
+            //EOF function
 //            if (arrOpenFiles[task.fileName].nPosition === hashDirectory[task.fileName].length)
 //            {
 //                task.EOF = true;
 //            }
-//            postMessage(task);
-//        } break;
+        //Do if statement, if pointer is at the end of array
+        if(arrOpenFiles[task.filePointer].nPosition === arrOpenFiles[task.filePointer].length)
+        {
+           task.checkEOF = true; 
+        }
+            postMessage(task);
+        } break;
     }
 }
 

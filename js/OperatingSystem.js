@@ -21,7 +21,8 @@ var statesQueue = [
 var EOF = false;
 
 var worker1 = null;
-var worker2 = null;
+//var worker2 = null;
+var worker2 = new Worker("BankProcess.js")
 var worker3 = null;
 var worker4 = null;
 var worker5 = null;
@@ -37,29 +38,21 @@ var hashStuff = {
     content: ""
 }
 
-function onMessageProcess(event) {
-    var task = event.data;
-    task.ProcessID = nProcessID;
-    
-    nProcessID += 1;
-    
-    console.log(""+event.data);
-    console.log(nProcessID);
-    
-    device.postMessage(task);
-}
-
 function onMessageDevice(event) {
     var task = event.data;    
     console.log("Something here");
+    if(task.sysCall === "Open File"){
+        whileLoop();
+    }
     if(task.sysCall === "Read File"){
         worker2.postMessage(task);
     }
     if(task.sysCall==="Close File"){
        console.log(task.filePointer);
-       }
+    }
     if(task.sysCall === "End of File"){
-        EOF = task.EOF;
+        console.log("This is end of file, gg");
+        EOF = task.checkEOF;
     }
     //Put all workers into an array
     //Call worker at index something
@@ -67,7 +60,6 @@ function onMessageDevice(event) {
 
 function testingInputOutput() {
     "use strict";
-    var os = new OperatingSystem();
     console.log("Something here 1");
     if (worker1) {
         console.log("Something here 2");
@@ -81,46 +73,10 @@ function testingInputOutput() {
     //worker1 = new Worker("ContactManager.js");
     //worker1.onmessage = onMessageProcess;
     
-    worker2 = new Worker("BankProcess.js");
+    //worker2 = new Worker("BankProcess.js");
     //worker2.onmessage = onMessageProcess;
     
-    while (statesQueue.length != 0)
-    {
-        
-        if (statesQueue[0].process2 === "Starting")
-        {
-           console.log("Process 2 is Starting");
-           statesQueue[0].process2 = "Waiting";
-        }
-        else if (statesQueue[0].process2 === "Waiting") 
-        {
-            console.log("Process 2 is waiting");
-            firstToStopWaiting = 1;
-            statesQueue[0].process2 = "Ready"
-            os.open("Bank.CSV", "Read");
-        }
-        else if (statesQueue[0].process2 === "Ready")
-            {
-                console.log("Process 2 is ready");
-                statesQueue[0].process2 = "Running";
-            }
-        else if (statesQueue[0].process2 === "Running")
-        {
-            os.read("Bank.CSV", 1);
-            console.log("Process 2 is running");
-            if(os.endOfFile(1, "Bank.CSV")){
-                statesQueue[0].process2 = "Stopping";
-            }else{
-                statesQueue[0].process2 = "Waiting"
-            }
-        }
-        else if (statesQueue[0].process2 === "Stopping")
-        {
-            console.log("Process 2 has stopped");
-            statesQueue.splice(0,1);
-        }
-        
-    }
+    whileLoop();
 
     
 //    worker3 = new Worker("passwordchanger.js");
@@ -149,6 +105,55 @@ function testingInputOutput() {
 //            }
 //        }
 //    }
+}
+worker2.onmessage = function(e) {
+    console.log(e.data);
+    var check = os.endOfFile(1, "Bank.CSV");
+    console.log(check);
+    //whileLoop();
+}
+var os = new OperatingSystem();
+function whileLoop(){
+    //var os = new OperatingSystem();
+    while (statesQueue.length != 0)
+    {
+        
+        if (statesQueue[0].process2 === "Starting")
+        {
+           console.log("Process 2 is Starting");
+           statesQueue[0].process2 = "Waiting";
+        }
+        else if (statesQueue[0].process2 === "Waiting") 
+        {
+            console.log("Process 2 is waiting");
+            firstToStopWaiting = 1;
+            statesQueue[0].process2 = "Ready"
+            os.open("Bank.CSV", "Read");
+            break;
+        }
+        else if (statesQueue[0].process2 === "Ready")
+            {
+                console.log("Process 2 is ready");
+                statesQueue[0].process2 = "Running";
+            }
+        else if (statesQueue[0].process2 === "Running")
+        {
+            console.log("Process 2 is running");
+            os.read("Bank.CSV", 1);
+            os.endOfFile(1, "Bank.CSV");
+            if(EOF){
+                statesQueue[0].process2 = "Stopping";
+            }else{
+                statesQueue[0].process2 = "Waiting"
+            }break;
+        }
+        else if (statesQueue[0].process2 === "Stopping")
+        {
+            console.log("Process 2 has stopped");
+            statesQueue.splice(0,1);
+        }
+        
+    }
 }
 
 /************************************************
@@ -295,15 +300,23 @@ function OperatingSystem() {
     };
     
     this.endOfFile = function (filePointer, fileName) {
-        //Do if statement, if pointer is at the end of array
-        if(arrOpenFiles[filePointer].nPosition === arrOpenFiles[filePointer].length)
-        {
-           return true; 
-        }else 
-        {
-           return false; 
+//        var check = arrOpenFiles[filePointer].nPosition === arrOpenFiles[filePointer].length;
+//        console.log(check);
+//        //Do if statement, if pointer is at the end of array
+//        if(arrOpenFiles[filePointer].nPosition === arrOpenFiles[filePointer].length)
+//        {
+//           return true; 
+//        }else 
+//        {
+//           return false; 
+//        }
+        var task = {
+            sysCall: "End of File",
+            filePointer: filePointer,
+            fileName: fileName,
+            checkEOF: false
         }
-        
+        device.postMessage(task);
     } 
 }
 
