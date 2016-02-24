@@ -70,5 +70,5 @@ function calculateStatistics(statInfoCsv) {
     var min = getMin(statInfo);
     console.log("Ending stats process");
     
-    return "Maximum = "+max+" Medium = "+median+" Mode = "+mode+" Mean = "+mean+" Minimum = "min;
+    return "Maximum = "+max+" Medium = "+median+" Mode = "+mode+" Mean = "+mean+" Minimum = "+min;
 } 

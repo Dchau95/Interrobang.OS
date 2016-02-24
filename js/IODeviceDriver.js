@@ -88,17 +88,11 @@ function onMessage(event) {
             postMessage(task);
         } break;
         case "End of File": {
-            //EOF function
-//            if (arrOpenFiles[task.fileName].nPosition === hashDirectory[task.fileName].length)
-//            {
-//                task.EOF = true;
-//            }
-        //Do if statement, if pointer is at the end of array
-        if(arrOpenFiles[task.filePointer].nPosition === arrOpenFiles[task.filePointer].length)
-        {
-           task.checkEOF = true; 
-        }
-            postMessage(task);
+            if(arrOpenFiles[task.filePointer].nPosition === arrOpenFiles[task.filePointer].length)
+            {
+               task.checkEOF = true; 
+            }
+                postMessage(task);
         } break;
     }
 }

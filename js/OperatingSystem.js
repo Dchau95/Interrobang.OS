@@ -6,8 +6,8 @@ var hashProcessStates = {
     Stopping : "Stopping"
 };
 
-var IOStop = 1;
-var firstToStopWaiting = 0;
+//var IOStop = 1;
+//var firstToStopWaiting = 0;
 
 var statesQueue = [
     //{ process1 : "Starting" },
@@ -20,9 +20,18 @@ var statesQueue = [
 
 var EOF = false;
 
+var arrWorker = [
+    new Worker("ContactManager.js"),
+    new Worker("BankProcess.js"),
+    new Worker("passwordchanger.js"),
+    new Worker("ReadFile.js"),
+    new Worker("StatisticsCalculate.js"),
+    new Worker("VectorCalculate.js")
+];
+
 var worker1 = null;
 //var worker2 = null;
-var worker2 = new Worker("BankProcess.js")
+//var worker2 = new Worker("BankProcess.js");
 var worker3 = null;
 var worker4 = null;
 var worker5 = null;
@@ -45,7 +54,7 @@ function onMessageDevice(event) {
         whileLoop();
     }
     if(task.sysCall === "Read File"){
-        worker2.postMessage(task);
+        arrWorker[1].postMessage(task);
     }
     if(task.sysCall==="Close File"){
        console.log(task.filePointer);
@@ -70,43 +79,10 @@ function testingInputOutput() {
     device.onmessage = onMessageDevice;
     
     console.log("Something here 3");
-    //worker1 = new Worker("ContactManager.js");
-    //worker1.onmessage = onMessageProcess;
-    
-    //worker2 = new Worker("BankProcess.js");
-    //worker2.onmessage = onMessageProcess;
     
     whileLoop();
-
-    
-//    worker3 = new Worker("passwordchanger.js");
-//    //worker3.onmessage = onMessageProcess;
-//    
-//    worker4 = new Worker("ReadFile.js");
-//    //worker4.onmessage = onMessageProcess;
-//    
-//    worker5 = new Worker("StatisticsCalculate.js");
-//    //worker5.onmessage = onMessageProcess;
-//    
-//    worker6 = new Worker("VectorCalculate.js");
-    //worker6.onmessage = onMessageProcess;
-    
-//    while(IOStop !== 0) {
-//        for(int i = 0; i<statesQueue.length; i++){
-//            if("Running" in statesQueue[i]) {
-//                
-//            }
-//            if("Ready" in statesQueue[i]) {
-//                
-//            }
-//            if("Waiting" in statesQueue[i]) {
-//                firstToStopWaiting = 1;
-//                
-//            }
-//        }
-//    }
 }
-worker2.onmessage = function(e) {
+arrWorker[1].onmessage = function(e) {
     console.log(e.data);
     var check = os.endOfFile(1, "Bank.CSV");
     console.log(check);
@@ -126,7 +102,7 @@ function whileLoop(){
         else if (statesQueue[0].process2 === "Waiting") 
         {
             console.log("Process 2 is waiting");
-            firstToStopWaiting = 1;
+            //firstToStopWaiting = 1;
             statesQueue[0].process2 = "Ready"
             os.open("Bank.CSV", "Read");
             break;
@@ -162,23 +138,28 @@ function whileLoop(){
 *************************************************/
 function stopInputOutput() {
     if (!worker1) { return; }
-    worker1.terminate();
-    worker1 = undefined;
     
-    worker2.terminate();
-    worker2 = undefined;
-    
-    worker3.terminate();
-    worker3 = undefined;
-    
-    worker4.terminate();
-    worker4 = undefined;
-    
-    worker5.terminate();
-    worker5 = undefined;
-    
-    worker6.terminate();
-    worker6 = undefined;
+    for (var i = 0; i<arrWorker.length; i++){
+        arrWorker[i].terminate();
+        arrWorker[i] = undefined;
+    }
+//    worker1.terminate();
+//    worker1 = undefined;
+//    
+//    worker2.terminate();
+//    worker2 = undefined;
+//    
+//    worker3.terminate();
+//    worker3 = undefined;
+//    
+//    worker4.terminate();
+//    worker4 = undefined;
+//    
+//    worker5.terminate();
+//    worker5 = undefined;
+//    
+//    worker6.terminate();
+//    worker6 = undefined;
     
     device.terminate();
     device = undefined;
@@ -300,16 +281,6 @@ function OperatingSystem() {
     };
     
     this.endOfFile = function (filePointer, fileName) {
-//        var check = arrOpenFiles[filePointer].nPosition === arrOpenFiles[filePointer].length;
-//        console.log(check);
-//        //Do if statement, if pointer is at the end of array
-//        if(arrOpenFiles[filePointer].nPosition === arrOpenFiles[filePointer].length)
-//        {
-//           return true; 
-//        }else 
-//        {
-//           return false; 
-//        }
         var task = {
             sysCall: "End of File",
             filePointer: filePointer,
