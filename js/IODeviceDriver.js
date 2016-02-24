@@ -29,22 +29,26 @@ function onMessage(event) {
     
     switch (task.sysCall) {
         case "Open File": {
+            console.log("Pushing pushing");
             arrOpenFiles.push({
                 nProcessID: task.ProcessID,
                 szFileName: task.fileName,
                 szMode: task.Mode,
                 nPosition: 0,
-                nLength: hashDirectory[task.fileName].length
+                nLength: hashDirectory[task.fileName].length,
+                contents: hashDirectory[task.fileName].match(/.{1,100}/g)
             });
             //task.filePointer = arrProcessesQueue.length - 1;
             postMessage(task);
         } break;
         case "Close File": {
-           delete arrOpenFiles[task.filePointer] 
-            task.filePointer = 0;
+            console.log("Closing File");
+           delete arrOpenFiles[task.filePointer]; 
+            task.filePointer = -1;
             postMessage(task);
         } break;
         case "Create File": {
+            console.log("Creating File");
             arrOpenFiles.push({
                 nProcessID: task.ProcessID,
                 szFileName: task.fileName,
@@ -57,11 +61,12 @@ function onMessage(event) {
         } break;
         case "Delete File": {
             //Do something with error code
+            delete hashDirectory[task.fileName];
             postMessage(task);
         } break;
         case "Read File": {
-            //task.data = hashDirectory[arrOpenFiles[task.filePointer].szFileName][nPosition+1];
-            task.data = hashDirectory[task.fileName];
+            task.data = arrOpenFiles[task.filePointer].nPosition;
+            //task.data = hashDirectory[task.fileName];
             task.length = task.data.length;
             task.position = arrOpenFiles[task.filePointer].nPosition + 1;
             postMessage(task);
@@ -83,10 +88,14 @@ function onMessage(event) {
             //Call Position function
             postMessage(task);
         } break;
-        case "End of File": {
-            //EOF function
-            postMessage(task);
-        } break;
+//        case "End of File": {
+//            //EOF function
+//            if (arrOpenFiles[task.fileName].nPosition === hashDirectory[task.fileName].length)
+//            {
+//                task.EOF = true;
+//            }
+//            postMessage(task);
+//        } break;
     }
 }
 

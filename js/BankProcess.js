@@ -4,8 +4,8 @@ onmessage = function (event){
     console.log(event.data.data);
     console.log("Got the message");
     var arrCsv = event.data.data;
-    bankProcess(arrCsv);
-    postMessage();
+    var derp = bankProcess(arrCsv);
+    postMessage(derp);
 }
 
 function bankProcess (arrCsv) {
