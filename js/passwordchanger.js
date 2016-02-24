@@ -16,7 +16,18 @@
 *	A string similar to the usrpwdlist string passed in, but with the password changed
 *	for the appropriate username															*/
 
+onmessage = function (event){
+    console.log(event);
+    console.log(event.data);
+    console.log(event.data.data);
+    console.log("Got the message");
+    var arrCsv = event.data.data.toString();
+    passwordChanger(arrCsv);
+    postMessage();
+}
+
 function passwordChanger(usrpwdlist){
+    console.log("Starting password process");
     var username = "gamrgod88";
     var password = "l337420";
 	var delimiters = /[,/:]/;
@@ -28,5 +39,6 @@ function passwordChanger(usrpwdlist){
 		}
 		returnstr = returnstr + usrpwdsplit[i] + ":" + usrpwdsplit[i+1] + ",";
 	}
+    console.log("Ending password process");
 	return returnstr;
 }

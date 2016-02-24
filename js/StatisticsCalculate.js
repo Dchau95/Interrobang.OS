@@ -1,3 +1,13 @@
+onmessage = function (event){
+    console.log(event);
+    console.log(event.data);
+    console.log(event.data.data);
+    console.log("Got the message");
+    var arrCsv = event.data.data.toString();
+    calculateStatistics(arrCsv);
+    postMessage()
+}
+
 function getMin(statInfo) {
     var minimum = 999;
     for (var i = 0; i < statInfo.length; i++){
@@ -50,6 +60,7 @@ function getMax(statInfo) {
 }
 
 function calculateStatistics(statInfoCsv) {
+    console.log("Starting stats process");
     var statInfo = statInfoCsv.split(", ").map(Number);
     
     var max = getMax(statInfo);
@@ -57,6 +68,7 @@ function calculateStatistics(statInfoCsv) {
     var mode = getMode(statInfo);
     var mean = getMean(statInfo);
     var min = getMin(statInfo);
+    console.log("Ending stats process");
     
     return "Maximum = "+max+" Medium = "+median+" Mode = "+mode+" Mean = "+mean+" Minimum = "min;
 } 

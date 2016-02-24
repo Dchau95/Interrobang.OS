@@ -1,5 +1,16 @@
+onmessage = function (event){
+    console.log(event);
+    console.log(event.data);
+    console.log(event.data.data);
+    console.log("Got the message");
+    var arrCsv = event.data.data.toString();
+    findContact(arrCsv);
+    postMessage();
+}
+
 function findContact(aryContactCsv) {
     "use strict";
+    console.log("Starting up contact process");
     var str = aryContactCsv.split(", ");
     var szContact = "Matt Wischoff";
     var arrContact = {};
@@ -10,4 +21,5 @@ function findContact(aryContactCsv) {
     if (szContact in arrContact){
         return szContact;
     }
+    console.log("pausing contact process");
 }
