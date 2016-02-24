@@ -1,3 +1,5 @@
+var os = new OperatingSystem();
+
 var hashProcessStates = {
     Ready : "Ready",
     Waiting : "Waiting",
@@ -6,16 +8,15 @@ var hashProcessStates = {
     Stopping : "Stopping"
 };
 
-//var IOStop = 1;
-//var firstToStopWaiting = 0;
+var bankResult = 0;
 
 var statesQueue = [
-    //{ process1 : "Starting" },
-    { process2 : "Starting" }
-/*    { process3 : "Waiting" },
-    { process4 : "Waiting" },
-    { process5 : "Waiting" },
-    { process6 : "Waiting" }*/
+//    { process1 : "Starting" },
+    { process2 : "Starting" },
+//    { process3 : "Waiting" },
+//    { process4 : "Waiting" },
+//    { process5 : "Waiting" },
+//    { process6 : "Waiting" }
 ]
 
 var EOF = false;
@@ -29,14 +30,8 @@ var arrWorker = [
     new Worker("VectorCalculate.js")
 ];
 
-var worker1 = null;
-//var worker2 = null;
-//var worker2 = new Worker("BankProcess.js");
-var worker3 = null;
-var worker4 = null;
-var worker5 = null;
-var worker6 = null;
 var device = null;
+
 var nProcessID = 1;
 
 var hashStuff = {
@@ -63,17 +58,15 @@ function onMessageDevice(event) {
         console.log("This is end of file, gg");
         EOF = task.checkEOF;
     }
-    //Put all workers into an array
-    //Call worker at index something
 }
 
 function testingInputOutput() {
     "use strict";
     console.log("Something here 1");
-    if (worker1) {
-        console.log("Something here 2");
-        return;
-    }
+//    if (arrWorker[0]) {
+//        console.log("Something here 2");
+//        return;
+//    }
     
     device = new Worker("IODeviceDriver.js");
     device.onmessage = onMessageDevice;
@@ -84,16 +77,15 @@ function testingInputOutput() {
 }
 arrWorker[1].onmessage = function(e) {
     console.log(e.data);
+    bankResult = e.data;
     var check = os.endOfFile(1, "Bank.CSV");
     console.log(check);
     //whileLoop();
 }
-var os = new OperatingSystem();
+
 function whileLoop(){
-    //var os = new OperatingSystem();
     while (statesQueue.length != 0)
     {
-        
         if (statesQueue[0].process2 === "Starting")
         {
            console.log("Process 2 is Starting");
@@ -102,20 +94,25 @@ function whileLoop(){
         else if (statesQueue[0].process2 === "Waiting") 
         {
             console.log("Process 2 is waiting");
-            //firstToStopWaiting = 1;
-            statesQueue[0].process2 = "Ready"
+            statesQueue[0].process2 = "Ready";
             os.open("Bank.CSV", "Read");
             break;
         }
         else if (statesQueue[0].process2 === "Ready")
-            {
-                console.log("Process 2 is ready");
-                statesQueue[0].process2 = "Running";
-            }
+        {
+            console.log("Process 2 is ready");
+            statesQueue[0].process2 = "Running";
+        }
         else if (statesQueue[0].process2 === "Running")
         {
             console.log("Process 2 is running");
-            os.read("Bank.CSV", 1);
+            if(arrOpenFiles[1].szMode === "Read")
+            {
+                os.read("Bank.CSV", 1)
+            }else if (aarrOpenFiles[].szMode === "Write"){
+                os.write("Result.CSV", -1, bankResult);
+            }
+            
             os.endOfFile(1, "Bank.CSV");
             if(EOF){
                 statesQueue[0].process2 = "Stopping";
@@ -127,8 +124,7 @@ function whileLoop(){
         {
             console.log("Process 2 has stopped");
             statesQueue.splice(0,1);
-        }
-        
+        }   
     }
 }
 
@@ -137,29 +133,12 @@ function whileLoop(){
 *   stops all workers
 *************************************************/
 function stopInputOutput() {
-    if (!worker1) { return; }
+    if (!worker[0]) { return; }
     
     for (var i = 0; i<arrWorker.length; i++){
         arrWorker[i].terminate();
         arrWorker[i] = undefined;
     }
-//    worker1.terminate();
-//    worker1 = undefined;
-//    
-//    worker2.terminate();
-//    worker2 = undefined;
-//    
-//    worker3.terminate();
-//    worker3 = undefined;
-//    
-//    worker4.terminate();
-//    worker4 = undefined;
-//    
-//    worker5.terminate();
-//    worker5 = undefined;
-//    
-//    worker6.terminate();
-//    worker6 = undefined;
     
     device.terminate();
     device = undefined;
@@ -180,11 +159,6 @@ function OperatingSystem() {
             mode : mode,
         };
         device.postMessage(task);	
-        if (fileName in hashDirectory) {
-            return 1;
-        } else {
-            return -1;
-        }
         setTimeout(open(fileName, mode), 5200);
     };
     
@@ -195,15 +169,9 @@ function OperatingSystem() {
             filePointer : filePointer,
         };
         device.postMessage(task);
-        if (fileName in arrOpenFiles) {
-            return 1;
-        } else {
-            return -1;
-        }
     };
     
-    this.create = function (fileName, contents, mode) {
-        //hashDirectory[fileName] = contents.match(/.{1,100}/g);
+    this.create = function (fileName, mode) {
         var task = { 
             sysCall : "Create File", 
             name : fileName,
@@ -212,19 +180,13 @@ function OperatingSystem() {
         device.postMessage(task);	
         return 1;
     };
-    //returns an error code
+
     this.delet = function (fileName) {
         var task = { 
             sysCall : "Delete File", 
             name : fileName,
         };
         device.postMessage(task);
-        if (fileName in hashDirectory) {
-            delete hashDirectory[fileName];
-            return 1;
-        } else {
-            return -1;
-        }
     };
     
     //return num of Bytes / length of string
@@ -236,20 +198,18 @@ function OperatingSystem() {
             length : hashDirectory[fileName].length,
         };
         device.postMessage(task);
-        return hashDirectory[fileName].length;
-        setTimeout(read (fileName, position), 5200);
+        //setTimeout(read (fileName, position), 5200);
     };
     
     //return num of bytes / length of string
     this.write = function (fileName, filePointer, contents) {
         var task = { 
-            sysCall : "Write File", 
+            sysCall : "Write File",
+            fileName: fileName,
             filePointer : filePointer,
             data : contents,
         };
         device.postMessage(task);
-        hashDirectory[fileName] = contents.match(/.{1,100}/g);
-        return contents.length;
     };
     
     this.length = function (fileName, filePointer) {
@@ -258,7 +218,6 @@ function OperatingSystem() {
             filePointer : filePointer,  
         };
         device.postMessage(task);
-        return hashDirectory[fileName].length;
     };
     
     this.seek = function (fileName, position, filePointer) {
@@ -268,7 +227,6 @@ function OperatingSystem() {
             position : position,
         };
         device.postMessage(task);
-        return hashDirectory[fileName][position];
     };
     
     this.position = function (filePointer) {

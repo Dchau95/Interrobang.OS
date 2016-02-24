@@ -1,13 +1,13 @@
 /*jslint white: true */
-var hashProcessStates = {
-    Ready : "Ready",
-    Waiting : "Waiting",
-    Running : "Running",
-    Starting : "Starting",
-    Stopping : "Stopping"
-};
-
-var currentState = hashProcessStates.Ready;
+//var hashProcessStates = {
+//    Ready : "Ready",
+//    Waiting : "Waiting",
+//    Running : "Running",
+//    Starting : "Starting",
+//    Stopping : "Stopping"
+//};
+//
+//var currentState = hashProcessStates.Ready;
 
 var hashDirectory = {
     "Bank.CSV": "100, -50, 200, 300, -1000, 2000"
@@ -48,6 +48,7 @@ function onMessage(event) {
         } break;
         case "Create File": {
             console.log("Creating File");
+            hashDirectory[task.fileName] = "",
             arrOpenFiles.push({
                 nProcessID: task.ProcessID,
                 szFileName: task.fileName,
@@ -55,11 +56,9 @@ function onMessage(event) {
                 nPosition: 0,
                 nLength: 0
             });
-            //task.filePointer = arrProcessesQueue.length - 1;
             postMessage(task);
         } break;
         case "Delete File": {
-            //Do something with error code
             delete hashDirectory[task.fileName];
             postMessage(task);
         } break;
@@ -71,6 +70,8 @@ function onMessage(event) {
             postMessage(task);
         } break;
         case "Write File": {
+            hashDirectory[task.fileName] += task.data.match(/.{1,100}/g);
+            contents.log("Success, wrote to file");
             task.length = task.data.length;
             task.position = arrOpenFiles[task.filePointer].nPosition + 1;
             postMessage(task);
