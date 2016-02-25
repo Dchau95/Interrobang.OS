@@ -1,7 +1,4 @@
 onmessage = function (event){
-    console.log(event);
-    console.log(event.data);
-    console.log(event.data.data);
     console.log("Got the message");
     var arrCsv = event.data.data.toString();
     var derp = bankProcess(arrCsv);
@@ -20,5 +17,5 @@ function bankProcess (arrCsv) {
     }
     console.log("Finishing up bank process");
     console.log("Total balance: " + balance);
-    return balance;
+    return balance.toString();
 }

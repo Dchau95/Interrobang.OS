@@ -1,5 +1,14 @@
 var os = new OperatingSystem();
 
+var results = [
+    "Result1.CSV",
+    "Result2.CSV",
+    "Result3.CSV",
+    "Result4.CSV",
+    "Result5.CSV",
+    "Result6.CSV",
+]
+
 var hashProcessStates = {
     Ready : "Ready",
     Waiting : "Waiting",
@@ -10,13 +19,15 @@ var hashProcessStates = {
 
 var bankResult = 0;
 
+var read = "";
+
 var statesQueue = [
-//    { process1 : "Starting" },
-    { process2 : "Starting" },
-//    { process3 : "Waiting" },
-//    { process4 : "Waiting" },
-//    { process5 : "Waiting" },
-//    { process6 : "Waiting" }
+//    { process : "Starting" },
+    { process : "Starting" },
+//    { process : "Waiting" },
+//    { process : "Waiting" },
+//    { process : "Waiting" },
+//    { process : "Waiting" }
 ]
 
 var EOF = false;
@@ -46,6 +57,7 @@ function onMessageDevice(event) {
     var task = event.data;    
     console.log("Something here");
     if(task.sysCall === "Open File"){
+        read = task.Mode;
         whileLoop();
     }
     if(task.sysCall === "Read File"){
@@ -78,53 +90,65 @@ function testingInputOutput() {
 arrWorker[1].onmessage = function(e) {
     console.log(e.data);
     bankResult = e.data;
-    var check = os.endOfFile(1, "Bank.CSV");
-    console.log(check);
+    os.endOfFile(1, "Bank.CSV");
+    console.log(EOF);
+    if (EOF){
+        console.log("I got here");
+        os.create("Result.CSV", "Write");
+        os.write("Result.CSV", 1, bankResult);
+    }
+    //console.log(check);
     //whileLoop();
 }
 
 function whileLoop(){
     while (statesQueue.length != 0)
     {
-        if (statesQueue[0].process2 === "Starting")
+        //If statement checking from top to bottom 
+        //which one is in Running
+        if (statesQueue[0].process === "Starting")
         {
            console.log("Process 2 is Starting");
-           statesQueue[0].process2 = "Waiting";
+            os.open("Bank.CSV", "Read");
+           statesQueue[0].process = "Waiting";
         }
-        else if (statesQueue[0].process2 === "Waiting") 
+        else if (statesQueue[0].process === "Waiting") 
         {
             console.log("Process 2 is waiting");
-            statesQueue[0].process2 = "Ready";
-            os.open("Bank.CSV", "Read");
-            break;
-        }
-        else if (statesQueue[0].process2 === "Ready")
-        {
-            console.log("Process 2 is ready");
-            statesQueue[0].process2 = "Running";
-        }
-        else if (statesQueue[0].process2 === "Running")
-        {
-            console.log("Process 2 is running");
-            if(arrOpenFiles[1].szMode === "Read")
+            statesQueue[0].process = "Ready";
+            
+            if(read === "Read")
             {
                 os.read("Bank.CSV", 1)
-            }else if (aarrOpenFiles[].szMode === "Write"){
-                os.write("Result.CSV", -1, bankResult);
+            }            
+            break;
+        }
+        else if (statesQueue[0].process === "Ready")
+        {
+            console.log("Process 2 is ready");
+            statesQueue[0].process = "Running";
+        }
+        else if (statesQueue[0].process === "Running")
+        {
+            console.log("Process 2 is running");
+            if(read === "Read")
+            {
+                os.read("Bank.CSV", 1)
             }
-            
             os.endOfFile(1, "Bank.CSV");
             if(EOF){
-                statesQueue[0].process2 = "Stopping";
+                //os.create("Result.CSV", "Write");
+                //os.write("Result.CSV", -1, bankResult);
+                statesQueue[0].process = "Stopping";
             }else{
-                statesQueue[0].process2 = "Waiting"
+                statesQueue[0].process = "Waiting"
             }break;
         }
-        else if (statesQueue[0].process2 === "Stopping")
+        else if (statesQueue[0].process === "Stopping")
         {
             console.log("Process 2 has stopped");
             statesQueue.splice(0,1);
-        }   
+        }
     }
 }
 
@@ -156,7 +180,7 @@ function OperatingSystem() {
         var task = { 
             sysCall : "Open File", 
             fileName : fileName,
-            mode : mode,
+            Mode : mode,
         };
         device.postMessage(task);	
         setTimeout(open(fileName, mode), 5200);
@@ -195,7 +219,7 @@ function OperatingSystem() {
             sysCall : "Read File", 
             fileName: fileName,
             filePointer : position,
-            length : hashDirectory[fileName].length,
+            //length : hashDirectory[fileName].length,
         };
         device.postMessage(task);
         //setTimeout(read (fileName, position), 5200);
