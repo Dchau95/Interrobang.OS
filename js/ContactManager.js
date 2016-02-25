@@ -1,6 +1,7 @@
 function findContact(aryContactCsv) {
     "use strict";
     console.log("Starting up contact process");
+    if(aryContactCsv) {return; }
     var arrSplitContact = aryContactCsv.split(", ");
     var szContact = "Thomas";
     var arrContact = {};

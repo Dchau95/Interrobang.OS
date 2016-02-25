@@ -25,6 +25,7 @@ function OperatingSystem() {
      */
     this.close = function (fileName, filePointer) {
         var task = {
+            nProcessID: processNumberI,
             sysCall : "Close File",
             filePointer : filePointer
         };
@@ -37,6 +38,7 @@ function OperatingSystem() {
      */
     this.create = function (fileName, mode) {
         var task = {
+            nProcessID: processNumberI,
             sysCall : "Create File",
             name : fileName,
             mode : mode
@@ -49,6 +51,7 @@ function OperatingSystem() {
      */
     this.delet = function (fileName) {
         var task = {
+            nProcessID: processNumberI,
             sysCall : "Delete File",
             name : fileName
         };
@@ -76,6 +79,7 @@ function OperatingSystem() {
      */
     this.write = function (fileName, filePointer, contents) {
         var task = {
+            nProcessID: processNumberI,
             sysCall : "Write File",
             fileName: fileName,
             filePointer : filePointer,
@@ -90,6 +94,7 @@ function OperatingSystem() {
      */
     this.length = function (fileName, filePointer) {
         var task = {
+            nProcessID: processNumberI,
             sysCall : "Length of File",
             filePointer : filePointer
         };
@@ -103,6 +108,7 @@ function OperatingSystem() {
      */
     this.seek = function (fileName, position, filePointer) {
         var task = {
+            nProcessID: processNumberI,
             sysCall : "Seek Position",
             filePointer : filePointer,
             position : position
@@ -115,6 +121,7 @@ function OperatingSystem() {
      */
     this.position = function (filePointer) {
         var task = {
+            nProcessID: processNumberI,
             sysCall : "Position of File",
             filePointer : filePointer
         };
@@ -127,6 +134,7 @@ function OperatingSystem() {
      */
     this.endOfFile = function (filePointer, fileName) {
         var task = {
+            nProcessID: processNumberI,
             sysCall: "End of File",
             filePointer: filePointer,
             fileName: fileName,
@@ -241,6 +249,8 @@ function whileLoop() {
             console.log("Process " + statesQueue[processNumberI].processID + statesQueue[processNumberI].process);
         }
         if (statesQueue[processNumberI].process === "Stopping") {
+            //Although ContactManager process was at EOF and ContactManager's related index were supposed to be popped, it never really finished the last content of ContactManager and so that data was moved to BankProcess
+            
             console.log("Process " + statesQueue[processNumberI].processID + " has stopped");
             statesQueue.splice(processNumberI, 1);
             resultFiles.splice(processNumberI, 1);
@@ -260,7 +270,7 @@ function onMessageDevice(event) {
         whileLoop();
     }
     if (task.sysCall === "Read File") {
-        console.log("Syscall Read: We call the worker "+processNumberI);
+        console.log("Syscall Read: We call the worker "+task.nProcessID);
         arrWorker[task.nProcessID].postMessage(task);
     }
     if (task.sysCall === "Close File") {
@@ -291,7 +301,7 @@ function testingInputOutput() {
 //arrWorker[1...6] are functions that get the response from their respective processes
 arrWorker[1].onmessage = function (e) {
     console.log(e.data);
-    resultString[processNumberI] += e.data;
+    resultString[processNumberI] = e.data;
     os.endOfFile(processNumberI, arrDirectory[processNumberI]);
     console.log(EOF);
     if (EOF && e.data) {
@@ -304,7 +314,8 @@ arrWorker[1].onmessage = function (e) {
 
 arrWorker[2].onmessage = function (e) {
     console.log(e.data);
-    resultString[processNumberI] = e.data;
+    resultString[processNumberI] += e.data;
+    console.log(resultString[processNumberI]);
     os.endOfFile(processNumberI, arrDirectory[processNumberI]);
     console.log(EOF);
     if (EOF) {
