@@ -11,6 +11,7 @@ function OperatingSystem() {
      */
     this.open = function (fileName, mode) {
         var task = {
+            nProcessID: processNumberI,
             sysCall : "Open File",
             fileName : fileName,
             Mode : mode
@@ -60,6 +61,7 @@ function OperatingSystem() {
      */
     this.read = function (fileName, filePointer) {
         var task = {
+            nProcessID: processNumberI,
             sysCall : "Read File",
             fileName: fileName,
             filePointer : filePointer
@@ -190,12 +192,12 @@ var EOF = false;
 //Array of workers
 var arrWorker = [
     new Worker("main.js"),
-    new Worker("ContactManager.js"),
-    new Worker("BankProcess.js"),
-    new Worker("passwordchanger.js"),
-    new Worker("ReadFile.js"),
-    new Worker("StatisticsCalculate.js"),
-    new Worker("VectorCalculate.js")
+    contact = new Worker("ContactManager.js"),
+    bank = new Worker("BankProcess.js"),
+//    new Worker("passwordchanger.js"),
+//    new Worker("ReadFile.js"),
+//    new Worker("StatisticsCalculate.js"),
+//    new Worker("VectorCalculate.js")
 ];
 
 //Function that operates as the loop for the entire OS until there are no more processes left.
@@ -241,6 +243,10 @@ function whileLoop() {
         if (statesQueue[processNumberI].process === "Stopping") {
             console.log("Process " + statesQueue[processNumberI].processID + " has stopped");
             statesQueue.splice(processNumberI, 1);
+            resultFiles.splice(processNumberI, 1);
+            resultString.splice(processNumberI, 1);
+            arrDirectory.splice(processNumberI, 1);
+            arrWorker.splice(processNumberI, 1);
         }
     }
 }
@@ -254,8 +260,8 @@ function onMessageDevice(event) {
         whileLoop();
     }
     if (task.sysCall === "Read File") {
-        console.log("Syscall Read: We call the worker");
-        arrWorker[processNumberI].postMessage(task);
+        console.log("Syscall Read: We call the worker "+processNumberI);
+        arrWorker[task.nProcessID].postMessage(task);
     }
     if (task.sysCall === "Close File") {
         console.log(task.filePointer);
