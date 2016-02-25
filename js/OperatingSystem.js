@@ -175,13 +175,13 @@ var processNumberI = 0;
 
 //Queue/array for the states of the processes
 var statesQueue = [
-    { process: "Dummy"},
-    { process : "Starting" },
-    { process : "Starting" },
-//    { process : "Waiting" },
-//    { process : "Waiting" },
-//    { process : "Waiting" },
-//    { process : "Waiting" }
+    { process: "Dummy", processID: 0},
+    { process : "Starting", processID: 1},
+    { process : "Starting", processID: 2},
+//    { process : "Waiting", processID: 3},
+//    { process : "Waiting", processID: 4},
+//    { process : "Waiting", processID: 5 },
+//    { process : "Waiting", processID: 6 }
 ];
 
 //Global variable to know when a file is at the end 
@@ -201,7 +201,6 @@ var arrWorker = [
 //Function that operates as the loop for the entire OS until there are no more processes left.
 function whileLoop() {
     while (statesQueue.length !== 1) {
-        var ifs = processNumberI > statesQueue.length;
         if (processNumberI >= statesQueue.length - 1) {
             processNumberI = 0;
         }
@@ -210,11 +209,11 @@ function whileLoop() {
         //If statement checking from top to bottom 
         //which one is in Running
         if (statesQueue[processNumberI].process === "Starting") {
-            console.log("Process " + processNumberI + " is Starting");
+            console.log("Process " + statesQueue[processNumberI].processID + " is Starting");
             os.open(arrDirectory[processNumberI], "Read");
             statesQueue[processNumberI].process = "Waiting";
         } else if (statesQueue[processNumberI].process === "Waiting") {
-            console.log("Process " + processNumberI + " is waiting");
+            console.log("Process " + statesQueue[processNumberI].processID + " is waiting");
             statesQueue[processNumberI].process = "Ready";
             
 //            if(read === "Read")
@@ -223,10 +222,10 @@ function whileLoop() {
 //            }            
             break;
         } else if (statesQueue[processNumberI].process === "Ready") {
-            console.log("Process " + processNumberI + " is ready");
+            console.log("Process " + statesQueue[processNumberI].processID + " is ready");
             statesQueue[processNumberI].process = "Running";
         } else if (statesQueue[processNumberI].process === "Running") {
-            console.log("Process " + processNumberI + " is running");
+            console.log("Process " + statesQueue[processNumberI].processID + " is running");
             os.endOfFile(processNumberI, arrDirectory[processNumberI]);
             if (EOF) {
                 //os.create("Result.CSV", "Write");
@@ -237,10 +236,10 @@ function whileLoop() {
                 os.read(arrDirectory[processNumberI], processNumberI);
                 statesQueue[processNumberI].process = "Waiting";
             }
-            console.log(statesQueue[processNumberI].process);
+            console.log("Process " + statesQueue[processNumberI].processID + statesQueue[processNumberI].process);
         }
         if (statesQueue[processNumberI].process === "Stopping") {
-            console.log("Process " + processNumberI + " has stopped");
+            console.log("Process " + statesQueue[processNumberI].processID + " has stopped");
             statesQueue.splice(processNumberI, 1);
         }
     }
