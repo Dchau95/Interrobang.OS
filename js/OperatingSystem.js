@@ -274,7 +274,7 @@ function onMessageDevice(event) {
         arrWorker[task.nProcessID].postMessage(task);
     }
     if (task.sysCall === "Close File") {
-        console.log(task.filePointer);
+        console.log("We closed the damn file");
     }
     if (task.sysCall === "End of File") {
         console.log("Syscall End of File, we change EOF");
@@ -306,6 +306,7 @@ arrWorker[1].onmessage = function (e) {
     console.log(EOF);
     if (EOF && e.data) {
         console.log("This is the end of the file for process 1");
+        os.close(arrDirectory[processNumberI], processNumberI);
         os.create(resultFiles[processNumberI], "Write");
         os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
     }
@@ -320,6 +321,7 @@ arrWorker[2].onmessage = function (e) {
     console.log(EOF);
     if (EOF) {
         console.log("This is the end of the file for process 2");
+        os.close(arrDirectory[processNumberI], processNumberI);
         os.create(resultFiles[processNumberI], "Write");
         os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
     }
@@ -333,6 +335,7 @@ arrWorker[2].onmessage = function (e) {
 //    console.log(EOF);
 //    if (EOF){
 //        console.log("I got here");
+//        os.close(arrDirectory[processNumberI], processNumberI);
 //        os.create(resultFiles[processNumberI], "Write");
 //        os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
 //    }
@@ -346,6 +349,7 @@ arrWorker[2].onmessage = function (e) {
 //    console.log(EOF);
 //    if (EOF){
 //        console.log("I got here");
+//        os.close(arrDirectory[processNumberI], processNumberI);
 //        os.create(resultFiles[processNumberI], "Write");
 //        os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
 //    }
@@ -359,6 +363,7 @@ arrWorker[2].onmessage = function (e) {
 //    console.log(EOF);
 //    if (EOF){
 //        console.log("I got here");
+//        os.close(arrDirectory[processNumberI], processNumberI);
 //        os.create(resultFiles[processNumberI], "Write");
 //        os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
 //    }
@@ -372,6 +377,7 @@ arrWorker[2].onmessage = function (e) {
 //    console.log(EOF);
 //    if (EOF){
 //        console.log("I got here");
+//        os.close(arrDirectory[processNumberI], processNumberI);
 //        os.create(resultFiles[processNumberI], "Write");
 //        os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
 //    }

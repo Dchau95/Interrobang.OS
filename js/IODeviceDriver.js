@@ -36,13 +36,15 @@ function onMessage(event) {
                 nLength: (hashDirectory[task.fileName].match(/.{1,100}/g)).length,
                 contents: hashDirectory[task.fileName].match(/.{1,100}/g)
             });
-            console.log(arrOpenFiles[arrOpenFiles.length-1]);
+            console.log(arrOpenFiles[task.nProcessID]);
             postMessage(task);
         } break;
         case "Close File": {
             console.log("Closing File");
-           delete arrOpenFiles[task.filePointer]; 
-            task.filePointer = -1;
+            console.log(task.filePointer);
+            console.log(arrOpenFiles[task.filePointer]);
+            arrOpenFiles.splice(task.filePointer-1, 1); 
+            console.log(arrOpenFiles[task.filePointer-1]);
             postMessage(task);
         } break;
         case "Create File": {
@@ -55,6 +57,7 @@ function onMessage(event) {
                 nLength: 0,
                 contents: []
             });
+            console.log(arrOpenFiles[arrOpenFiles.length-1]);
             postMessage(task);
         } break;
         case "Delete File": {
@@ -67,12 +70,17 @@ function onMessage(event) {
             task.position = arrOpenFiles[task.filePointer].nPosition + 1;
             arrOpenFiles[task.filePointer].nPosition += 1;
             console.log("This is the data being read " + task.data);
+            console.log(arrOpenFiles[1]);
             postMessage(task);
         } break;
         case "Write File": {
             console.log("Writing File");
             console.log(task.data);
-            hashDirectory[task.fileName] += ((task.data).match(/.{1,100}/g)).toString();
+            if(task.data === parseInt(task.data, 10)){
+                hashDirectory[task.fileName] += ((task.data.toString()).match(/.{1,100}/g)).toString();
+            }else {
+                hashDirectory[task.fileName] += ((task.data).match(/.{1,100}/g)).toString();
+            }
             console.log("Success, wrote to file");
             task.length = task.data.length;
             task.position = (arrOpenFiles[task.filePointer].nPosition)+ 1;
@@ -91,6 +99,7 @@ function onMessage(event) {
             postMessage(task);
         } break;
         case "End of File": {
+            console.log(arrOpenFiles[arrOpenFiles.length-1]);
             if(arrOpenFiles[task.filePointer].nPosition === arrOpenFiles[task.filePointer].nLength-1)
             {
                 console.log("This is the end of the file, says the IO Device");
