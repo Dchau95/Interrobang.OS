@@ -1,13 +1,3 @@
-onmessage = function (event){
-    console.log(event);
-    console.log(event.data);
-    console.log(event.data.data);
-    console.log("Got the message");
-    var arrCsv = event.data.data.toString();
-    calculateStatistics(arrCsv);
-    postMessage()
-}
-
 function getMin(statInfo) {
     var minimum = 999;
     for (var i = 0; i < statInfo.length; i++){
@@ -70,5 +60,16 @@ function calculateStatistics(statInfoCsv) {
     var min = getMin(statInfo);
     console.log("Ending stats process");
     
-    return "Maximum = "+max+" Medium = "+median+" Mode = "+mode+" Mean = "+mean+" Minimum = "min;
+    return "Maximum = "+max+" Medium = "+median+" Mode = "+mode+" Mean = "+mean+" Minimum = "+min;
 } 
+
+//The function that signifies the message received from the OS.
+onmessage = function (event) {
+    console.log(event);
+    console.log(event.data);
+    console.log(event.data.data);
+    console.log("Got the message");
+    var arrCsv = event.data.data.toString();
+    var szResult = calculateStatistics(arrCsv);
+    postMessage(szResult);
+};

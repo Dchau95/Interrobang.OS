@@ -1,21 +1,11 @@
-onmessage = function (event){
-    console.log(event);
-    console.log(event.data);
-    console.log(event.data.data);
-    console.log("Got the message");
-    var arrCsv = event.data.data.toString();
-    findContact(arrCsv);
-    postMessage();
-}
-
 function findContact(aryContactCsv) {
     "use strict";
     console.log("Starting up contact process");
-    var str = aryContactCsv.split(", ");
-    var szContact = "Matt Wischoff";
+    var arrSplitContact = aryContactCsv.split(", ");
+    var szContact = "Thomas";
     var arrContact = {};
-    for (var nIndex = 0; nIndex<str.length; nIndex++){
-        var temp = str[nIndex].split(": ");
+    for (var nIndex = 0; nIndex<arrSplitContact.length; nIndex++){
+        var temp = arrSplitContact[nIndex].split(": ");
         arrContact[temp[0]] = temp[1];
     }
     if (szContact in arrContact){
@@ -23,3 +13,14 @@ function findContact(aryContactCsv) {
     }
     console.log("pausing contact process");
 }
+
+//The function that signifies the message received from the OS.
+onmessage = function (event) {
+    console.log(event);
+    console.log(event.data);
+    console.log(event.data.data);
+    console.log("Got the message");
+    var arrCsv = event.data.data;
+    var szResult = findContact(arrCsv);
+    postMessage(szResult);
+};

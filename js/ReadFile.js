@@ -1,13 +1,3 @@
-onmessage = function (event){
-    console.log(event);
-    console.log(event.data);
-    console.log(event.data.data);
-    console.log("Got the message");
-    var arrCsv = event.data.data.toString();
-    readFile(arrCsv);
-    postMessage();
-}
-
 function readFile(arrNum) {
     console.log("Starting extra process");
     var arrNumSplit = arrNum.split(", ");
@@ -15,3 +5,14 @@ function readFile(arrNum) {
     return arrNumSplit.join(", ");
     console.log("Ending extra process");
 }
+
+//The function that signifies the message received from the OS.
+onmessage = function (event) {
+    console.log(event);
+    console.log(event.data);
+    console.log(event.data.data);
+    console.log("Got the message");
+    var arrCsv = event.data.data;
+    var szResult = readFile(arrCsv);
+    postMessage(szResult);
+};
