@@ -128,7 +128,7 @@ function OperatingSystem() {
             sysCall: "End of File",
             filePointer: filePointer,
             fileName: fileName,
-            checkEOF: false
+            checkEOF: false,
         };
         device.postMessage(task);
     };
@@ -241,7 +241,7 @@ function whileLoop() {
         }
         if (statesQueue[processNumberI].process === "Stopping") {
             console.log("Process " + processNumberI + " has stopped");
-            statesQueue.splice(0, 1);
+            statesQueue.splice(processNumberI, 1);
         }
     }
 }
@@ -249,18 +249,22 @@ function whileLoop() {
 //Function that gets the response from the IODevice
 function onMessageDevice(event) {
     var task = event.data;
-    console.log("Something here");
+    console.log("Response from IO");
     if (task.sysCall === "Open File") {
+        console.log("Syscall Open: We go to while loop");
         whileLoop();
     }
     if (task.sysCall === "Read File") {
+        console.log("Syscall Read: We call the worker");
         arrWorker[processNumberI].postMessage(task);
     }
     if (task.sysCall === "Close File") {
         console.log(task.filePointer);
     }
     if (task.sysCall === "End of File") {
+        console.log("Syscall End of File, we change EOF");
         EOF = task.checkEOF;
+        console.log(task);
         //whileLoop();
     }
 }
@@ -282,11 +286,11 @@ function testingInputOutput() {
 //arrWorker[1...6] are functions that get the response from their respective processes
 arrWorker[1].onmessage = function (e) {
     console.log(e.data);
-    resultString[processNumberI] = e.data;
+    resultString[processNumberI] += e.data;
     os.endOfFile(1, arrDirectory[processNumberI]);
     console.log(EOF);
-    if (EOF) {
-        console.log("I got here");
+    if (EOF && e.data) {
+        console.log("This is the end of the file for process 1");
         os.create(resultFiles[processNumberI], "Write");
         os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
     }
@@ -299,7 +303,7 @@ arrWorker[2].onmessage = function (e) {
     os.endOfFile(1, arrDirectory[processNumberI]);
     console.log(EOF);
     if (EOF) {
-        console.log("I got here");
+        console.log("This is the end of the file for process 2");
         os.create(resultFiles[processNumberI], "Write");
         os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
     }

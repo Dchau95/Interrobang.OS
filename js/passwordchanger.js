@@ -18,19 +18,19 @@
 
 function passwordChanger(usrpwdlist) {
     console.log("Starting password process");
-    var username = "gamrgod88";
-    var password = "l337420";
-	var delimiters = /[,/:]/;
-	var usrpwdsplit = usrpwdlist.split(delimiters);
-	var returnstr = "";
+    var szUsername = "gamrgod88";
+    var szPassword = "l337420";
+	var szDelimiters = /[,/:]/;
+	var arrUsrpwdsplit = usrpwdlist.split(delimiters);
+	var szReturnstr = "";
 	for (var i = 0; i < usrpwdsplit.length; i += 2) {
-		if (usrpwdsplit[i] === username) {
-			usrpwdsplit[i + 1] = password;
+		if (arrUsrpwdsplit[i] === szUsername) {
+			arrUsrpwdsplit[i + 1] = szPassword;
 		}
-		returnstr = returnstr + usrpwdsplit[i] + ":" + usrpwdsplit[i + 1] + ",";
+		szReturnstr = szReturnstr + arrUsrpwdsplit[i] + ":" + arrUsrpwdsplit[i + 1] + ",";
 	}
     console.log("Ending password process");
-	return returnstr;
+	return szReturnstr;
 }
 
 //The function that signifies the message received from the OS.
@@ -40,6 +40,6 @@ onmessage = function (event) {
     console.log(event.data.data);
     console.log("Got the message");
     var arrCsv = event.data.data;
-    var result = passwordChanger(arrCsv);
-    postMessage(result);
+    var szResult = passwordChanger(arrCsv);
+    postMessage(szResult);
 };

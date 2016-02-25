@@ -1,11 +1,11 @@
 function findContact(aryContactCsv) {
     "use strict";
     console.log("Starting up contact process");
-    var str = aryContactCsv.split(", ");
+    var arrSplitContact = aryContactCsv.split(", ");
     var szContact = "Thomas";
     var arrContact = {};
-    for (var nIndex = 0; nIndex<str.length; nIndex++){
-        var temp = str[nIndex].split(": ");
+    for (var nIndex = 0; nIndex<arrSplitContact.length; nIndex++){
+        var temp = arrSplitContact[nIndex].split(": ");
         arrContact[temp[0]] = temp[1];
     }
     if (szContact in arrContact){
@@ -21,6 +21,6 @@ onmessage = function (event) {
     console.log(event.data.data);
     console.log("Got the message");
     var arrCsv = event.data.data;
-    var result = findContact(arrCsv);
-    postMessage(result);
+    var szResult = findContact(arrCsv);
+    postMessage(szResult);
 };

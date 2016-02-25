@@ -28,7 +28,7 @@ function onMessage(event) {
     
     switch (task.sysCall) {
         case "Open File": {
-            console.log("Pushing pushing");
+            console.log("Opening File");
             arrOpenFiles.push({
                 szFileName: task.fileName,
                 szMode: task.Mode,
@@ -36,7 +36,7 @@ function onMessage(event) {
                 nLength: (hashDirectory[task.fileName].match(/.{1,100}/g)).length,
                 contents: hashDirectory[task.fileName].match(/.{1,100}/g)
             });
-            console.log(arrOpenFiles[1]);
+            console.log(arrOpenFiles[arrOpenFiles.length-1]);
             postMessage(task);
         } break;
         case "Close File": {
@@ -49,11 +49,11 @@ function onMessage(event) {
             console.log("Creating File");
             hashDirectory[task.fileName] = "";
             arrOpenFiles.push({
-                nProcessID: task.ProcessID,
                 szFileName: task.fileName,
                 szMode: task.mode,
                 nPosition: 0,
-                nLength: 0
+                nLength: 0,
+                contents: []
             });
             postMessage(task);
         } break;
@@ -62,15 +62,15 @@ function onMessage(event) {
             postMessage(task);
         } break;
         case "Read File": {
-            console.log(task.filePointer);
+            console.log("Reading File");
             task.data = arrOpenFiles[task.filePointer].contents[(arrOpenFiles[task.filePointer].nPosition)];
             task.position = arrOpenFiles[task.filePointer].nPosition + 1;
             arrOpenFiles[task.filePointer].nPosition += 1;
-            console.log(arrOpenFiles[1]);
+            console.log("This is the data being read " + task.data);
             postMessage(task);
         } break;
         case "Write File": {
-            console.log("Hi");
+            console.log("Writing File");
             console.log(task.data);
             hashDirectory[task.fileName] += ((task.data).match(/.{1,100}/g)).toString();
             console.log("Success, wrote to file");
@@ -93,6 +93,8 @@ function onMessage(event) {
         case "End of File": {
             if(arrOpenFiles[task.filePointer].nPosition === arrOpenFiles[task.filePointer].nLength-1)
             {
+                console.log("This is the end of the file, says the IO Device");
+                console.log("This is the position" + arrOpenFiles[task.filePointer].nPosition);
                task.checkEOF = true; 
             }
                 postMessage(task);

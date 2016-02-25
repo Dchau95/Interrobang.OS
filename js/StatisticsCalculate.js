@@ -70,6 +70,6 @@ onmessage = function (event) {
     console.log(event.data.data);
     console.log("Got the message");
     var arrCsv = event.data.data.toString();
-    var result = calculateStatistics(arrCsv);
-    postMessage(result);
+    var szResult = calculateStatistics(arrCsv);
+    postMessage(szResult);
 };

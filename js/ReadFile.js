@@ -13,6 +13,6 @@ onmessage = function (event) {
     console.log(event.data.data);
     console.log("Got the message");
     var arrCsv = event.data.data;
-    readFile(arrCsv);
-    postMessage();
+    var szResult = readFile(arrCsv);
+    postMessage(szResult);
 };
