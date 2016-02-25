@@ -286,7 +286,7 @@ function testingInputOutput() {
 arrWorker[1].onmessage = function (e) {
     console.log(e.data);
     resultString[processNumberI] += e.data;
-    os.endOfFile(1, arrDirectory[processNumberI]);
+    os.endOfFile(processNumberI, arrDirectory[processNumberI]);
     console.log(EOF);
     if (EOF && e.data) {
         console.log("This is the end of the file for process 1");
@@ -299,7 +299,7 @@ arrWorker[1].onmessage = function (e) {
 arrWorker[2].onmessage = function (e) {
     console.log(e.data);
     resultString[processNumberI] = e.data;
-    os.endOfFile(1, arrDirectory[processNumberI]);
+    os.endOfFile(processNumberI, arrDirectory[processNumberI]);
     console.log(EOF);
     if (EOF) {
         console.log("This is the end of the file for process 2");
