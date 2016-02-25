@@ -16,7 +16,25 @@
 *	A string similar to the usrpwdlist string passed in, but with the password changed
 *	for the appropriate username															*/
 
-onmessage = function (event){
+function passwordChanger(usrpwdlist) {
+    console.log("Starting password process");
+    var username = "gamrgod88";
+    var password = "l337420";
+	var delimiters = /[,/:]/;
+	var usrpwdsplit = usrpwdlist.split(delimiters);
+	var returnstr = "";
+	for (var i = 0; i < usrpwdsplit.length; i += 2) {
+		if (usrpwdsplit[i] === username) {
+			usrpwdsplit[i + 1] = password;
+		}
+		returnstr = returnstr + usrpwdsplit[i] + ":" + usrpwdsplit[i + 1] + ",";
+	}
+    console.log("Ending password process");
+	return returnstr;
+}
+
+//The function that signifies the message received from the OS.
+onmessage = function (event) {
     console.log(event);
     console.log(event.data);
     console.log(event.data.data);
@@ -24,21 +42,4 @@ onmessage = function (event){
     var arrCsv = event.data.data;
     var result = passwordChanger(arrCsv);
     postMessage(result);
-}
-
-function passwordChanger(usrpwdlist){
-    console.log("Starting password process");
-    var username = "gamrgod88";
-    var password = "l337420";
-	var delimiters = /[,/:]/;
-	var usrpwdsplit = usrpwdlist.split(delimiters);
-	var returnstr = "";
-	for (i = 0; i < usrpwdsplit.length; i+= 2 ){
-		if (usrpwdsplit[i] == username){
-			usrpwdsplit[i+1] = password;
-		}
-		returnstr = returnstr + usrpwdsplit[i] + ":" + usrpwdsplit[i+1] + ",";
-	}
-    console.log("Ending password process");
-	return returnstr;
-}
+};

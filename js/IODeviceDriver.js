@@ -1,34 +1,28 @@
 /*jslint white: true */
-//var hashProcessStates = {
-//    Ready : "Ready",
-//    Waiting : "Waiting",
-//    Running : "Running",
-//    Starting : "Starting",
-//    Stopping : "Stopping"
-//};
-//
-//var currentState = hashProcessStates.Ready;
 
+//A hash where each CSV maps to its respective content
 var hashDirectory = {
-    "Contact.CSV": "David: Secretary, Tony: Gangster, Jason: Dancer, Benson: Duke, Andrew: Gangster, Thomas: Traitor",
+    "Contact.CSV": "David: Secretary, Tony: Gangster, Jason: Dancer, Benson: Duke, Andrew: Gangster, Thomas: Traitor, Matt: Lame",
     "Bank.CSV": "100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000",
     "password.CSV": "",
     "read.CSV": "",
     "stats.CSV": "",
-    "vector.CSV": "",
+    "vector.CSV": ""
 };
 
+//An array of hashes, the array signifies which files are currently open. Inside the elements are need
+//to know data of the open files.
 var arrOpenFiles = [
     {
-        nProcessID: 0,
         szFileName: "",
         szMode: "",
         nPosition: 0,
         nLength: 0,
-        contents: [],
+        contents: []
     }
 ];
 
+//The function where the IODevice received its messages from the OS
 function onMessage(event) {
     var task = event.data;
     
@@ -36,7 +30,6 @@ function onMessage(event) {
         case "Open File": {
             console.log("Pushing pushing");
             arrOpenFiles.push({
-                nProcessID: task.ProcessID,
                 szFileName: task.fileName,
                 szMode: task.Mode,
                 nPosition: 0,
@@ -54,7 +47,7 @@ function onMessage(event) {
         } break;
         case "Create File": {
             console.log("Creating File");
-            hashDirectory[task.fileName] = "",
+            hashDirectory[task.fileName] = "";
             arrOpenFiles.push({
                 nProcessID: task.ProcessID,
                 szFileName: task.fileName,
@@ -86,7 +79,7 @@ function onMessage(event) {
             postMessage(task);
         } break;
         case "Length of File": {        
-            task.length = hashDirectory[fileName].length;
+            task.length = hashDirectory[task.fileName].length;
             postMessage (task);
         } break;
         case "Seek": {

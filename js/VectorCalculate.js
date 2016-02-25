@@ -1,13 +1,3 @@
-onmessage = function (event){
-    console.log(event);
-    console.log(event.data);
-    console.log(event.data.data);
-    console.log("Got the message");
-    var arrCsv = event.data.data.toString();
-    var result = getFinalVector(arrCsv);
-    postMessage(result);
-}
-
 function getFinalVector(vectorListCsv) {
     console.log("Starting vector process");
     var vectorList = vectorListCsv.split(", ");
@@ -23,3 +13,14 @@ function getFinalVector(vectorListCsv) {
     console.log("Ending vector process");
     return "<" + finalVector + ">";
 }
+
+//The function that signifies the message received from the OS.
+onmessage = function (event) {
+    console.log(event);
+    console.log(event.data);
+    console.log(event.data.data);
+    console.log("Got the message");
+    var arrCsv = event.data.data.toString();
+    var result = getFinalVector(arrCsv);
+    postMessage(result);
+};
