@@ -10,7 +10,7 @@
 //var currentState = hashProcessStates.Ready;
 
 var hashDirectory = {
-    "Bank.CSV": "100, -50, 200, 300, -1000, 2000"
+    "Bank.CSV": "100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000"
 };
 
 var arrOpenFiles = [
@@ -65,7 +65,7 @@ function onMessage(event) {
         } break;
         case "Read File": {
             console.log(task.filePointer);
-            task.data = arrOpenFiles[task.filePointer].contents;
+            task.data = arrOpenFiles[task.filePointer].contents[(arrOpenFiles[task.filePointer].nPosition)];
             task.position = arrOpenFiles[task.filePointer].nPosition + 1;
             arrOpenFiles[task.filePointer].nPosition += 1;
             console.log(arrOpenFiles[1]);

@@ -1,25 +1,38 @@
 var os = new OperatingSystem();
 
-var results = [
+var resultString = {
+    contactResult: "",
+    bankResult: 0,
+    passwordResult: "",
+    readResult: "",
+    statsResult: "",
+    vectorResult: ""
+}
+
+var resultFiles = [
     "Result1.CSV",
     "Result2.CSV",
     "Result3.CSV",
     "Result4.CSV",
     "Result5.CSV",
     "Result6.CSV",
-]
+];
 
-var hashProcessStates = {
-    Ready : "Ready",
-    Waiting : "Waiting",
-    Running : "Running",
-    Starting : "Starting",
-    Stopping : "Stopping"
-};
+var arrDirectory = [
+    "Contact.CSV",
+    "Bank.CSV",
+    "password.CSV",
+    "read.CSV",
+    "stats.CSV",
+    "vector.CSV"
+]
 
 var bankResult = 0;
 
 var read = "";
+
+var programCounter = 0;
+var processNumberI = 0;
 
 var statesQueue = [
 //    { process : "Starting" },
@@ -98,7 +111,7 @@ arrWorker[1].onmessage = function(e) {
         os.write("Result.CSV", 1, bankResult);
     }
     //console.log(check);
-    //whileLoop();
+    whileLoop();
 }
 
 function whileLoop(){
@@ -106,29 +119,29 @@ function whileLoop(){
     {
         //If statement checking from top to bottom 
         //which one is in Running
-        if (statesQueue[0].process === "Starting")
+        if (statesQueue[processNumberI].process === "Starting")
         {
            console.log("Process 2 is Starting");
             os.open("Bank.CSV", "Read");
            statesQueue[0].process = "Waiting";
         }
-        else if (statesQueue[0].process === "Waiting") 
+        else if (statesQueue[processNumberI].process === "Waiting") 
         {
             console.log("Process 2 is waiting");
-            statesQueue[0].process = "Ready";
+            statesQueue[processNumberI].process = "Ready";
             
-            if(read === "Read")
-            {
-                os.read("Bank.CSV", 1)
-            }            
+//            if(read === "Read")
+//            {
+//                os.read("Bank.CSV", 1)
+//            }            
             break;
         }
-        else if (statesQueue[0].process === "Ready")
+        else if (statesQueue[processNumberI].process === "Ready")
         {
             console.log("Process 2 is ready");
-            statesQueue[0].process = "Running";
+            statesQueue[processNumberI].process = "Running";
         }
-        else if (statesQueue[0].process === "Running")
+        else if (statesQueue[processNumberI].process === "Running")
         {
             console.log("Process 2 is running");
             if(read === "Read")
@@ -136,15 +149,18 @@ function whileLoop(){
                 os.read("Bank.CSV", 1)
             }
             os.endOfFile(1, "Bank.CSV");
-            if(EOF){
+            if(EOF)
+            {
                 //os.create("Result.CSV", "Write");
                 //os.write("Result.CSV", -1, bankResult);
-                statesQueue[0].process = "Stopping";
-            }else{
-                statesQueue[0].process = "Waiting"
-            }break;
+                statesQueue[processNumberI].process = "Stopping";
+            }else
+            {
+                statesQueue[processNumberI].process = "Waiting";
+            }
+            console.log(statesQueue[0].process);
         }
-        else if (statesQueue[0].process === "Stopping")
+        if (statesQueue[processNumberI].process === "Stopping")
         {
             console.log("Process 2 has stopped");
             statesQueue.splice(0,1);
