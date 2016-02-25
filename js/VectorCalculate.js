@@ -4,8 +4,8 @@ onmessage = function (event){
     console.log(event.data.data);
     console.log("Got the message");
     var arrCsv = event.data.data.toString();
-    getFinalVector(arrCsv);
-    postMessage()
+    var result = getFinalVector(arrCsv);
+    postMessage(result);
 }
 
 function getFinalVector(vectorListCsv) {

@@ -1,41 +1,44 @@
 var os = new OperatingSystem();
 
-var resultString = {
-    contactResult: "",
-    bankResult: 0,
-    passwordResult: "",
-    readResult: "",
-    statsResult: "",
-    vectorResult: ""
-}
+var resultString = [
+    "dummy",
+    "",
+    0,
+//    "",
+//    "",
+//    "",
+//    ""
+]
 
 var resultFiles = [
+    "ResultDummy",
     "Result1.CSV",
     "Result2.CSV",
-    "Result3.CSV",
-    "Result4.CSV",
-    "Result5.CSV",
-    "Result6.CSV",
+//    "Result3.CSV",
+//    "Result4.CSV",
+//    "Result5.CSV",
+//    "Result6.CSV",
 ];
 
 var arrDirectory = [
+    "Dummy.CSV",
     "Contact.CSV",
     "Bank.CSV",
-    "password.CSV",
-    "read.CSV",
-    "stats.CSV",
-    "vector.CSV"
+//    "password.CSV",
+//    "read.CSV",
+//    "stats.CSV",
+//    "vector.CSV"
 ]
 
 var bankResult = 0;
 
 var read = "";
 
-var programCounter = 0;
 var processNumberI = 0;
 
 var statesQueue = [
-//    { process : "Starting" },
+    { process: "Dummy"},
+    { process : "Starting" },
     { process : "Starting" },
 //    { process : "Waiting" },
 //    { process : "Waiting" },
@@ -46,6 +49,7 @@ var statesQueue = [
 var EOF = false;
 
 var arrWorker = [
+    new Worker("main.js"),
     new Worker("ContactManager.js"),
     new Worker("BankProcess.js"),
     new Worker("passwordchanger.js"),
@@ -74,7 +78,7 @@ function onMessageDevice(event) {
         whileLoop();
     }
     if(task.sysCall === "Read File"){
-        arrWorker[1].postMessage(task);
+        arrWorker[processNumberI].postMessage(task);
     }
     if(task.sysCall==="Close File"){
        console.log(task.filePointer);
@@ -87,7 +91,6 @@ function onMessageDevice(event) {
 
 function testingInputOutput() {
     "use strict";
-    console.log("Something here 1");
 //    if (arrWorker[0]) {
 //        console.log("Something here 2");
 //        return;
@@ -96,38 +99,46 @@ function testingInputOutput() {
     device = new Worker("IODeviceDriver.js");
     device.onmessage = onMessageDevice;
     
-    console.log("Something here 3");
-    
     whileLoop();
 }
-arrWorker[1].onmessage = function(e) {
+
+
+
+arrWorker[processNumberI].onmessage = function(e) {
     console.log(e.data);
-    bankResult = e.data;
-    os.endOfFile(1, "Bank.CSV");
+    resultString[processNumberI] = e.data;
+    os.endOfFile(1, arrDirectory[processNumberI]);
     console.log(EOF);
     if (EOF){
         console.log("I got here");
-        os.create("Result.CSV", "Write");
-        os.write("Result.CSV", 1, bankResult);
+        os.create(resultFiles[processNumberI], "Write");
+        os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
     }
     //console.log(check);
     whileLoop();
 }
 
 function whileLoop(){
-    while (statesQueue.length != 0)
+    while (statesQueue.length != 1)
     {
+        var ifs = processNumberI > statesQueue.length;
+        if (processNumberI >= statesQueue.length-1)
+            {
+                processNumberI = 0;
+            }
+        processNumberI += 1;
+        console.log("Right fucking here "+processNumberI);
         //If statement checking from top to bottom 
         //which one is in Running
         if (statesQueue[processNumberI].process === "Starting")
         {
-           console.log("Process 2 is Starting");
-            os.open("Bank.CSV", "Read");
-           statesQueue[0].process = "Waiting";
+           console.log("Process " + processNumberI + " is Starting");
+            os.open(arrDirectory[processNumberI], "Read");
+           statesQueue[processNumberI].process = "Waiting";
         }
         else if (statesQueue[processNumberI].process === "Waiting") 
         {
-            console.log("Process 2 is waiting");
+            console.log("Process " +processNumberI + " is waiting");
             statesQueue[processNumberI].process = "Ready";
             
 //            if(read === "Read")
@@ -138,17 +149,13 @@ function whileLoop(){
         }
         else if (statesQueue[processNumberI].process === "Ready")
         {
-            console.log("Process 2 is ready");
+            console.log("Process " + processNumberI + " is ready");
             statesQueue[processNumberI].process = "Running";
         }
         else if (statesQueue[processNumberI].process === "Running")
         {
-            console.log("Process 2 is running");
-            if(read === "Read")
-            {
-                os.read("Bank.CSV", 1)
-            }
-            os.endOfFile(1, "Bank.CSV");
+            console.log("Process " + processNumberI + " is running");
+            os.endOfFile(processNumberI, arrDirectory[processNumberI]);
             if(EOF)
             {
                 //os.create("Result.CSV", "Write");
@@ -156,13 +163,14 @@ function whileLoop(){
                 statesQueue[processNumberI].process = "Stopping";
             }else
             {
+                os.read(arrDirectory[processNumberI], processNumberI);
                 statesQueue[processNumberI].process = "Waiting";
             }
-            console.log(statesQueue[0].process);
+            console.log(statesQueue[processNumberI].process);
         }
         if (statesQueue[processNumberI].process === "Stopping")
         {
-            console.log("Process 2 has stopped");
+            console.log("Process " + processNumberI + " has stopped");
             statesQueue.splice(0,1);
         }
     }
@@ -187,8 +195,6 @@ function stopInputOutput() {
 function OperatingSystem() {
     "use strict";
 
-    this.message = null;
-    
     //Mode: read or write
     //Flags
     //return error code or nothing

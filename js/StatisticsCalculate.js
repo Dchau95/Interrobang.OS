@@ -4,8 +4,8 @@ onmessage = function (event){
     console.log(event.data.data);
     console.log("Got the message");
     var arrCsv = event.data.data.toString();
-    calculateStatistics(arrCsv);
-    postMessage()
+    var result = calculateStatistics(arrCsv);
+    postMessage(result);
 }
 
 function getMin(statInfo) {

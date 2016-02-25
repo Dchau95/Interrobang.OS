@@ -21,9 +21,9 @@ onmessage = function (event){
     console.log(event.data);
     console.log(event.data.data);
     console.log("Got the message");
-    var arrCsv = event.data.data.toString();
-    passwordChanger(arrCsv);
-    postMessage();
+    var arrCsv = event.data.data;
+    var result = passwordChanger(arrCsv);
+    postMessage(result);
 }
 
 function passwordChanger(usrpwdlist){

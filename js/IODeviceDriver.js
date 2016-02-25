@@ -10,7 +10,12 @@
 //var currentState = hashProcessStates.Ready;
 
 var hashDirectory = {
-    "Bank.CSV": "100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000"
+    "Contact.CSV": "David: Secretary, Tony: Gangster, Jason: Dancer, Benson: Duke, Andrew: Gangster, Thomas: Traitor",
+    "Bank.CSV": "100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000",
+    "password.CSV": "",
+    "read.CSV": "",
+    "stats.CSV": "",
+    "vector.CSV": "",
 };
 
 var arrOpenFiles = [
@@ -93,7 +98,7 @@ function onMessage(event) {
             postMessage(task);
         } break;
         case "End of File": {
-            if(arrOpenFiles[task.filePointer].nPosition === arrOpenFiles[task.filePointer].nLength)
+            if(arrOpenFiles[task.filePointer].nPosition === arrOpenFiles[task.filePointer].nLength-1)
             {
                task.checkEOF = true; 
             }

@@ -3,9 +3,9 @@ onmessage = function (event){
     console.log(event.data);
     console.log(event.data.data);
     console.log("Got the message");
-    var arrCsv = event.data.data.toString();
-    findContact(arrCsv);
-    postMessage();
+    var arrCsv = event.data.data;
+    var result = findContact(arrCsv);
+    postMessage(result);
 }
 
 function findContact(aryContactCsv) {
