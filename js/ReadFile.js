@@ -4,7 +4,7 @@ function readFile(arrNum) {
     if(typeof arrNum === 'undefined') {
         return "undefined";
     }
-    var arrNumSplit = arrNum.split(", ");
+    var arrNumSplit = arrNum.split(", ").map(Number);
     arrNumSplit.sort();
     return arrNumSplit.join(", ");
     console.log("Ending extra process");

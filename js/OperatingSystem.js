@@ -1,4 +1,7 @@
-//NEED TO KEEP PROCESSNUMBERI IN INDEXDB
+//POSSIBLE THINGS TO FIX:
+//NEED TO KEEP PROCESSNUMBERI IN INDEXDB?
+//At five processes, there's a 50-75% chance that the OS will run into an infinite loop, one of the processes thinks it can still get data
+//Seems like bank process might be the one giving problems?
 
 //The IO device driver
 var device = null;
@@ -286,9 +289,7 @@ function onMessageDevice(event) {
         console.log("Syscall End of File, we change EOF");
         console.log(processNumberI);
         console.log(statesQueue[processNumberI]);
-        if(typeof statesQueue[processNumberI] !== 'undefined'){
-            statesQueue[processNumberI].EOF = task.checkEOF;
-        }
+        statesQueue[processNumberI].EOF = task.checkEOF;
         console.log(task);
     }
 }
@@ -329,7 +330,8 @@ arrWorker[1].onmessage = function (e) {
 
 arrWorker[2].onmessage = function (e) {
     document.getElementById("output").innerHTML += "<p>Process 2 has responded with data</p>";
-    resultString[processNumberI] += e.data;
+    if(e.data !== "undefined")
+        resultString[processNumberI] += e.data;
     console.log("Result of worker 2 "+resultString[processNumberI]);
     os.endOfFile(processNumberI, arrDirectory[processNumberI]);
     console.log(statesQueue[processNumberI].EOF);
