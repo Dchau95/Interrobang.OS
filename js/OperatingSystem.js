@@ -220,9 +220,11 @@ var arrWorker = [
     //stats = new Worker("StatisticsCalculate.js")
 ];
 
+var nStatesLength = statesQueue.length;
+
 //Function that operates as the loop for the entire OS until there are no more processes left.
 function whileLoop() {
-    while (statesQueue.length !== 1) {
+    while (nStatesLength !== 1) {
         if (processNumberI >= statesQueue.length - 1) {
             processNumberI = 0;
         }
@@ -257,11 +259,15 @@ function whileLoop() {
         } else if (statesQueue[processNumberI].process === "Stopping") {
             document.getElementById("output").innerHTML += "<p>Process "+statesQueue[processNumberI].processID+" is Stopping</p>";
             console.log("Process " + statesQueue[processNumberI].processID + " has stopped");
-            statesQueue.splice(processNumberI, 1);
-            resultFiles.splice(processNumberI, 1);
-            resultString.splice(processNumberI, 1);
-            arrDirectory.splice(processNumberI, 1);
-            arrWorker.splice(processNumberI, 1);
+            statesQueue[processNumberI].process = "Stopped";
+            nStatesLength-=1;
+//            statesQueue.splice(processNumberI, 1);
+//            resultFiles.splice(processNumberI, 1);
+//            resultString.splice(processNumberI, 1);
+//            arrDirectory.splice(processNumberI, 1);
+//            arrWorker.splice(processNumberI, 1);
+        } else if (statesQueue[processNumberI].process === "Stopped") {
+            continue;
         }
     }
 }
