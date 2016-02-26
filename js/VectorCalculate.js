@@ -3,13 +3,15 @@ function getFinalVector(vectorListCsv) {
     if(typeof vectorListCsv === 'undefined') {
         return "undefined";
     }
+    console.log(vectorListCsv);
     var arrVectorList = vectorListCsv.split(", ");
+    console.log(arrVectorList);
     var arrFinalVector = [0, 0, 0];
     var components = [0, 0, 0];
-    for (var i = 0; i < vectorListCsv.length; i++) {
-        var currentVector = vectorListCsv[i].split(",");        
+    for (var i = 0; i < arrVectorList.length; i++) {
+        var currentVector = arrVectorList[i].split(",");        
         for (var j = 0; j < 3; j++)
-            components[j] = currentVector[j].match(/[-]|[.]|\d/g).join("");        
+            components[j] = currentVector[j].match(/[-]|[.]|\d/g).join("");
         for (var k = 0; k < 3; k++)
             arrFinalVector[k] += parseFloat(components[k]);
     }
