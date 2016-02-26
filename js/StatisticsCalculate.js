@@ -51,6 +51,9 @@ function getMax(statInfo) {
 
 function calculateStatistics(statInfoCsv) {
     console.log("Starting stats process");
+    if(typeof statsInfoCsv === 'undefined') {
+        return "undefined";
+    }
     var statInfo = statInfoCsv.split(", ").map(Number);
     
     var max = getMax(statInfo);

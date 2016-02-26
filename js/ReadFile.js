@@ -1,5 +1,9 @@
 function readFile(arrNum) {
     console.log("Starting extra process");
+    console.log(arrNum);
+    if(typeof arrNum === 'undefined') {
+        return "undefined";
+    }
     var arrNumSplit = arrNum.split(", ");
     arrNumSplit.sort();
     return arrNumSplit.join(", ");

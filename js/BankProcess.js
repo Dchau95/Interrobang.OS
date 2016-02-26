@@ -1,6 +1,9 @@
 function bankProcess (arrCsv) {
     console.log("Starting up bankprocess");
     console.log(arrCsv);
+    if(typeof arrCsv === 'undefined') {
+        return "undefined";
+    }
     var arr = arrCsv.split(", ");
     var balance = 0;
 

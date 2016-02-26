@@ -1,5 +1,8 @@
 function getFinalVector(vectorListCsv) {
     console.log("Starting vector process");
+    if(typeof vectorListCsv === 'undefined') {
+        return "undefined";
+    }
     var arrVectorList = vectorListCsv.split(", ");
     var arrFinalVector = [0, 0, 0];
     var components = [0, 0, 0];

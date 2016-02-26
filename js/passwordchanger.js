@@ -17,17 +17,20 @@
 *	for the appropriate username															*/
 
 function passwordChanger(usrpwdlist) {
+    if(typeof usrpwdlist === 'undefined') {
+        return "undefined";
+    }
     console.log("Starting password process");
     var szUsername = "gamrgod88";
     var szPassword = "l337420";
 	var szDelimiters = /[,/:]/;
-	var arrUsrpwdsplit = usrpwdlist.split(delimiters);
+	var arrUsrpwdsplit = usrpwdlist.split(szDelimiters);
 	var szReturnstr = "";
-	for (var i = 0; i < usrpwdsplit.length; i += 2) {
+	for (var i = 0; i < arrUsrpwdsplit.length; i += 2) {
 		if (arrUsrpwdsplit[i] === szUsername) {
 			arrUsrpwdsplit[i + 1] = szPassword;
+            return arrUsrpwdsplit[i] + ":" + arrUsrpwdsplit[i + 1]
 		}
-		szReturnstr = szReturnstr + arrUsrpwdsplit[i] + ":" + arrUsrpwdsplit[i + 1] + ",";
 	}
     console.log("Ending password process");
 	return szReturnstr;
