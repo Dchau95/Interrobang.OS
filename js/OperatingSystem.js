@@ -40,7 +40,7 @@ function OperatingSystem() {
         var task = {
             nProcessID: processNumberI,
             sysCall : "Create File",
-            name : fileName,
+            fileName : fileName,
             mode : mode
         };
         device.postMessage(task);
@@ -53,7 +53,7 @@ function OperatingSystem() {
         var task = {
             nProcessID: processNumberI,
             sysCall : "Delete File",
-            name : fileName
+            fileName : fileName
         };
         device.postMessage(task);
     };
@@ -304,12 +304,13 @@ arrWorker[1].onmessage = function (e) {
     resultString[processNumberI] = e.data;
     os.endOfFile(processNumberI, arrDirectory[processNumberI]);
     console.log(statesQueue[processNumberI].EOF);
-    if(e.data === "undefined" || statesQueue[processNumberI].EOF){
+    if(e.data === "undefined"){
         os.close(arrDirectory[processNumberI], processNumberI);
         statesQueue[processNumberI].process = "Stopping";
-    }
-    if (statesQueue[processNumberI].EOF && e.data !== "undefined") {
+    } else if (statesQueue[processNumberI].EOF || e.data !== "undefined") {
         console.log("This is the end of the file for process 1");
+        statesQueue[processNumberI].process = "Stopping";
+        os.close(arrDirectory[processNumberI], processNumberI);
         os.create(resultFiles[processNumberI], "Write");
         os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
     }
