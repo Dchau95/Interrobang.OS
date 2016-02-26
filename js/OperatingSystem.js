@@ -307,6 +307,7 @@ function testingInputOutput() {
 
 //arrWorker[1...6] are functions that get the response from their respective processes
 arrWorker[1].onmessage = function (e) {
+    document.getElementById("output").innerHTML += "<p>Process 1 has responded with data</p>";
     console.log(e.data);
     resultString[processNumberI] = e.data;
     os.endOfFile(processNumberI, arrDirectory[processNumberI]);
@@ -326,6 +327,7 @@ arrWorker[1].onmessage = function (e) {
 };
 
 arrWorker[2].onmessage = function (e) {
+    document.getElementById("output").innerHTML += "<p>Process 2 has responded with data</p>";
     console.log(e.data);
     resultString[processNumberI] += e.data;
     console.log(resultString[processNumberI]);
@@ -347,6 +349,7 @@ arrWorker[2].onmessage = function (e) {
 };
 
 arrWorker[3].onmessage = function(e) {
+    document.getElementById("output").innerHTML += "<p>Process 3 has responded with data</p>";
     console.log(e.data);
     resultString[processNumberI] = e.data;
     os.endOfFile(processNumberI, arrDirectory[processNumberI]);
@@ -366,6 +369,7 @@ arrWorker[3].onmessage = function(e) {
 }
 
 arrWorker[4].onmessage = function(e) {
+    document.getElementById("output").innerHTML += "<p>Process 4 has responded with data</p>";
     console.log(e.data);
     resultString[processNumberI] += ", "+e.data;
     os.endOfFile(processNumberI, arrDirectory[processNumberI]);
@@ -386,6 +390,7 @@ arrWorker[4].onmessage = function(e) {
 }
 
 //arrWorker[5].onmessage = function(e) {
+//    document.getElementById("output").innerHTML += "<p>Process 5 has responded with data</p>";
 //    console.log(e.data);
 //    resultString[processNumberI] = e.data;
 //    os.endOfFile(processNumberI, arrDirectory[processNumberI]);
@@ -394,6 +399,7 @@ arrWorker[4].onmessage = function(e) {
 //        os.close(arrDirectory[processNumberI], processNumberI);
 //        statesQueue[processNumberI].process = "Stopping";
 //    } else if (statesQueue[processNumberI].EOF || e.data !== "undefined") {
+//        document.getElementById("output").innerHTML += "<p>This is the end of the file for process 5</p>";
 //        console.log("This is the end of the file for process 5");
 //        statesQueue[processNumberI].process = "Stopping";
 //        os.close(arrDirectory[processNumberI], processNumberI);
@@ -404,6 +410,7 @@ arrWorker[4].onmessage = function(e) {
 //}
 //
 //arrWorker[6].onmessage = function(e) {
+//    document.getElementById("output").innerHTML += "<p>Process 6 has responded with data</p>";
 //    console.log(e.data);
 //    resultString[processNumberI] = e.data;
 //    os.endOfFile(processNumberI, arrDirectory[processNumberI]);
@@ -412,6 +419,7 @@ arrWorker[4].onmessage = function(e) {
 //        os.close(arrDirectory[processNumberI], processNumberI);
 //        statesQueue[processNumberI].process = "Stopping";
 //    } else if (statesQueue[processNumberI].EOF || e.data !== "undefined") {
+//        document.getElementById("output").innerHTML += "<p>This is the end of the file for process 6</p>";
 //        console.log("This is the end of the file for process 6");
 //        statesQueue[processNumberI].process = "Stopping";
 //        os.close(arrDirectory[processNumberI], processNumberI);
