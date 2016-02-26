@@ -6,8 +6,8 @@ function getFinalVector(vectorListCsv) {
     var arrVectorList = vectorListCsv.split(", ");
     var arrFinalVector = [0, 0, 0];
     var components = [0, 0, 0];
-    for (var i = 0; i < vectorList.length; i++) {
-        var currentVector = vectorList[i].split(",");        
+    for (var i = 0; i < vectorListCsv.length; i++) {
+        var currentVector = vectorListCsv[i].split(",");        
         for (var j = 0; j < 3; j++)
             components[j] = currentVector[j].match(/[-]|[.]|\d/g).join("");        
         for (var k = 0; k < 3; k++)
@@ -23,7 +23,7 @@ onmessage = function (event) {
     console.log(event.data);
     console.log(event.data.data);
     console.log("Got the message");
-    var arrCsv = event.data.data.toString();
+    var arrCsv = event.data.data;
     var szResult = getFinalVector(arrCsv);
     postMessage(szResult);
 };

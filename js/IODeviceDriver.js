@@ -99,7 +99,7 @@ function onMessage(event) {
             postMessage(task);
         } break;
         case "End of File": {
-            console.log(arrOpenFiles[arrOpenFiles.length-1]);
+            console.log(task.filePointer);
             if(arrOpenFiles[task.filePointer].nPosition === arrOpenFiles[task.filePointer].nLength-1)
             {
                 console.log("This is the end of the file, says the IO Device");
