@@ -269,7 +269,11 @@ function onMessageDevice(event) {
     }
     else if (task.sysCall === "Read File") {
         console.log("Syscall Read: We call the worker "+task.nProcessID);
-        arrWorker[task.nProcessID].postMessage(task);
+        if(typeof arrWorker[task.nProcessID] === 'undefined'){
+            arrWorker[task.nProcessID-1].postMessage(task);
+        }else{
+            arrWorker[task.nProcessID].postMessage(task);
+        }
     }
     else if (task.sysCall === "Close File") {
         console.log("We closed the damn file");
