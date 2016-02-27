@@ -211,7 +211,7 @@ var statesQueue = [
 
 //Array of workers
 var arrWorker = [
-    dummyWorker new Worker("main.js"),
+    dummyWorker = new Worker("main.js"),
     contact = new Worker("ContactManager.js"),
     bank = new Worker("BankProcess.js"),
     password = new Worker("passwordchanger.js"),
