@@ -27,5 +27,9 @@ onmessage = function (event) {
     console.log("Got the message");
     var arrCsv = event.data.data;
     var szResult = getFinalVector(arrCsv);
-    postMessage(szResult);
+    var vectorResult = {
+        result : szResult,
+        processNumberI : event.data.nProcessID
+    }
+    postMessage(vectorResult);
 };

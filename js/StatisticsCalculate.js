@@ -74,7 +74,9 @@ onmessage = function (event) {
     console.log("Got the message");
     var arrCsv = event.data.data;
     var szResult = calculateStatistics(arrCsv);
-    console.log("Reult fo stats is ");
-    console.log(szResult);
-    postMessage(szResult);
+    var statsResult = {
+        result : szResult,
+        processNumberI : event.data.nProcessID
+    }
+    postMessage(statsResult);
 };
