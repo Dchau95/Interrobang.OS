@@ -1,8 +1,3 @@
-//POSSIBLE THINGS TO FIX:
-//NEED TO KEEP PROCESSNUMBERI IN INDEXDB?
-//At five processes, there's a 50-75% chance that the OS will run into an infinite loop, one of the processes thinks it can still get data
-//Seems like bank process might be the one giving problems?
-
 //The IO device driver
 var device = null;
 
@@ -261,11 +256,6 @@ function whileLoop() {
             console.log("Process " + statesQueue[processNumberI].processID + " has stopped");
             statesQueue[processNumberI].process = "Stopped";
             nStatesLength-=1;
-//            statesQueue.splice(processNumberI, 1);
-//            resultFiles.splice(processNumberI, 1);
-//            resultString.splice(processNumberI, 1);
-//            arrDirectory.splice(processNumberI, 1);
-//            arrWorker.splice(processNumberI, 1);
         } else if (statesQueue[processNumberI].process === "Stopped") {
             continue;
         }
@@ -314,9 +304,9 @@ function testingInputOutput() {
 //arrWorker[1...6] are functions that get the response from their respective processes
 arrWorker[1].onmessage = function (e) {
     document.getElementById("output").innerHTML += "<p>Process 1 has responded with data</p>";
-//    if(typeof e.data !== "undefined"){
-//        resultString[processNumberI] = e.data;
-//    }
+    if(typeof e.data !== "undefined"){
+        resultString[processNumberI] = e.data;
+    }
     console.log("Result of worker 1 "+resultString[processNumberI]);
     os.endOfFile(processNumberI, arrDirectory[processNumberI]);
     console.log(statesQueue[processNumberI].EOF);
