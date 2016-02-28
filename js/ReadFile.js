@@ -5,7 +5,7 @@ function readFile(arrNum) {
         return "undefined";
     }
     var arrNumSplit = arrNum.split(", ").map(Number);
-    arrNumSplit.sort();
+    arrNumSplit.sort(function(a, b){return a-b});
     return arrNumSplit.join(", ");
     console.log("Ending extra process");
 }

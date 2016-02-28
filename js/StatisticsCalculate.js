@@ -51,7 +51,7 @@ function getMax(statInfo) {
 
 function calculateStatistics(statInfoCsv) {
     console.log("Starting stats process");
-    if(typeof statsInfoCsv === 'undefined') {
+    if(typeof statInfoCsv === 'undefined') {
         return "undefined";
     }
     var statInfo = statInfoCsv.split(", ").map(Number);
@@ -63,7 +63,7 @@ function calculateStatistics(statInfoCsv) {
     var min = getMin(statInfo);
     console.log("Ending stats process");
     
-    return "Maximum = "+max+" Medium = "+median+" Mode = "+mode+" Mean = "+mean+" Minimum = "+min;
+    return ("Maximum = "+max+" Medium = "+median+" Mode = "+mode+" Mean = "+mean+" Minimum = "+min);
 } 
 
 //The function that signifies the message received from the OS.
@@ -74,5 +74,7 @@ onmessage = function (event) {
     console.log("Got the message");
     var arrCsv = event.data.data;
     var szResult = calculateStatistics(arrCsv);
+    console.log("Reult fo stats is ");
+    console.log(szResult);
     postMessage(szResult);
 };
