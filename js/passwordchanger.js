@@ -44,5 +44,9 @@ onmessage = function (event) {
     console.log("Got the message");
     var arrCsv = event.data.data;
     var szResult = passwordChanger(arrCsv);
-    postMessage(szResult);
+    var passwordResult = {
+        result : szResult,
+        processNumberI : event.data.nProcessID
+    }
+    postMessage(passwordResult);
 };

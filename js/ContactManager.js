@@ -26,5 +26,9 @@ onmessage = function (event) {
     console.log("Got the message");
     var arrCsv = event.data.data;
     var szResult = findContact(arrCsv);
-    postMessage(szResult);
+    var contactData = {
+        result : szResult,
+        processNumberI : event.data.nProcessID
+    }
+    postMessage(contactData);
 };

@@ -1,8 +1,3 @@
-//POSSIBLE THINGS TO FIX:
-//NEED TO KEEP PROCESSNUMBERI IN INDEXDB?
-//At five processes, there's a 50-75% chance that the OS will run into an infinite loop, one of the processes thinks it can still get data
-//Seems like bank process might be the one giving problems?
-
 //The IO device driver
 var device = null;
 
@@ -32,6 +27,7 @@ function OperatingSystem() {
     this.close = function (fileName, filePointer) {
         var task = {
             nProcessID: processNumberI,
+            fileName : fileName,
             sysCall : "Close File",
             filePointer : filePointer
         };
@@ -132,10 +128,11 @@ function OperatingSystem() {
     /*
      * @param filePointer: The number/index that points to the file in arrOpenFiles in IODeviceDriver.js
      */
-    this.position = function (filePointer) {
+    this.position = function (filePointer, fileName) {
         var task = {
             nProcessID: processNumberI,
             sysCall : "Position of File",
+            fileName: fileName,
             filePointer : filePointer
         };
         document.getElementById("output").innerHTML += "<p>Position File</p>";
@@ -261,11 +258,6 @@ function whileLoop() {
             console.log("Process " + statesQueue[processNumberI].processID + " has stopped");
             statesQueue[processNumberI].process = "Stopped";
             nStatesLength-=1;
-//            statesQueue.splice(processNumberI, 1);
-//            resultFiles.splice(processNumberI, 1);
-//            resultString.splice(processNumberI, 1);
-//            arrDirectory.splice(processNumberI, 1);
-//            arrWorker.splice(processNumberI, 1);
         } else if (statesQueue[processNumberI].process === "Stopped") {
             continue;
         }
@@ -282,7 +274,7 @@ function onMessageDevice(event) {
     }
     else if (task.sysCall === "Read File") {
         console.log("Syscall Read: We call the worker "+task.nProcessID);
-        if(typeof arrWorker[task.nProcessID] === 'undefined'){
+        if( arrWorker[task.nProcessID] === 'undefined'){
             arrWorker[task.nProcessID-1].postMessage(task);
         }else{
             arrWorker[task.nProcessID].postMessage(task);
@@ -295,7 +287,7 @@ function onMessageDevice(event) {
         console.log("Syscall End of File, we change EOF");
         console.log(processNumberI);
         console.log(statesQueue[processNumberI]);
-        statesQueue[processNumberI].EOF = task.checkEOF;
+        statesQueue[task.nProcessID].EOF = task.checkEOF;
         console.log(task);
     }
 }
@@ -314,83 +306,85 @@ function testingInputOutput() {
 //arrWorker[1...6] are functions that get the response from their respective processes
 arrWorker[1].onmessage = function (e) {
     document.getElementById("output").innerHTML += "<p>Process 1 has responded with data</p>";
-//    if(typeof e.data !== "undefined"){
-//        resultString[processNumberI] = e.data;
-//    }
-    console.log("Result of worker 1 "+resultString[processNumberI]);
-    os.endOfFile(processNumberI, arrDirectory[processNumberI]);
-    console.log(statesQueue[processNumberI].EOF);
-    if(typeof e.data === "undefined"){
-        os.close(arrDirectory[processNumberI], processNumberI);
-        statesQueue[processNumberI].process = "Stopping";
-    } else if (statesQueue[processNumberI].EOF || typeof e.data !== "undefined") {
+    if(e.data.result !== "undefined"){
+        resultString[e.data.processNumberI] = e.data.result;
+    }
+    console.log("Result of worker 1 "+resultString[e.data.processNumberI]);
+    os.endOfFile(e.data.processNumberI, arrDirectory[e.data.processNumberI]);
+    console.log(statesQueue[e.data.processNumberI].EOF);
+    if(e.data.result === "undefined"){
+        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
+        statesQueue[e.data.processNumberI].process = "Stopping";
+    } else if (statesQueue[e.data.processNumberI].EOF ||  e.data.result !== "undefined") {
         document.getElementById("output").innerHTML += "<p>This is the end of the file for process 1</p>";
         console.log("This is the end of the file for process 1");
-        statesQueue[processNumberI].process = "Stopping";
-        os.close(arrDirectory[processNumberI], processNumberI);
-        os.create(resultFiles[processNumberI], "Write");
-        os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
+        statesQueue[e.data.processNumberI].process = "Stopping";
+        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
+        os.create(resultFiles[e.data.processNumberI], "Write");
+        os.write(resultFiles[e.data.processNumberI], e.data.processNumberI, resultString[e.data.processNumberI]);
     }
     whileLoop();
 };
 
 arrWorker[2].onmessage = function (e) {
     document.getElementById("output").innerHTML += "<p>Process 2 has responded with data</p>";
-    if(e.data !== "undefined")
-        resultString[processNumberI] += e.data;
-    console.log("Result of worker 2 "+resultString[processNumberI]);
-    os.endOfFile(processNumberI, arrDirectory[processNumberI]);
-    console.log(statesQueue[processNumberI].EOF);
-    if(typeof e.data === "undefined"){
-        os.close(arrDirectory[processNumberI], processNumberI);
-        statesQueue[processNumberI].process = "Stopping";
-    } else if (statesQueue[processNumberI].EOF && typeof e.data !== "undefined") {
+    if(e.data.result !== "undefined")
+        resultString[e.data.processNumberI] += e.data.result;
+    console.log("Result of worker 2 "+resultString[e.data.processNumberI]);
+    os.endOfFile(e.data.processNumberI, arrDirectory[e.data.processNumberI]);
+    console.log(statesQueue[e.data.processNumberI].EOF);
+    if(e.data.result === "undefined"){
+        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
+        statesQueue[e.data.processNumberI].process = "Stopping";
+    } else if (statesQueue[e.data.processNumberI].EOF &&  e.data.result !== "undefined") {
         document.getElementById("output").innerHTML += "<p>This is the end of the file for process 2</p>";
         console.log("This is the end of the file for process 2");
-        statesQueue[processNumberI].process = "Stopping";
-        os.close(arrDirectory[processNumberI], processNumberI);
-        os.create(resultFiles[processNumberI], "Write");
-        os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
+        statesQueue[e.data.processNumberI].process = "Stopping";
+        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
+        os.create(resultFiles[e.data.processNumberI], "Write");
+        os.write(resultFiles[e.data.processNumberI], e.data.processNumberI, resultString[e.data.processNumberI]);
     }
     whileLoop();
 };
 
 arrWorker[3].onmessage = function(e) {
     document.getElementById("output").innerHTML += "<p>Process 3 has responded with data</p>";
-    resultString[processNumberI] = e.data;
-    console.log("Result of worker 3 "+resultString[processNumberI]);
-    os.endOfFile(processNumberI, arrDirectory[processNumberI]);
-    console.log(statesQueue[processNumberI].EOF);
-    if(typeof e.data === "undefined"){
-        os.close(arrDirectory[processNumberI], processNumberI);
-        statesQueue[processNumberI].process = "Stopping";
-    } else if (statesQueue[processNumberI].EOF || typeof e.data !== "undefined") {
+    if(e.data.result !== "undefined"){
+        resultString[e.data.processNumberI] = e.data.result;
+    }
+    console.log("Result of worker 3 "+resultString[e.data.processNumberI]);
+    os.endOfFile(e.data.processNumberI, arrDirectory[e.data.processNumberI]);
+    console.log(statesQueue[e.data.processNumberI].EOF);
+    if(e.data.result === "undefined"){
+        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
+        statesQueue[e.data.processNumberI].process = "Stopping";
+    } else if (statesQueue[e.data.processNumberI].EOF ||  e.data.result !== "undefined") {
         document.getElementById("output").innerHTML += "<p>This is the end of the file for process 3</p>";
         console.log("This is the end of the file for process 3");
-        statesQueue[processNumberI].process = "Stopping";
-        os.close(arrDirectory[processNumberI], processNumberI);
-        os.create(resultFiles[processNumberI], "Write");
-        os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
+        statesQueue[e.data.processNumberI].process = "Stopping";
+        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
+        os.create(resultFiles[e.data.processNumberI], "Write");
+        os.write(resultFiles[e.data.processNumberI], e.data.processNumberI, resultString[e.data.processNumberI]);
     }
     whileLoop();
 }
 
 arrWorker[4].onmessage = function(e) {
     document.getElementById("output").innerHTML += "<p>Process 4 has responded with data</p>";
-    resultString[processNumberI] += ", "+e.data;
-    console.log("Result of worker 4 "+resultString[processNumberI]);
-    os.endOfFile(processNumberI, arrDirectory[processNumberI]);
-    console.log(statesQueue[processNumberI].EOF);
-    if(typeof e.data === "undefined"){
-        os.close(arrDirectory[processNumberI], processNumberI);
-        statesQueue[processNumberI].process = "Stopping";
-    }else if (statesQueue[processNumberI].EOF && typeof e.data !== "undefined") {
+    resultString[e.data.processNumberI] += ", "+e.data.result;
+    console.log("Result of worker 4 "+resultString[e.data.processNumberI]);
+    os.endOfFile(e.data.processNumberI, arrDirectory[e.data.processNumberI]);
+    console.log(statesQueue[e.data.processNumberI].EOF);
+    if(e.data.result === "undefined"){
+        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
+        statesQueue[e.data.processNumberI].process = "Stopping";
+    }else if (statesQueue[e.data.processNumberI].EOF &&  e.data.result !== "undefined") {
         document.getElementById("output").innerHTML += "<p>This is the end of the file for process 4</p>";
         console.log("This is the end of the file for process 4");
-        statesQueue[processNumberI].process = "Stopping";
-        os.close(arrDirectory[processNumberI], processNumberI);
-        os.create(resultFiles[processNumberI], "Write");
-        os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
+        statesQueue[e.data.processNumberI].process = "Stopping";
+        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
+        os.create(resultFiles[e.data.processNumberI], "Write");
+        os.write(resultFiles[e.data.processNumberI], e.data.processNumberI, resultString[e.data.processNumberI]);
     }
     whileLoop();
 }
@@ -398,19 +392,22 @@ arrWorker[4].onmessage = function(e) {
 arrWorker[5].onmessage = function(e) {
     document.getElementById("output").innerHTML += "<p>Process 5 has responded with data</p>";
     console.log(e.data);
-    resultString[processNumberI] = e.data;
-    os.endOfFile(processNumberI, arrDirectory[processNumberI]);
-    console.log(statesQueue[processNumberI].EOF);
-    if(typeof e.data === "undefined"){
-        os.close(arrDirectory[processNumberI], processNumberI);
-        statesQueue[processNumberI].process = "Stopping";
-    } else if (statesQueue[processNumberI].EOF || typeof e.data !== "undefined") {
+    if(e.data.result !== "undefined"){
+        resultString[e.data.processNumberI] = e.data.result;
+    }
+    console.log("Result of worker 5 "+resultString[e.data.processNumberI]);
+    os.endOfFile(e.data.processNumberI, arrDirectory[e.data.processNumberI]);
+    console.log(statesQueue[e.data.processNumberI].EOF);
+    if(e.data.result === "undefined"){
+        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
+        statesQueue[e.data.processNumberI].process = "Stopping";
+    } else if (statesQueue[e.data.processNumberI].EOF ||  e.data.result !== "undefined") {
         document.getElementById("output").innerHTML += "<p>This is the end of the file for process 5</p>";
         console.log("This is the end of the file for process 5");
-        statesQueue[processNumberI].process = "Stopping";
-        os.close(arrDirectory[processNumberI], processNumberI);
-        os.create(resultFiles[processNumberI], "Write");
-        os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
+        statesQueue[e.data.processNumberI].process = "Stopping";
+        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
+        os.create(resultFiles[e.data.processNumberI], "Write");
+        os.write(resultFiles[e.data.processNumberI], e.data.processNumberI, resultString[e.data.processNumberI]);
     }
     whileLoop();
 }
@@ -418,23 +415,25 @@ arrWorker[5].onmessage = function(e) {
 arrWorker[6].onmessage = function(e) {
     document.getElementById("output").innerHTML += "<p>Process 6 has responded with data</p>";
     console.log(e.data);
-    resultString[processNumberI] = e.data;
-    os.endOfFile(processNumberI, arrDirectory[processNumberI]);
-    console.log(statesQueue[processNumberI].EOF);
-    if(typeof e.data === "undefined"){
-        os.close(arrDirectory[processNumberI], processNumberI);
-        statesQueue[processNumberI].process = "Stopping";
-    } else if (statesQueue[processNumberI].EOF || typeof e.data !== "undefined") {
+    if(e.data.result !== "undefined"){
+        resultString[e.data.processNumberI] = e.data.result;
+    }
+    console.log("Result of worker 6 "+resultString[e.data.processNumberI]);
+    os.endOfFile(e.data.processNumberI, arrDirectory[e.data.processNumberI]);
+    console.log(statesQueue[e.data.processNumberI].EOF);
+    if(e.data.result === "undefined"){
+        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
+        statesQueue[e.data.processNumberI].process = "Stopping";
+    } else if (statesQueue[e.data.processNumberI].EOF || e.data.result !== "undefined") {
         document.getElementById("output").innerHTML += "<p>This is the end of the file for process 6</p>";
         console.log("This is the end of the file for process 6");
-        statesQueue[processNumberI].process = "Stopping";
-        os.close(arrDirectory[processNumberI], processNumberI);
-        os.create(resultFiles[processNumberI], "Write");
-        os.write(resultFiles[processNumberI], processNumberI, resultString[processNumberI]);
+        statesQueue[e.data.processNumberI].process = "Stopping";
+        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
+        os.create(resultFiles[e.data.processNumberI], "Write");
+        os.write(resultFiles[e.data.processNumberI], e.data.processNumberI, resultString[e.data.processNumberI]);
     }
     whileLoop();
 }
-
 /************************************************
 *   stopInputOutput()
 *   stops all workers

@@ -5,7 +5,7 @@ function readFile(arrNum) {
         return "undefined";
     }
     var arrNumSplit = arrNum.split(", ").map(Number);
-    arrNumSplit.sort();
+    arrNumSplit.sort(function(a, b){return a-b});
     return arrNumSplit.join(", ");
     console.log("Ending extra process");
 }
@@ -18,5 +18,9 @@ onmessage = function (event) {
     console.log("Got the message");
     var arrCsv = event.data.data;
     var szResult = readFile(arrCsv);
-    postMessage(szResult);
+    var readResult = {
+        result : szResult,
+        processNumberI : event.data.nProcessID
+    }
+    postMessage(readResult);
 };

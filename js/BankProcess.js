@@ -24,5 +24,9 @@ onmessage = function (event){
     console.log("Got the message");
     var arrCsv = event.data.data;
     var nResult = bankProcess(arrCsv);
-    postMessage(nResult);
+    var bankResult = {
+        result : nResult,
+        processNumberI : event.data.nProcessID
+    }
+    postMessage(bankResult);
 }
