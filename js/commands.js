@@ -1,26 +1,3 @@
-var test = 
-{
-    "Dummy.CSV" : {
-        szMode: "",
-        nPosition: 0,
-        nLength: 0,
-        contents: []
-    },
-    "Dumb.CSV" : {
-        szMode: "",
-        nPosition: 0,
-        nLength: 0,
-        contents: []
-    },
-    "Dum.CSV" : {
-        szMode: "",
-        nPosition: 0,
-        nLength: 0,
-        contents: []
-    },
-};
-
-
 function clearCMD()
 {
     
@@ -38,10 +15,14 @@ function deleteCMD(fileName)
         delete hashDirectory[fileName];
     else
         console.log("File does not exist");
+    
+    lsCMD();
 };
 
 function copyCMD(fileName, copyFileName)
 {
+    if (hashDirectory.hasOwnProperty(copyFileName))
+        return;
     var val = 
     {
         szMode: "",
