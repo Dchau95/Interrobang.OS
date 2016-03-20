@@ -1,80 +1,75 @@
 function runCMD()
-            {
-                var userInput = document.getElementById("inputbox").value;
-                var pointerOne = "";
-                var pointerTwo = "";
-                //perhaps switch to run case rather than 
-                //display cmd input
-                console.log(userInput);
-                
-                // Check if userInput contains space.
-                if (userInput.indexOf(' ') >= 0) 
-                {
-                	var command = userInput.split(' ');
-                	userInput = command[0];
-                	pointerOne = command[1];
-                	if (command.length == 3)
-                		pointerTwo = command[2];
-                }
-                
-                switch(userInput)
-                {
-                    case "clear":
-                    	clearCMD();
-                        break;
-                    case "ls":
-                    	lsCMD();
-                        break;
-                    case "man":
-                        man();
-                        break;
-                    case "delete":
-                    	deleteCMD(pointerOne);
-                        break;
-                    case "copy":
-                    	copyCMD(pointerOne, pointerTwo);
-                        break;
-                    case "ps":
-                        ps();
-                        break;
-                    case "kill":
-                        kill(pointerOne);
-                        break;
-                    case "more":
-                        more();
-                        break;
-                    case "cat":
-                        cat(pointerOne);
-                        break;
-                    default:
-                    	commandOutput("That is not a valid command.\n\n");
-                    	break;
-                }
-            }
-            
-var hashDirectory = 
 {
-    "Dummy.CSV" : {
-        szMode: "",
-        nPosition: 0,
-        nLength: 0,
-        contents: []
-    },
-    "Dumb.CSV" : {
-        szMode: "",
-        nPosition: 0,
-        nLength: 0,
-        contents: []
-    },
-    "Dum.CSV" : {
-        szMode: "",
-        nPosition: 0,
-        nLength: 0,
-        contents: []
-    },
-};
+    var userInput = document.getElementById("inputbox").value;
+    var pointerOne = "";
+    var pointerTwo = "";
+    //perhaps switch to run case rather than 
+    //display cmd input
+    console.log(userInput);
 
+    // Check if userInput contains space.
+    if (userInput.indexOf(' ') >= 0) 
+    {
+        var command = userInput.split(' ');
+        userInput = command[0];
+        pointerOne = command[1];
+        if (command.length == 3)
+            pointerTwo = command[2];
+    }
 
+    switch(userInput)
+    {
+        case "clear":
+            clearCMD();
+            break;
+        case "ls":
+            lsCMD();
+            break;
+        case "man":
+            man();
+            break;
+        case "delete":
+            deleteCMD(pointerOne);
+            break;
+        case "copy":
+            copyCMD(pointerOne, pointerTwo);
+            break;
+        case "ps":
+            ps();
+            break;
+        case "kill":
+            kill(pointerOne);
+            break;
+        case "more":
+            more();
+            break;
+        case "cat":
+            cat(pointerOne);
+            break;
+        case "contactp":
+            runContact();
+            break;
+        case "bankp":
+            runBank();
+            break;
+        case "passwordp":
+            runPassword();
+            break;
+        case "readp":
+            runRead();
+            break;
+        case "statsp":
+            runStats();
+            break;
+        case "vectorp":
+            runVector();
+            break;
+        default:
+            commandOutput("That is not a valid command.\n\n");
+            break;
+    }
+}
+            
 function clearCMD()
 {
     contentout.innerText = "";
@@ -124,15 +119,16 @@ more, cat, man …
 */
 function man()
 {
-    console.log("clear : Clear terminal screen");
-    console.log("ls or dir : List directory contents");
-    console.log("delete : Delete file");
-    console.log("copy : Copy file");
-    console.log("ps : Print process status");
-    console.log("kills : Ends current process");
-    console.log("more : Display output screen");
-    console.log("cat : Display file content");
-    console.log("man : Display help manuel");   
+    commandOutput("clear : Clear terminal screen\n");
+    commandOutput("ls or dir : List directory contents\n");
+    commandOutput("delete : Delete file\n");
+    commandOutput("copy : Copy file\n");
+    commandOutput("ps : Print process status\n");
+    commandOutput("kills : Ends current process\n");
+    commandOutput("more : Display output screen\n");
+    commandOutput("cat : Display file content\n");
+    commandOutput("man : Display help manual\n");
+    commandOutput("\n");
 }
 
 /**
@@ -156,7 +152,7 @@ function cat(arrFiles)
 /**
 Display output one screen at a time	
 */
-function more(moreInput)
+function more()
 {
         //wait for cmd input after more 
         //** wait for cmd input
@@ -182,11 +178,12 @@ function more(moreInput)
                 while(arrDirectory.length != arrCount)
                 {
                     //** wait for f cmd input
-                    if(fInput == "f")
-                    console.log(arrDirectory[i]);
-                    arrCOunt++;
+                    if(fInput == "f"){
+                        console.log(arrDirectory[i]);
+                        arrCount++;
+                    }
                     else if(fInput == "q")
-                    break;
+                        break;
                 }
                 break;
                 
@@ -196,7 +193,7 @@ function more(moreInput)
                 break;
                 
             //show available commands
-            case ?:
+            case "?":
                 console.log("SPACEBAR : Display next page");
                 console.log("ENTER : Display next line");
                 console.log("f : Display next file");
@@ -206,7 +203,7 @@ function more(moreInput)
                 break;
                 
             //show line numbers
-            case =:
+            case "=":
                 break;
 
         }// ENd "more" switch loop
