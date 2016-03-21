@@ -23,7 +23,7 @@ txtbox.addEventListener("keypress", function (event) {
         osCMD(txtbox.value);
         contentin.innerText = "";
         inputbox.value = "";
-
+        txtbox.scrollIntoView();
     }
     else if (event.keyCode === 32) { //if space
         changeInput("\u00A0");
@@ -39,4 +39,4 @@ txtbox.addEventListener("keydown", function(event){
         var hold = contentin.innerText.slice(0, (contentin.innerText.length - 1));
         contentin.innerText = hold;
     }
-})
+});

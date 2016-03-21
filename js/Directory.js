@@ -1,14 +1,3 @@
-//Array of files to put the result into
-var resultFiles = [
-    "ResultDummy",
-    "Result1.CSV",
-    "Result2.CSV",
-    "Result3.CSV",
-    "Result4.CSV",
-    "Result5.CSV",
-    "Result6.CSV"
-];
-
 //Array of files for the processes to open
 var arrDirectory = [
     "Dummy.CSV",
