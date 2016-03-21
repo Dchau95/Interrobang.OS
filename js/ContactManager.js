@@ -1,9 +1,6 @@
 function findContact(aryContactCsv) {
     "use strict";
     console.log("Starting up contact process");
-    if(typeof aryContactCsv === 'undefined') {
-        return "undefined";
-    }
     var arrSplitContact = aryContactCsv.split(", ");
     var szContact = "Thomas";
     var arrContact = {};
@@ -24,11 +21,19 @@ onmessage = function (event) {
     console.log(event.data);
     console.log(event.data.data);
     console.log("Got the message");
+    var errorCon = 0;
     var arrCsv = event.data.data;
-    var szResult = findContact(arrCsv);
+    var szResult; 
+    try{
+        szResult = findContact(arrCsv);
+    }catch(err){
+        szResult = "";
+        errorCon = -1;
+    }
     var contactData = {
         result : szResult,
-        processNumberI : event.data.nProcessID
+        processNumberI : event.data.nProcessID,
+        errorCon : errorCon
     }
     postMessage(contactData);
 };

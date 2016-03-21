@@ -71,16 +71,28 @@ function runCMD(userInput)
             
 function clearCMD()
 {
-    contentout.innerText = "";
+    var errorCode = 0;
+    try
+        contentout.innerText = "";
+    catch(err)
+        errorCode = -1;
+        
+    return errorCode;
 }
 
 function lsCMD()
 {
     console.log(hashDirectory)
-    var keys = Object.keys(hashDirectory);
-    for(var i = 0; i<keys.length; i++)
-        commandOutput(keys[i]+"\n");
-    commandOutput("\n");
+    var errorCode = 0;
+    try{
+        var keys = Object.keys(hashDirectory);
+        for(var i = 0; i<keys.length; i++)
+            commandOutput(keys[i]+"\n");
+        commandOutput("\n");
+    }catch(err)
+        errorCode = -1;
+    
+    return errorCode;
 }
 
 function deleteCMD(fileName)
@@ -89,13 +101,18 @@ function deleteCMD(fileName)
     {
         delete hashDirectory[fileName];
         lsCMD();
+        return 0;
     }
     else
-        commandOutput("File does not exist.\n");
+    {
+        commandOutput("File does not exist.\n"); 
+        return -1;
+    }
 }
 
 function copyCMD(fileName, copyFileName)
 {
+    var errorCode = 0;
     var val = 
     {
         szMode: "",
@@ -110,6 +127,7 @@ function copyCMD(fileName, copyFileName)
     hashDirectory[copyFileName].nLength = hashDirectory[fileName].nLength;
     hashDirectory[copyFileName].contents = hashDirectory[fileName].contents;
     lsCMD();
+    return errorCode;
 }
 
 /**
@@ -119,6 +137,7 @@ more, cat, man …
 */
 function man()
 {
+    var errorCode = 0;
     commandOutput("clear : Clear terminal screen\n");
     commandOutput("ls or dir : List directory contents\n");
     commandOutput("delete : Delete file\n");
@@ -128,7 +147,14 @@ function man()
     commandOutput("more : Display output screen\n");
     commandOutput("cat : Display file content\n");
     commandOutput("man : Display help manual\n");
+    commandOutput("contactp : Initiates the contact manager process\n");
+    commandOutput("bankp : Initiates the bank calculator process\n");
+    commandOutput("passwordp : Initiates the password process\n");
+    commandOutput("readp : Initiates the sort a list of numbers process\n");
+    commandOutput("vectorp : Initiates the vector calculator process\n");
+    commandOutput("statsp : Initiates the statistics calculator process\n");
     commandOutput("\n");
+    return errorCode;
 }
 
 /**
@@ -139,14 +165,16 @@ file elements matching hastable(array of files)
 */
 function cat(arrFiles)
 {
+    var errorCode = 0;
     for(var i=0; i < arrFiles.length; i++)
     {
         for(var keyName in hashDirectory)
         {
             if(arrFiles[i] == keyName)
-                console.log(hashDirectory[keyName])
+                commandOutput(hashDirectory[keyName])
         }   
     }
+    return errorCode;
 }
 
 /**
@@ -154,8 +182,9 @@ Display output one screen at a time
 */
 function more()
 {
-        //wait for cmd input after more 
-        //** wait for cmd input
+    var errorCode = 0;
+    //wait for cmd input after more 
+    //** wait for cmd input
     while(moreInput != "q" || moreInput != "Q")
     {
         switch(input)
@@ -209,6 +238,7 @@ function more()
         }// ENd "more" switch loop
         moreInput = "q";
     }//End more input check
+    return errorCode;
 }//END more function
 
 /** 
@@ -216,11 +246,15 @@ Display the process and the state of each running process
 */
 function ps()
 {
-    for(var i = 1; statesQueue.length; i++)
-        {
-            console.log(arrDirectory[i] + " is currently "
-                        + statesQueue[i].process);
-        }
+    var errorCode = 0;
+    try
+        for(var i = 1; statesQueue.length; i++)
+            commandOutput(statesQueue[i].processName + " is currently "
+                    + statesQueue[i].process);
+    catch(err)
+        errorCode = -1;
+        
+    return errorCode;
 }
 
 /**
@@ -228,36 +262,42 @@ Terminate current running process
 */
 function kill(processName)
 {
-    switch(processName){
-        case contact:
-            statesQueue.splice(1, 1);
-            arrWorker[1].terminate();
-            arrWorker[1] = undefined;
-            break;
-        case bank:
-            statesQueue.splice(2, 1);
-            arrWorker[2].terminate();
-            arrWorker[2] = undefined;
-            break;
-        case password:
-            statesQueue.splice(3, 1);
-            arrWorker[3].terminate();
-            arrWorker[3] = undefined;
-            break;
-        case read:
-            statesQueue.splice(4, 1);
-            arrWorker[4].terminate();
-            arrWorker[4] = undefined;
-            break;
-        case vector:
-            statesQueue.splice(5, 1);
-            arrWorker[5].terminate();
-            arrWorker[5] = undefined;
-            break;
-        case stats:
-            statesQueue.splice(6, 1);
-            arrWorker[6].terminate();
-            arrWorker[6] = undefined;
-            break;
-    }
+    var errorCode = 0;
+    try{
+        switch(processName){
+            case contact:
+                statesQueue.splice(1, 1);
+                arrWorker[1].terminate();
+                arrWorker[1] = undefined;
+                break;
+            case bank:
+                statesQueue.splice(2, 1);
+                arrWorker[2].terminate();
+                arrWorker[2] = undefined;
+                break;
+            case password:
+                statesQueue.splice(3, 1);
+                arrWorker[3].terminate();
+                arrWorker[3] = undefined;
+                break;
+            case read:
+                statesQueue.splice(4, 1);
+                arrWorker[4].terminate();
+                arrWorker[4] = undefined;
+                break;
+            case vector:
+                statesQueue.splice(5, 1);
+                arrWorker[5].terminate();
+                arrWorker[5] = undefined;
+                break;
+            case stats:
+                statesQueue.splice(6, 1);
+                arrWorker[6].terminate();
+                arrWorker[6] = undefined;
+                break;
+        }
+    }catch(err)
+        errorCode = -1;
+    
+    return errorCode;
 }

@@ -17,9 +17,9 @@
 *	for the appropriate username															*/
 
 function passwordChanger(usrpwdlist) {
-    if(typeof usrpwdlist === 'undefined') {
-        return "undefined";
-    }
+//    if(typeof usrpwdlist === 'undefined') {
+//        return "undefined";
+//    }
     console.log("Starting password process");
     var szUsername = "gamrgod88";
     var szPassword = "l337420";
@@ -42,11 +42,19 @@ onmessage = function (event) {
     console.log(event.data);
     console.log(event.data.data);
     console.log("Got the message");
+    var errorCon = 0;
     var arrCsv = event.data.data;
-    var szResult = passwordChanger(arrCsv);
+    var szResult;
+    try{ 
+        szResult = passwordChanger(arrCsv);
+    }catch(err){
+        szResult = "";
+        errorCon = -1;
+    }
     var passwordResult = {
         result : szResult,
-        processNumberI : event.data.nProcessID
+        processNumberI : event.data.nProcessID,
+        errorCon: errorCon
     }
     postMessage(passwordResult);
 };
