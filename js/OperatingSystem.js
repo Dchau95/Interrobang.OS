@@ -1,5 +1,10 @@
 //The IO device driver
-var device = null;
+var device = new Worker('IODeviceDriver.js');
+device.onmessage = onMessageDevice;
+device.onerror = function (event){
+    console.log("Why you error");
+    console.log(event);
+};
 
 //The Operating System class
 function OperatingSystem() {
@@ -16,7 +21,8 @@ function OperatingSystem() {
             fileName : fileName,
             Mode : mode
         };
-        commandOutput("Opening File\n");
+        //commandOutput("Opening File\n");
+        console.log("In open");
         device.postMessage(task);
     };
     
@@ -159,28 +165,6 @@ function OperatingSystem() {
 //Create a global os
 var os = new OperatingSystem();
 
-//Array of files to put the result into
-var resultFiles = [
-    "ResultDummy",
-    "Result1.CSV",
-    "Result2.CSV",
-    "Result3.CSV",
-    "Result4.CSV",
-    "Result5.CSV",
-    "Result6.CSV"
-];
-
-//Array of files for the processes to open
-var arrDirectory = [
-    "Dummy.CSV",
-    "Contact.CSV",
-    "Bank.CSV",
-    "password.CSV",
-    "read.CSV",
-    "vector.CSV",
-    "stats.CSV"
-];
-
 //Counter for which processes to go
 var processNumberI = 0;
 
@@ -284,15 +268,13 @@ function onMessageDevice(event) {
 //Main function
 function testingInputOutput() {
     "use strict";    
-    device = new Worker("IODeviceDriver.js");
-    device.onmessage = onMessageDevice;
 //    arrWorker[1].onmessage = onMessageProcess1;
 //    arrWorker[2].onmessage = onMessageProcess2;
 //    arrWorker[3].onmessage = onMessageProcess1;
 //    arrWorker[4].onmessage = onMessageProcess2;
 //    arrWorker[5].onmessage = onMessageProcess1;
 //    arrWorker[6].onmessage = onMessageProcess1;
-        
+//        
     //commandOutput("OS is starting\n");
     console.log("In testingInputOutput");
     
@@ -370,6 +352,10 @@ function onMessageProcess1 (e) {
     whileLoop();
 }
 
+function osCMD(userInput)
+{
+    runCMD(userInput);
+}
 
 //For arrWorker[2] and arrWorker[4]
 function onMessageProcess2 (e) {
@@ -396,16 +382,16 @@ function onMessageProcess2 (e) {
 *   stopInputOutput()
 *   stops all workers
 *************************************************/
-function stopInputOutput() {
-    if (!arrWorker[0]) { return; }
-    
-    for (var i = 0; i<arrWorker.length; i++){
-        arrWorker[i].terminate();
-        arrWorker[i] = undefined;
-    }
-    
-    device.terminate();
-    device = undefined;
-}
+//function stopInputOutput() {
+//    if (!arrWorker[0]) { return; }
+//    
+//    for (var i = 0; i<arrWorker.length; i++){
+//        arrWorker[i].terminate();
+//        arrWorker[i] = undefined;
+//    }
+//    
+//    device.terminate();
+//    device = undefined;
+//}
 
-this.addEventListener('message', onMessageDevice, false);
+self.addEventListener('message', onMessageDevice, false);

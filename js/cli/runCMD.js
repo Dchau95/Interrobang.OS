@@ -1,6 +1,6 @@
-function runCMD()
+function runCMD(userInput)
 {
-    var userInput = document.getElementById("inputbox").value;
+    //var userInput = document.getElementById("inputbox").value;
     var pointerOne = "";
     var pointerTwo = "";
     //perhaps switch to run case rather than 

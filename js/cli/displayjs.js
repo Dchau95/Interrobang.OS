@@ -20,7 +20,7 @@ txtbox.addEventListener("keypress", function (event) {
     if (event.keyCode === 13) { //if enter
         var hold = contentin.innerText + "\n";
         changeOutput(hold);
-        runCMD();
+        osCMD(txtbox.value);
         contentin.innerText = "";
         inputbox.value = "";
 
