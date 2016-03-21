@@ -165,7 +165,7 @@ var processNumberI = 0;
 
 //Queue/array for the states of the processes
 var statesQueue = [
-    { process: "Dummy", processID: 0, EOF: false, result: "", resultCsv: "", fileCsv: ""},
+    { process: "Stopped", processName: "Dummy", EOF: false, result: "", resultCsv: "", fileCsv: ""},
 ];
 
 //Array of workers
@@ -186,15 +186,15 @@ function whileLoop() {
         //If statement checking from top to bottom 
         //which one is in Running
         if (statesQueue[processNumberI].process === "Starting") {
-            commandOutput("Process "+statesQueue[processNumberI].processID+" is Starting\n");
+            commandOutput("Process "+statesQueue[processNumberI].processName+" is Starting\n");
             os.open(statesQueue[processNumberI].fileCsv, "Read", processNumberI);
             statesQueue[processNumberI].process = "Waiting";
         } else if (statesQueue[processNumberI].process === "Waiting") {
-            commandOutput("Process "+statesQueue[processNumberI].processID+" is Waiting\n");
+            commandOutput("Process "+statesQueue[processNumberI].processName+" is Waiting\n");
             statesQueue[processNumberI].process = "Ready";
             break;
         } else if (statesQueue[processNumberI].process === "Ready") {
-            commandOutput("Process "+statesQueue[processNumberI].processID+" is Ready\n");
+            commandOutput("Process "+statesQueue[processNumberI].processName+" is Ready\n");
             statesQueue[processNumberI].process = "Running";
         } else if (statesQueue[processNumberI].process === "Running") {
             commandOutput("Process "+statesQueue[processNumberI].processID+" is Running\n");
@@ -205,10 +205,10 @@ function whileLoop() {
                 statesQueue[processNumberI].process = "Waiting";
             }
         } else if (statesQueue[processNumberI].process === "Stopping") {
-            commandOutput("Process "+statesQueue[processNumberI].processID+" is Stopping\n");
+            commandOutput("Process "+statesQueue[processNumberI].processName+" is Stopping\n");
             statesQueue[processNumberI].process = "Stopped";
         } else if (statesQueue[processNumberI].process === "Stopped") {
-            commandOutput("Process "+statesQueue[processNumberI].processID+" has Stopped\n");
+            commandOutput("Process "+statesQueue[processNumberI].processName+" has Stopped\n");
             nStatesLength-=1;
             statesQueue.splice(processNumberI,1);
             arrWorker.splice(processNumberI,1);
@@ -239,60 +239,54 @@ function onMessageDevice(event) {
 }
 
 function runContact() {
-    commandOutput("Contact Manager is starting\n");
     var contact = new Worker("ContactManager.js");
     contact.onmessage = onMessageProcess1;
-    statesQueue.push({ process : "Starting", processID: 1, EOF: false, result: "", resultCsv: "Result1.CSV", fileCsv: "Contact.CSV"});
+    statesQueue.push({ process : "Starting", processName: "ContactManager", EOF: false, result: "", resultCsv: "Result1.CSV", fileCsv: "Contact.CSV"});
     arrWorker.push(contact);
     nStatesLength+=1;
     whileLoop();
 }
 
 function runBank() {
-    commandOutput("Bank Process is starting\n");
     var bank = new Worker("BankProcess.js");
     bank.onmessage = onMessageProcess2;
-    statesQueue.push({process : "Starting", processID: 2, EOF: false, result: 0, resultCsv: "Result2.CSV", fileCsv: "Bank.CSV"});
+    statesQueue.push({process : "Starting", processName: "BankProcess", EOF: false, result: 0, resultCsv: "Result2.CSV", fileCsv: "Bank.CSV"});
     arrWorker.push(bank);
     nStatesLength+=1;
     whileLoop();
 }
 
 function runPassword() {
-    commandOutput("Password Process is starting\n");
     var password = new Worker("passwordchanger.js");
     password.onmessage = onMessageProcess1;
-    statesQueue.push({process : "Starting", processID: 3, EOF: false, result: "", resultCsv: "Result3.CSV", fileCsv: "password.CSV"});
+    statesQueue.push({process : "Starting", processName: "PasswordProcess", EOF: false, result: "", resultCsv: "Result3.CSV", fileCsv: "password.CSV"});
     arrWorker.push(password);
     nStatesLength+=1;
     whileLoop();
 }
 
 function runRead() {
-    commandOutput("Read Process is starting\n");
     var read = new Worker("ReadFile.js");
     read.onmessage = onMessageProcess2;
-    statesQueue.push({process : "Starting", processID: 4, EOF: false, result: "", resultCsv: "Result4.CSV", fileCsv: "read.CSV"});
+    statesQueue.push({process : "Starting", processName: "Read Process", EOF: false, result: "", resultCsv: "Result4.CSV", fileCsv: "read.CSV"});
     arrWorker.push(read);
     nStatesLength+=1;
     whileLoop();
 }
 
 function runVector() {
-    commandOutput("Vector Calculate is starting\n");
     var vector = new Worker("VectorCalculate.js");
     vector.onmessage = onMessageProcess1;
-    statesQueue.push({ process : "Starting", processID: 5, EOF: false, result: "", resultCsv: "Result5.CSV", fileCsv: "vector.CSV"});
+    statesQueue.push({ process : "Starting", processName: "VectorProcess", EOF: false, result: "", resultCsv: "Result5.CSV", fileCsv: "vector.CSV"});
     arrWorker.push(vector);
     nStatesLength+=1;
     whileLoop();
 }
 
 function runStats() {
-    commandOutput("Stats Process is starting\n");
     var stats = new Worker("StatisticsCalculate.js")
     stats.onmessage = onMessageProcess1;
-    statesQueue.push({process : "Starting", processID: 6, EOF: false, result: "", resultCsv: "Result6.CSV", fileCsv: "stats.CSV"});
+    statesQueue.push({process : "Starting", processName: "StatsProcess", EOF: false, result: "", resultCsv: "Result6.CSV", fileCsv: "stats.CSV"});
     arrWorker.push(stats);
     nStatesLength+=1;
     whileLoop();
