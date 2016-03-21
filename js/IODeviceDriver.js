@@ -1,5 +1,3 @@
-/*jslint white: true */
-
 //A hash where each CSV maps to its respective content
 var hashDirectory = {
     "Contact.CSV": "David: Secretary, Tony: Gangster, Jason: Dancer, Benson: Duke, Andrew: Gangster, Thomas: Traitor, Matt: Lame",
@@ -20,9 +18,9 @@ var arrOpenFiles = {
         contents: []
     },
 };
-
 //The function where the IODevice received its messages from the OS
 function onMessage(event) {
+    console.log("Got the message")
     var task = event.data;
     
     switch (task.sysCall) {
@@ -54,7 +52,7 @@ function onMessage(event) {
                 nLength: 0,
                 contents: []
             };
-            console.log(arrOpenFiles[task.fileName]);
+            //console.log(hashDirectory);
             postMessage(task);
         } break;
         case "Delete File": {
@@ -112,4 +110,4 @@ function onMessage(event) {
     }
 }
 
-this.addEventListener('message', onMessage, false);
+self.addEventListener('message', onMessage, false);
