@@ -2,18 +2,23 @@ function runCMD(userInput)
 {
     var pointerOne = "";
     var pointerTwo = "";
+    var arrFiles = [];
     //perhaps switch to run case rather than 
     //display cmd input
     console.log(userInput);
 
     // Check if userInput contains space.
+    //Maybe later on, try cat'ing more than two files
     if (userInput.indexOf(' ') >= 0) 
     {
         var command = userInput.split(' ');
         userInput = command[0];
         pointerOne = command[1];
-        if (command.length == 3)
+        arrFiles.push(pointerOne);
+        if (command.length == 3){
             pointerTwo = command[2];
+            arrFiles.push(pointerTwo);
+        }
     }
 
     switch(userInput)
@@ -43,7 +48,7 @@ function runCMD(userInput)
             more();
             break;
         case "cat":
-            cat(pointerOne);
+            cat(arrFiles);
             break;
         case "contactp":
             runContact();
@@ -72,11 +77,12 @@ function runCMD(userInput)
 function clearCMD()
 {
     var errorCode = 0;
-    try
+    try{
         contentout.innerText = "";
-    catch(err)
+    }
+    catch(err){
         errorCode = -1;
-        
+    }   
     return errorCode;
 }
 
@@ -89,9 +95,9 @@ function lsCMD()
         for(var i = 0; i<keys.length; i++)
             commandOutput(keys[i]+"\n");
         commandOutput("\n");
-    }catch(err)
+    }catch(err){
         errorCode = -1;
-    
+    }
     return errorCode;
 }
 
@@ -113,19 +119,21 @@ function deleteCMD(fileName)
 function copyCMD(fileName, copyFileName)
 {
     var errorCode = 0;
-    var val = 
-    {
-        szMode: "",
-        nPosition: 0,
-        nLength: 0,
-        contents: []
-    }
-
-    hashDirectory[copyFileName] = val;
-    hashDirectory[copyFileName].szMode = hashDirectory[fileName].szMode;
-    hashDirectory[copyFileName].nPosition = hashDirectory[fileName].nPosition;
-    hashDirectory[copyFileName].nLength = hashDirectory[fileName].nLength;
-    hashDirectory[copyFileName].contents = hashDirectory[fileName].contents;
+//    Bottom would be fine for open files
+//    var val = 
+//    {
+//        szMode: "",
+//        nPosition: 0,
+//        nLength: 0,
+//        contents: []
+//    }
+//
+//    arrOpenFiles[copyFileName] = val;
+//    arrOpenFiles[copyFileName].szMode = arrOpenFiles[fileName].szMode;
+//    arrOpenFiles[copyFileName].nPosition = arrOpenFiles[fileName].nPosition;
+//    arrOpenFiles[copyFileName].nLength = arrOpenFiles[fileName].nLength;
+//    arrOpenFiles[copyFileName].contents = arrOpenFiles[fileName].contents;
+    hashDirectory[copyFileName] = hashDirectory[fileName];
     lsCMD();
     return errorCode;
 }
@@ -172,7 +180,8 @@ function cat(arrFiles)
         {
             if(arrFiles[i] == keyName)
                 commandOutput(hashDirectory[keyName])
-        }   
+        }  
+        commandOutput("\n");
     }
     return errorCode;
 }
@@ -247,13 +256,14 @@ Display the process and the state of each running process
 function ps()
 {
     var errorCode = 0;
-    try
+    try{
         for(var i = 1; statesQueue.length; i++)
             commandOutput(statesQueue[i].processName + " is currently "
-                    + statesQueue[i].process);
-    catch(err)
+                    + statesQueue[i].process+"\n");
+    }
+    catch(err){
         errorCode = -1;
-        
+    }
     return errorCode;
 }
 
@@ -265,39 +275,39 @@ function kill(processName)
     var errorCode = 0;
     try{
         switch(processName){
-            case contact:
+            case contactp:
                 statesQueue.splice(1, 1);
                 arrWorker[1].terminate();
                 arrWorker[1] = undefined;
                 break;
-            case bank:
+            case bankp:
                 statesQueue.splice(2, 1);
                 arrWorker[2].terminate();
                 arrWorker[2] = undefined;
                 break;
-            case password:
+            case passwordp:
                 statesQueue.splice(3, 1);
                 arrWorker[3].terminate();
                 arrWorker[3] = undefined;
                 break;
-            case read:
+            case readp:
                 statesQueue.splice(4, 1);
                 arrWorker[4].terminate();
                 arrWorker[4] = undefined;
                 break;
-            case vector:
+            case vectorp:
                 statesQueue.splice(5, 1);
                 arrWorker[5].terminate();
                 arrWorker[5] = undefined;
                 break;
-            case stats:
+            case statsp:
                 statesQueue.splice(6, 1);
                 arrWorker[6].terminate();
                 arrWorker[6] = undefined;
                 break;
         }
-    }catch(err)
+    }catch(err){
         errorCode = -1;
-    
+    }    
     return errorCode;
 }
