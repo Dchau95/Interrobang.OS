@@ -28,7 +28,7 @@ txtbox.addEventListener("keypress", function (event) {
     }
     else if (event.keyCode === 32) { //if space
         changeInput("\u00A0");
-    } 
+    }
     else {
         var hold = String.fromCharCode(event.charCode);
         changeInput(hold);
@@ -39,5 +39,9 @@ txtbox.addEventListener("keydown", function(event){
     if (event.keyCode === 8) { //if backspace
         var hold = contentin.innerText.slice(0, (contentin.innerText.length - 1));
         contentin.innerText = hold;
+    }else if (event.keyCode === 9) { //if tab
+        event.preventDefault();
+        //Insert code for autocomplete
+        //Pattern matching?
     }
 });
