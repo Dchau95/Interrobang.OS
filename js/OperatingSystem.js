@@ -1,10 +1,6 @@
 //The IO device driver
 var device = new Worker('IODeviceDriver.js');
 device.onmessage = onMessageDevice;
-device.onerror = function (event){
-    console.log("Why you error");
-    console.log(event);
-};
 
 //The Operating System class
 function OperatingSystem() {
@@ -14,9 +10,9 @@ function OperatingSystem() {
      * @param fileName: Name of the file to be opened
               mode: Either read or write
      */
-    this.open = function (fileName, mode) {
+    this.open = function (fileName, mode, processID) {
         var task = {
-            nProcessID: statesQueue[processNumberI].processID,
+            nProcessID: processID,
             sysCall : "Open File",
             fileName : fileName,
             Mode : mode
@@ -31,7 +27,7 @@ function OperatingSystem() {
      */
     this.close = function (fileName, filePointer) {
         var task = {
-            nProcessID: statesQueue[processNumberI].processID,
+            nProcessID: filePointer,
             fileName : fileName,
             sysCall : "Close File",
             filePointer : filePointer
@@ -44,9 +40,9 @@ function OperatingSystem() {
      * @param fileName: The name of the file to be created
               mode: Either read or write
      */
-    this.create = function (fileName, mode) {
+    this.create = function (fileName, mode, processID) {
         var task = {
-            nProcessID: statesQueue[processNumberI].processID,
+            nProcessID: processID,
             sysCall : "Create File",
             fileName : fileName,
             mode : mode
@@ -58,9 +54,9 @@ function OperatingSystem() {
     /*
      * @param fileName: Name of the file to be deleted
      */
-    this.delet = function (fileName) {
+    this.delet = function (fileName, processID) {
         var task = {
-            nProcessID: statesQueue[processNumberI].processID,
+            nProcessID: processID,
             sysCall : "Delete File",
             fileName : fileName
         };
@@ -74,7 +70,7 @@ function OperatingSystem() {
      */
     this.read = function (fileName, filePointer) {
         var task = {
-            nProcessID: statesQueue[processNumberI].processID,
+            nProcessID: filePointer,
             sysCall : "Read File",
             fileName: fileName,
             filePointer : filePointer
@@ -88,9 +84,9 @@ function OperatingSystem() {
               filePointer: The number/index that points to the file in arrOpenFiles in IODeviceDriver.js
               contents: Data retreived from the process to be written
      */
-    this.write = function (fileName, filePointer, contents) {
+    this.write = function (fileName, filePointer, contents, processID) {
         var task = {
-            nProcessID: statesQueue[processNumberI].processID,
+            nProcessID: processID,
             sysCall : "Write File",
             fileName: fileName,
             filePointer : filePointer,
@@ -104,9 +100,9 @@ function OperatingSystem() {
      * @param fileName: Name of the file to get the length
               filePointer: The number/index that points to the file in arrOpenFiles in IODeviceDriver.js
      */
-    this.length = function (fileName, filePointer) {
+    this.length = function (fileName, filePointer, processID) {
         var task = {
-            nProcessID: statesQueue[processNumberI].processID,
+            nProcessID: processID,
             sysCall : "Length of File",
             filePointer : filePointer
         };
@@ -119,9 +115,9 @@ function OperatingSystem() {
               filePointer: The number/index that points to the file in arrOpenFiles in IODeviceDriver.js
               position: position of the pointer/index of the contents array in arrOpenFiles
      */
-    this.seek = function (fileName, position, filePointer) {
+    this.seek = function (fileName, position, filePointer, processID) {
         var task = {
-            nProcessID: statesQueue[processNumberI].processID,
+            nProcessID: processID,
             sysCall : "Seek Position",
             filePointer : filePointer,
             position : position
@@ -133,9 +129,9 @@ function OperatingSystem() {
     /*
      * @param filePointer: The number/index that points to the file in arrOpenFiles in IODeviceDriver.js
      */
-    this.position = function (filePointer, fileName) {
+    this.position = function (filePointer, fileName, processID) {
         var task = {
-            nProcessID: statesQueue[processNumberI].processID,
+            nProcessID: processID,
             sysCall : "Position of File",
             fileName: fileName,
             filePointer : filePointer
@@ -150,7 +146,7 @@ function OperatingSystem() {
      */
     this.endOfFile = function (filePointer, fileName) {
         var task = {
-            nProcessID: statesQueue[processNumberI].processID,
+            nProcessID: filePointer,
             sysCall: "End of File",
             filePointer: filePointer,
             fileName: fileName,
@@ -169,18 +165,12 @@ var processNumberI = 0;
 
 //Queue/array for the states of the processes
 var statesQueue = [
-    { process: "Dummy", processID: 0, EOF: false, result: "", resultCsv: "", fileName: ""},
+    { process: "Dummy", processID: 0, EOF: false, result: "", resultCsv: "", fileCsv: ""},
 ];
 
 //Array of workers
 var arrWorker = [
     dummyWorker = new Worker("main.js"),
-    contact = new Worker("ContactManager.js"),
-    bank = new Worker("BankProcess.js"),
-    password = new Worker("passwordchanger.js"),
-    read = new Worker("ReadFile.js"),
-    vector = new Worker("VectorCalculate.js"),
-    stats = new Worker("StatisticsCalculate.js")
 ];
 
 var nStatesLength = statesQueue.length;
@@ -197,7 +187,7 @@ function whileLoop() {
         //which one is in Running
         if (statesQueue[processNumberI].process === "Starting") {
             commandOutput("Process "+statesQueue[processNumberI].processID+" is Starting\n");
-            os.open(arrDirectory[processNumberI], "Read");
+            os.open(statesQueue[processNumberI].fileCsv, "Read", processNumberI);
             statesQueue[processNumberI].process = "Waiting";
         } else if (statesQueue[processNumberI].process === "Waiting") {
             commandOutput("Process "+statesQueue[processNumberI].processID+" is Waiting\n");
@@ -211,15 +201,17 @@ function whileLoop() {
             if (statesQueue[processNumberI].EOF) {
                 statesQueue[processNumberI].process = "Stopping";
             } else {
-                os.read(arrDirectory[processNumberI], processNumberI);
+                os.read(statesQueue[processNumberI].fileCsv, processNumberI);
                 statesQueue[processNumberI].process = "Waiting";
             }
         } else if (statesQueue[processNumberI].process === "Stopping") {
             commandOutput("Process "+statesQueue[processNumberI].processID+" is Stopping\n");
             statesQueue[processNumberI].process = "Stopped";
-            nStatesLength-=1;
         } else if (statesQueue[processNumberI].process === "Stopped") {
+            commandOutput("Process "+statesQueue[processNumberI].processID+" has Stopped\n");
+            nStatesLength-=1;
             statesQueue.splice(processNumberI,1);
+            arrWorker.splice(processNumberI,1);
             continue;
         }
     }
@@ -248,48 +240,60 @@ function onMessageDevice(event) {
 
 function runContact() {
     commandOutput("Contact Manager is starting\n");
-    arrWorker[1].onmessage = onMessageProcess1;
-    statesQueue.push({ process : "Starting", processID: 1, EOF: false, result: "", resultCsv: "Result1.CSV"});
+    var contact = new Worker("ContactManager.js");
+    contact.onmessage = onMessageProcess1;
+    statesQueue.push({ process : "Starting", processID: 1, EOF: false, result: "", resultCsv: "Result1.CSV", fileCsv: "Contact.CSV"});
+    arrWorker.push(contact);
     nStatesLength+=1;
     whileLoop();
 }
 
 function runBank() {
     commandOutput("Bank Process is starting\n");
-    arrWorker[2].onmessage = onMessageProcess2;
-    statesQueue.push({process : "Starting", processID: 2, EOF: false, result: 0, resultCsv: "Result2.CSV"});
+    var bank = new Worker("BankProcess.js");
+    bank.onmessage = onMessageProcess2;
+    statesQueue.push({process : "Starting", processID: 2, EOF: false, result: 0, resultCsv: "Result2.CSV", fileCsv: "Bank.CSV"});
+    arrWorker.push(bank);
     nStatesLength+=1;
     whileLoop();
 }
 
 function runPassword() {
     commandOutput("Password Process is starting\n");
-    arrWorker[3].onmessage = onMessageProcess1;
-    statesQueue.push({process : "Starting", processID: 3, EOF: false, result: "", resultCsv: "Result3.CSV"});
+    var password = new Worker("passwordchanger.js");
+    password.onmessage = onMessageProcess1;
+    statesQueue.push({process : "Starting", processID: 3, EOF: false, result: "", resultCsv: "Result3.CSV", fileCsv: "password.CSV"});
+    arrWorker.push(password);
     nStatesLength+=1;
     whileLoop();
 }
 
 function runRead() {
     commandOutput("Read Process is starting\n");
-    arrWorker[4].onmessage = onMessageProcess2;
-    statesQueue.push({process : "Starting", processID: 4, EOF: false, result: "", resultCsv: "Result4.CSV"});
+    var read = new Worker("ReadFile.js");
+    read.onmessage = onMessageProcess2;
+    statesQueue.push({process : "Starting", processID: 4, EOF: false, result: "", resultCsv: "Result4.CSV", fileCsv: "read.CSV"});
+    arrWorker.push(read);
     nStatesLength+=1;
     whileLoop();
 }
 
 function runVector() {
     commandOutput("Vector Calculate is starting\n");
-    arrWorker[5].onmessage = onMessageProcess1;
-    statesQueue.push({ process : "Starting", processID: 5, EOF: false, result: "", resultCsv: "Result5.CSV"});
+    var vector = new Worker("VectorCalculate.js");
+    vector.onmessage = onMessageProcess1;
+    statesQueue.push({ process : "Starting", processID: 5, EOF: false, result: "", resultCsv: "Result5.CSV", fileCsv: "vector.CSV"});
+    arrWorker.push(vector);
     nStatesLength+=1;
     whileLoop();
 }
 
 function runStats() {
     commandOutput("Stats Process is starting\n");
-    arrWorker[6].onmessage = onMessageProcess1;
-    statesQueue.push({process : "Starting", processID: 6, EOF: false, result: "", resultCsv: "Result6.CSV"});
+    var stats = new Worker("StatisticsCalculate.js")
+    stats.onmessage = onMessageProcess1;
+    statesQueue.push({process : "Starting", processID: 6, EOF: false, result: "", resultCsv: "Result6.CSV", fileCsv: "stats.CSV"});
+    arrWorker.push(stats);
     nStatesLength+=1;
     whileLoop();
 }
@@ -300,15 +304,15 @@ function onMessageProcess1 (e) {
     if(e.data.result !== "undefined"){
         statesQueue[e.data.processNumberI].result = e.data.result;
     }
-    os.endOfFile(e.data.processNumberI, arrDirectory[e.data.processNumberI]);
+    os.endOfFile(e.data.processNumberI, statesQueue[e.data.processNumberI].fileCsv);
     if(e.data.result === "undefined"){
-        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
+        os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
         statesQueue[e.data.processNumberI].process = "Stopping";
     } else if (statesQueue[e.data.processNumberI].EOF ||  e.data.result !== "undefined") {
         commandOutput("This is the end of the file for process "+e.data.processNumberI+"\n");
         statesQueue[e.data.processNumberI].process = "Stopping";
-        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
-        os.create(statesQueue[e.data.processNumberI].resultCsv, "Write");
+        os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
+        os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI);
         os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, statesQueue[e.data.processNumberI].result);
         commandOutput(statesQueue[e.data.processNumberI].result);
         commandOutput("\n");
@@ -326,15 +330,15 @@ function onMessageProcess2 (e) {
     commandOutput("Process "+e.data.processNumberI+" has responded with data\n");
     if(e.data.result !== "undefined")
         statesQueue[e.data.processNumberI].result += e.data.result;
-    os.endOfFile(e.data.processNumberI, arrDirectory[e.data.processNumberI]);
+    os.endOfFile(e.data.processNumberI, statesQueue[e.data.processNumberI].fileCsv);
     if(e.data.result === "undefined"){
-        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
+        os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
         statesQueue[e.data.processNumberI].process = "Stopping";
     } else if (statesQueue[e.data.processNumberI].EOF &&  e.data.result !== "undefined") {
         commandOutput("This is the end of the file for process "+e.data.processNumberI+"\n");
         statesQueue[e.data.processNumberI].process = "Stopping";
-        os.close(arrDirectory[e.data.processNumberI], e.data.processNumberI);
-        os.create(statesQueue[e.data.processNumberI].resultCsv, "Write");
+        os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
+        os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI);
         os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, statesQueue[e.data.processNumberI].result);
         commandOutput(statesQueue[e.data.processNumberI].result);
         commandOutput("\n");

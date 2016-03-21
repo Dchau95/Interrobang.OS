@@ -76,6 +76,7 @@ function clearCMD()
 
 function lsCMD()
 {
+    console.log(hashDirectory)
     var keys = Object.keys(hashDirectory);
     for(var i = 0; i<keys.length; i++)
         commandOutput(keys[i]+"\n");

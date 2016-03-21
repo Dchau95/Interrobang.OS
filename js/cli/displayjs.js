@@ -14,6 +14,7 @@ function changeInput(text) {
 
 function commandOutput(text){
     contentout.innerText += text;
+    txtbox.scrollIntoView();
 }
 
 txtbox.addEventListener("keypress", function (event) {
