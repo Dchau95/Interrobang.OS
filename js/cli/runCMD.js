@@ -3,12 +3,14 @@ function runCMD(userInput)
     var pointerOne = "";
     var pointerTwo = "";
     var arrFiles = [];
+    var command = userInput.split(' ');
+    
+    console.log(userInput);
 
     // Check if userInput contains space.
     //Maybe later on, try cat'ing more than two files
     if (userInput.indexOf(' ') >= 0) 
     {
-        var command = userInput.split(' ');
         userInput = command[0];
         pointerOne = command[1];
         arrFiles.push(pointerOne);
@@ -18,7 +20,7 @@ function runCMD(userInput)
         }
     }
 
-    switch(userInput.toLowerCase())
+    switch(command[0].toLowerCase())
     {
         case "clear":
             clearCMD();
@@ -252,7 +254,7 @@ function kill(processName)
     var errorCode = 0;
     try{
         switch(processName){
-            case contactp:
+            case "contactp":
                 for(var i = 0; i<statesQueue.length; i++){
                     if (statesQueue[i].processName === "ContactManager") {
                         statesQueue.splice(i, 1);
@@ -261,7 +263,7 @@ function kill(processName)
                     }
                 }
                 break;
-            case bankp:
+            case "bankp":
                 for(var i = 0; i<statesQueue.length; i++){
                     if (statesQueue[i].processName === "BankProcess") {
                         statesQueue.splice(i, 1);
@@ -270,7 +272,7 @@ function kill(processName)
                     }
                 }
                 break;
-            case passwordp:
+            case "passwordp":
                 for(var i = 0; i<statesQueue.length; i++){
                     if (statesQueue[i].processName === "PasswordProcess") {
                         statesQueue.splice(i, 1);
@@ -279,7 +281,7 @@ function kill(processName)
                     }
                 }
                 break;
-            case readp:
+            case "readp":
                 for(var i = 0; i<statesQueue.length; i++){
                     if (statesQueue[i].processName === "ReadProcess") {
                         statesQueue.splice(i, 1);
@@ -288,7 +290,7 @@ function kill(processName)
                     }
                 }
                 break;
-            case vectorp:
+            case "vectorp":
                 for(var i = 0; i<statesQueue.length; i++){
                     if (statesQueue[i].processName === "VectorProcess") {
                         statesQueue.splice(i, 1);
@@ -298,7 +300,7 @@ function kill(processName)
                     }
                 }
                 break;
-            case statsp:
+            case "statsp":
                 for(var i = 0; i<statesQueue.length; i++){
                     if (statesQueue[i].processName === "StatsProcess") {
                         statesQueue.splice(i, 1);
