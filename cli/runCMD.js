@@ -2,21 +2,25 @@ function runCMD(userInput)
 {
     var pointerOne = "";
     var pointerTwo = "";
-    //perhaps switch to run case rather than 
-    //display cmd input
+    var arrFiles = [];
+    var command = userInput.split(' ');
+    
     console.log(userInput);
 
     // Check if userInput contains space.
+    //Maybe later on, try cat'ing more than two files
     if (userInput.indexOf(' ') >= 0) 
     {
-        var command = userInput.split(' ');
         userInput = command[0];
         pointerOne = command[1];
-        if (command.length == 3)
+        arrFiles.push(pointerOne);
+        if (command.length == 3){
             pointerTwo = command[2];
+            arrFiles.push(pointerTwo);
+        }
     }
 
-    switch(userInput)
+    switch(command[0].toLowerCase())
     {
         case "clear":
             clearCMD();
@@ -24,7 +28,7 @@ function runCMD(userInput)
         case "ls":
             lsCMD();
             break;
-        case "man":
+        case "man": case "help":
             man();
             break;
         case "delete":
@@ -43,7 +47,7 @@ function runCMD(userInput)
             more();
             break;
         case "cat":
-            cat(pointerOne);
+            cat(arrFiles);
             break;
         case "contactp":
             runContact();
@@ -71,16 +75,24 @@ function runCMD(userInput)
             
 function clearCMD()
 {
-    contentout.innerText = "";
+    var errorCode = 0;
+    contentout.innerText = ""; 
+    return errorCode;
 }
 
 function lsCMD()
 {
     console.log(hashDirectory)
-    var keys = Object.keys(hashDirectory);
-    for(var i = 0; i<keys.length; i++)
-        commandOutput(keys[i]+"\n");
-    commandOutput("\n");
+    var errorCode = 0;
+    try{
+        var keys = Object.keys(hashDirectory);
+        for(var i = 0; i<keys.length; i++)
+            commandOutput(keys[i]+"\n");
+        commandOutput("\n");
+    }catch(err){
+        errorCode = -1;
+    }
+    return errorCode;
 }
 
 function deleteCMD(fileName)
@@ -89,36 +101,30 @@ function deleteCMD(fileName)
     {
         delete hashDirectory[fileName];
         lsCMD();
+        return 0;
     }
     else
-        commandOutput("File does not exist.\n");
+    {
+        commandOutput("File does not exist.\n"); 
+        return -1;
+    }
 }
 
 function copyCMD(fileName, copyFileName)
 {
-    var val = 
-    {
-        szMode: "",
-        nPosition: 0,
-        nLength: 0,
-        contents: []
-    }
-
-    hashDirectory[copyFileName] = val;
-    hashDirectory[copyFileName].szMode = hashDirectory[fileName].szMode;
-    hashDirectory[copyFileName].nPosition = hashDirectory[fileName].nPosition;
-    hashDirectory[copyFileName].nLength = hashDirectory[fileName].nLength;
-    hashDirectory[copyFileName].contents = hashDirectory[fileName].contents;
+    var errorCode = 0;
+    hashDirectory[copyFileName] = hashDirectory[fileName];
     lsCMD();
+    return errorCode;
 }
 
 /**
 Help manual
-clear, ls or dir, delete, copy, ps, kill,
-more, cat, man …
+clear, ls or dir, delete, copy, ps, kill, more, cat, man …
 */
 function man()
 {
+    var errorCode = 0;
     commandOutput("clear : Clear terminal screen\n");
     commandOutput("ls or dir : List directory contents\n");
     commandOutput("delete : Delete file\n");
@@ -128,7 +134,14 @@ function man()
     commandOutput("more : Display output screen\n");
     commandOutput("cat : Display file content\n");
     commandOutput("man : Display help manual\n");
+    commandOutput("contactp : Initiates the contact manager process\n");
+    commandOutput("bankp : Initiates the bank calculator process\n");
+    commandOutput("passwordp : Initiates the password process\n");
+    commandOutput("readp : Initiates the sort a list of numbers process\n");
+    commandOutput("vectorp : Initiates the vector calculator process\n");
+    commandOutput("statsp : Initiates the statistics calculator process\n");
     commandOutput("\n");
+    return errorCode;
 }
 
 /**
@@ -139,14 +152,17 @@ file elements matching hastable(array of files)
 */
 function cat(arrFiles)
 {
+    var errorCode = 0;
     for(var i=0; i < arrFiles.length; i++)
     {
         for(var keyName in hashDirectory)
         {
             if(arrFiles[i] == keyName)
-                console.log(hashDirectory[keyName])
-        }   
+                commandOutput(hashDirectory[keyName])
+        }  
+        commandOutput("\n");
     }
+    return errorCode;
 }
 
 /**
@@ -154,18 +170,30 @@ Display output one screen at a time
 */
 function more()
 {
-        //wait for cmd input after more 
-        //** wait for cmd input
+    var errorCode = 0;
+    var moreInput = contentin.innerText;
+    //wait for cmd input after more 
+    /** wait for cmd input 
+        use setTimeout
+        http://stackoverflow.com/questions/5551378/javascript-pausing-execution-of-function-to-wait-for-user-input
+        http://stackoverflow.com/questions/2221836/how-can-i-make-a-program-wait-for-a-button-press-in-javascript
+        Syntax is setTimeout(more, 10000) 10 secs maybe?
+        In more function, it checks for keyboard input, if nothing, do setTimeout again
+        If there is keyboard input, then do one of the switch statements
+        If q/Q, it skips the if statement with setTimeout to leave
+    */
+    
+    //If moreInput == q || Q, quit more
     while(moreInput != "q" || moreInput != "Q")
     {
         switch(input)
         {
-            //Display next page
-            case SPACEBAR:
+            //If input == space, Display next page
+            case "\u00A0":
                 break;
                 
             //Display next line
-            case ENTER:
+            case 13:
                 //** wait for ENTER cmd input
                 while(enterInput)
                 {
@@ -173,7 +201,7 @@ function more()
                 }
                 break;
             //display next file
-            case f:
+            case "f":
                 var arrCount = 1;
                 while(arrDirectory.length != arrCount)
                 {
@@ -188,12 +216,12 @@ function more()
                 break;
                 
             //quit
-            case q:
+            case "q":
                 moreInput = "q";
                 break;
                 
             //show available commands
-            case "?":
+            case "?": case "h":
                 console.log("SPACEBAR : Display next page");
                 console.log("ENTER : Display next line");
                 console.log("f : Display next file");
@@ -209,6 +237,7 @@ function more()
         }// ENd "more" switch loop
         moreInput = "q";
     }//End more input check
+    return errorCode;
 }//END more function
 
 /** 
@@ -216,11 +245,16 @@ Display the process and the state of each running process
 */
 function ps()
 {
-    for(var i = 1; statesQueue.length; i++)
-        {
-            console.log(arrDirectory[i] + " is currently "
-                        + statesQueue[i].process);
-        }
+    var errorCode = 0;
+    try{
+        for(var i = 1; statesQueue.length; i++)
+            commandOutput(statesQueue[i].processName + " is currently "
+                    + statesQueue[i].process+"\n");
+    }
+    catch(err){
+        errorCode = -1;
+    }
+    return errorCode;
 }
 
 /**
@@ -228,36 +262,68 @@ Terminate current running process
 */
 function kill(processName)
 {
-    switch(processName){
-        case contact:
-            statesQueue.splice(1, 1);
-            arrWorker[1].terminate();
-            arrWorker[1] = undefined;
-            break;
-        case bank:
-            statesQueue.splice(2, 1);
-            arrWorker[2].terminate();
-            arrWorker[2] = undefined;
-            break;
-        case password:
-            statesQueue.splice(3, 1);
-            arrWorker[3].terminate();
-            arrWorker[3] = undefined;
-            break;
-        case read:
-            statesQueue.splice(4, 1);
-            arrWorker[4].terminate();
-            arrWorker[4] = undefined;
-            break;
-        case vector:
-            statesQueue.splice(5, 1);
-            arrWorker[5].terminate();
-            arrWorker[5] = undefined;
-            break;
-        case stats:
-            statesQueue.splice(6, 1);
-            arrWorker[6].terminate();
-            arrWorker[6] = undefined;
-            break;
-    }
+    var errorCode = 0;
+    try{
+        switch(processName){
+            case "contactp":
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "ContactManager") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
+                break;
+            case "bankp":
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "BankProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
+                break;
+            case "passwordp":
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "PasswordProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
+                break;
+            case "readp":
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "ReadProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
+                break;
+            case "vectorp":
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "VectorProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker[i] = undefined;
+                        arrWorker.splice(i, 1);
+                    }
+                }
+                break;
+            case "statsp":
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "StatsProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
+                break;
+        }
+        commandOutput("Killed the process\n");
+    }catch(err){
+        errorCode = -1;
+    }    
+    return errorCode;
 }

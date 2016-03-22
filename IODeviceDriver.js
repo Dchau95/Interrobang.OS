@@ -20,7 +20,6 @@ var arrOpenFiles = {
 };
 //The function where the IODevice received its messages from the OS
 function onMessage(event) {
-    console.log("Got the message")
     var task = event.data;
     
     switch (task.sysCall) {
@@ -52,7 +51,7 @@ function onMessage(event) {
                 nLength: 0,
                 contents: []
             };
-            //console.log(hashDirectory);
+            console.log(hashDirectory);
             postMessage(task);
         } break;
         case "Delete File": {
