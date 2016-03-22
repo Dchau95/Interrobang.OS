@@ -16,7 +16,7 @@ function runCMD(userInput)
             pointerTwo = command[2];
     }
 
-    switch(userInput)
+    switch(userInput.toLowerCase())
     {
         case "clear":
             clearCMD();
@@ -24,7 +24,7 @@ function runCMD(userInput)
         case "ls":
             lsCMD();
             break;
-        case "man":
+        case "man": case "help":
             man();
             break;
         case "delete":
@@ -139,14 +139,10 @@ file elements matching hastable(array of files)
 */
 function cat(arrFiles)
 {
-    for(var i=0; i < arrFiles.length; i++)
-    {
-        for(var keyName in hashDirectory)
-        {
-            if(arrFiles[i] == keyName)
-                console.log(hashDirectory[keyName])
-        }   
-    }
+    if (hashDirectory[arrFiles] != null)
+        commandOutput(hashDirectory[arrFiles]);
+    else
+        commandOutput("File does not exist\n")
 }
 
 /**
