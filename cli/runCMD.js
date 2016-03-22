@@ -2,21 +2,21 @@ function runCMD(userInput)
 {
     var pointerOne = "";
     var pointerTwo = "";
+    var command = userInput.split(' ');
     //perhaps switch to run case rather than 
     //display cmd input
     console.log(userInput);
-
     // Check if userInput contains space.
     if (userInput.indexOf(' ') >= 0) 
     {
-        var command = userInput.split(' ');
+
         userInput = command[0];
         pointerOne = command[1];
         if (command.length == 3)
             pointerTwo = command[2];
     }
 
-    switch(userInput.toLowerCase())
+    switch(command[0].toLowerCase())
     {
         case "clear":
             clearCMD();
@@ -87,7 +87,7 @@ function deleteCMD(fileName)
 {
     if (hashDirectory[fileName] != null)
     {
-        delete hashDirectory[fileName];
+        delete hashDirectory[fileName.toLowerCase()];
         lsCMD();
     }
     else
