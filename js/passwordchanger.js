@@ -38,10 +38,6 @@ function passwordChanger(usrpwdlist) {
 
 //The function that signifies the message received from the OS.
 onmessage = function (event) {
-    console.log(event);
-    console.log(event.data);
-    console.log(event.data.data);
-    console.log("Got the message");
     var errorCon = 0;
     var arrCsv = event.data.data;
     var szResult;
