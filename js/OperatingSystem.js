@@ -189,7 +189,7 @@ function whileLoop() {
             commandOutput("Process "+statesQueue[processNumberI].processName+" is Starting\n");
             setTimeout(function(){
                 os.open(statesQueue[processNumberI].fileCsv, "Read", processNumberI)
-            }, 2000);
+            }, 1000);
             statesQueue[processNumberI].process = "Waiting";
         } else if (statesQueue[processNumberI].process === "Waiting") {
             commandOutput("Process "+statesQueue[processNumberI].processName+" is Waiting\n");
@@ -205,7 +205,7 @@ function whileLoop() {
             } else {
                 setTimeout(function(){
                     os.read(statesQueue[processNumberI].fileCsv, processNumberI)
-                }, 2000);
+                }, 1000);
                 statesQueue[processNumberI].process = "Waiting";
             }
         } else if (statesQueue[processNumberI].process === "Stopping") {
@@ -214,6 +214,8 @@ function whileLoop() {
         } else if (statesQueue[processNumberI].process === "Stopped") {
             commandOutput("Process "+statesQueue[processNumberI].processName+" has Stopped\n");
             nStatesLength-=1;
+            console.log("In Stopped if");
+            console.log(hashDirectory);
             statesQueue.splice(processNumberI,1);
             arrWorker.splice(processNumberI,1);
             continue;
@@ -316,22 +318,21 @@ function onMessageProcess1 (e) {
     }
     setTimeout(function(){
         os.endOfFile(e.data.processNumberI, statesQueue[e.data.processNumberI].fileCsv)
-    }, 2000);
+    }, 1000);
     if(e.data.result === "undefined"){
-        setTimeout("os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI)", 2000);
         statesQueue[e.data.processNumberI].process = "Stopping";
     } else if (statesQueue[e.data.processNumberI].EOF ||  e.data.result !== "undefined") {
         commandOutput("This is the end of the file for process "+statesQueue[e.data.processNumberI].processName+"\n");
-        statesQueue[e.data.processNumberI].process = "Stopping";
-        setTimeout(function(){
-            os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI)
-        }, 2000);
         setTimeout(function(){
             os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI)
-        }, 2000);
+        }, 1000);
         setTimeout(function(){
             os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, statesQueue[e.data.processNumberI].result)
-        }, 2000);
+        }, 1000);
+        setTimeout(function(){
+            os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI)
+        }, 1000);
+        statesQueue[e.data.processNumberI].process = "Stopping";
         commandOutput(statesQueue[e.data.processNumberI].result+"\n");
     }
     whileLoop();
@@ -345,24 +346,21 @@ function onMessageProcess2 (e) {
         statesQueue[e.data.processNumberI].result += e.data.result;
     setTimeout(function(){
         os.endOfFile(e.data.processNumberI, statesQueue[e.data.processNumberI].fileCsv)
-    }, 2000);
+    }, 1000);
     if(e.data.result === "undefined"){
-        setTimeout(function(){
-            os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI)
-        }, 2000);
         statesQueue[e.data.processNumberI].process = "Stopping";
     } else if (statesQueue[e.data.processNumberI].EOF &&  e.data.result !== "undefined") {
         commandOutput("This is the end of the file for process "+statesQueue[e.data.processNumberI].processName+"\n");
-        statesQueue[e.data.processNumberI].process = "Stopping";
-        setTimeout(function(){
-            os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI)
-        }, 2000);
         setTimeout(function(){
             os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI)
-        }, 2000);
+        }, 1000);
         setTimeout(function(){
             os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, statesQueue[e.data.processNumberI].result)
-        }, 2000);
+        }, 1000);
+        setTimeout(function(){
+            os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI)
+        }, 1000);
+        statesQueue[e.data.processNumberI].process = "Stopping";
         commandOutput(statesQueue[e.data.processNumberI].result+"\n");
     }
     whileLoop();

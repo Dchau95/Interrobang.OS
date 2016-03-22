@@ -52,7 +52,7 @@ function onMessage(event) {
                 nLength: 0,
                 contents: []
             };
-            //console.log(hashDirectory);
+            console.log(hashDirectory);
             postMessage(task);
         } break;
         case "Delete File": {
