@@ -20,7 +20,6 @@ var arrOpenFiles = {
 };
 //The function where the IODevice received its messages from the OS
 function onMessage(event) {
-    console.log("Got the message")
     var task = event.data;
     
     switch (task.sysCall) {

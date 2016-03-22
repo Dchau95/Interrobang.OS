@@ -3,9 +3,6 @@ function runCMD(userInput)
     var pointerOne = "";
     var pointerTwo = "";
     var arrFiles = [];
-    //perhaps switch to run case rather than 
-    //display cmd input
-    console.log(userInput);
 
     // Check if userInput contains space.
     //Maybe later on, try cat'ing more than two files
@@ -21,7 +18,7 @@ function runCMD(userInput)
         }
     }
 
-    switch(userInput)
+    switch(userInput.toLowerCase())
     {
         case "clear":
             clearCMD();
@@ -29,7 +26,7 @@ function runCMD(userInput)
         case "ls":
             lsCMD();
             break;
-        case "man":
+        case "man": case "help":
             man();
             break;
         case "delete":
@@ -77,12 +74,7 @@ function runCMD(userInput)
 function clearCMD()
 {
     var errorCode = 0;
-    try{
-        contentout.innerText = "";
-    }
-    catch(err){
-        errorCode = -1;
-    }   
+    contentout.innerText = ""; 
     return errorCode;
 }
 
@@ -119,20 +111,6 @@ function deleteCMD(fileName)
 function copyCMD(fileName, copyFileName)
 {
     var errorCode = 0;
-//    Bottom would be fine for open files
-//    var val = 
-//    {
-//        szMode: "",
-//        nPosition: 0,
-//        nLength: 0,
-//        contents: []
-//    }
-//
-//    arrOpenFiles[copyFileName] = val;
-//    arrOpenFiles[copyFileName].szMode = arrOpenFiles[fileName].szMode;
-//    arrOpenFiles[copyFileName].nPosition = arrOpenFiles[fileName].nPosition;
-//    arrOpenFiles[copyFileName].nLength = arrOpenFiles[fileName].nLength;
-//    arrOpenFiles[copyFileName].contents = arrOpenFiles[fileName].contents;
     hashDirectory[copyFileName] = hashDirectory[fileName];
     lsCMD();
     return errorCode;
@@ -140,8 +118,7 @@ function copyCMD(fileName, copyFileName)
 
 /**
 Help manual
-clear, ls or dir, delete, copy, ps, kill,
-more, cat, man …
+clear, ls or dir, delete, copy, ps, kill, more, cat, man …
 */
 function man()
 {
@@ -276,36 +253,62 @@ function kill(processName)
     try{
         switch(processName){
             case contactp:
-                statesQueue.splice(1, 1);
-                arrWorker[1].terminate();
-                arrWorker[1] = undefined;
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "ContactManager") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
                 break;
             case bankp:
-                statesQueue.splice(2, 1);
-                arrWorker[2].terminate();
-                arrWorker[2] = undefined;
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "BankProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
                 break;
             case passwordp:
-                statesQueue.splice(3, 1);
-                arrWorker[3].terminate();
-                arrWorker[3] = undefined;
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "PasswordProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
                 break;
             case readp:
-                statesQueue.splice(4, 1);
-                arrWorker[4].terminate();
-                arrWorker[4] = undefined;
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "ReadProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
                 break;
             case vectorp:
-                statesQueue.splice(5, 1);
-                arrWorker[5].terminate();
-                arrWorker[5] = undefined;
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "VectorProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker[i] = undefined;
+                        arrWorker.splice(i, 1);
+                    }
+                }
                 break;
             case statsp:
-                statesQueue.splice(6, 1);
-                arrWorker[6].terminate();
-                arrWorker[6] = undefined;
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "StatsProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
                 break;
         }
+        commandOutput("Killed the process\n");
     }catch(err){
         errorCode = -1;
     }    

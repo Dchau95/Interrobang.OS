@@ -13,6 +13,7 @@ function findContact(aryContactCsv) {
         return szContact;
     }
     console.log("pausing contact process");
+    return "";
 }
 
 //The function that signifies the message received from the OS.

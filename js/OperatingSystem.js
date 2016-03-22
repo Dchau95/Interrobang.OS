@@ -214,8 +214,6 @@ function whileLoop() {
         } else if (statesQueue[processNumberI].process === "Stopped") {
             commandOutput("Process "+statesQueue[processNumberI].processName+" has Stopped\n");
             nStatesLength-=1;
-            console.log("In Stopped if");
-            console.log(hashDirectory);
             statesQueue.splice(processNumberI,1);
             arrWorker.splice(processNumberI,1);
             continue;
@@ -280,7 +278,7 @@ function runPassword() {
 function runRead() {
     var read = new Worker("ReadFile.js");
     read.onmessage = onMessageProcess2;
-    statesQueue.push({process : "Starting", processName: "Read Process", EOF: false, result: "", resultCsv: "Result4.CSV", fileCsv: "read.CSV"});
+    statesQueue.push({process : "Starting", processName: "ReadProcess", EOF: false, result: "", resultCsv: "Result4.CSV", fileCsv: "read.CSV"});
     arrWorker.push(read);
     nStatesLength+=1;
     whileLoop();
@@ -311,17 +309,15 @@ function osCMD(userInput)
 
 //Handle errorcode
 function onMessageProcess1 (e) {
-    console.log("Error code is "+e.data.errorCon);
     commandOutput("Process "+statesQueue[e.data.processNumberI].processName+" has responded with data\n");
-    if(e.data.result !== "undefined"){
+    if(e.data.errorCon !== -1 && e.data.result !== "undefined" && e.data.result !== ""){
         statesQueue[e.data.processNumberI].result = e.data.result;
+        console.log(statesQueue[e.data.processNumberI].result);
     }
     setTimeout(function(){
         os.endOfFile(e.data.processNumberI, statesQueue[e.data.processNumberI].fileCsv)
     }, 1000);
-    if(e.data.result === "undefined"){
-        statesQueue[e.data.processNumberI].process = "Stopping";
-    } else if (statesQueue[e.data.processNumberI].EOF ||  e.data.result !== "undefined") {
+    if (statesQueue[e.data.processNumberI].EOF) {
         commandOutput("This is the end of the file for process "+statesQueue[e.data.processNumberI].processName+"\n");
         setTimeout(function(){
             os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI)
@@ -335,21 +331,25 @@ function onMessageProcess1 (e) {
         statesQueue[e.data.processNumberI].process = "Stopping";
         commandOutput(statesQueue[e.data.processNumberI].result+"\n");
     }
+        //else if(e.data.result === "undefined"){
+//        statesQueue[e.data.processNumberI].process = "Stopping";
+//        commandOutput(statesQueue[e.data.processNumberI].result+"\n");
+//    }
     whileLoop();
 }
 
 //For arrWorker[2] and arrWorker[4]
 function onMessageProcess2 (e) {
-    console.log("Error code is "+e.data.errorCon);
     commandOutput("Process "+statesQueue[e.data.processNumberI].processName+" has responded with data\n");
-    if(e.data.result !== "undefined")
+    if(e.data.errorCon !== -1 && e.data.result !== "undefined" && e.data.result !== "")
         statesQueue[e.data.processNumberI].result += e.data.result;
     setTimeout(function(){
         os.endOfFile(e.data.processNumberI, statesQueue[e.data.processNumberI].fileCsv)
     }, 1000);
-    if(e.data.result === "undefined"){
-        statesQueue[e.data.processNumberI].process = "Stopping";
-    } else if (statesQueue[e.data.processNumberI].EOF &&  e.data.result !== "undefined") {
+//    if(e.data.result === "undefined"){
+//        statesQueue[e.data.processNumberI].process = "Stopping";
+//    } else 
+        if (statesQueue[e.data.processNumberI].EOF) {
         commandOutput("This is the end of the file for process "+statesQueue[e.data.processNumberI].processName+"\n");
         setTimeout(function(){
             os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI)
