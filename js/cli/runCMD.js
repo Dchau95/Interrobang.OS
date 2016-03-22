@@ -171,18 +171,29 @@ Display output one screen at a time
 function more()
 {
     var errorCode = 0;
+    var moreInput = contentin.innerText;
     //wait for cmd input after more 
-    //** wait for cmd input
+    /** wait for cmd input 
+        use setTimeout
+        http://stackoverflow.com/questions/5551378/javascript-pausing-execution-of-function-to-wait-for-user-input
+        http://stackoverflow.com/questions/2221836/how-can-i-make-a-program-wait-for-a-button-press-in-javascript
+        Syntax is setTimeout(more, 10000) 10 secs maybe?
+        In more function, it checks for keyboard input, if nothing, do setTimeout again
+        If there is keyboard input, then do one of the switch statements
+        If q/Q, it skips the if statement with setTimeout to leave
+    */
+    
+    //If moreInput == q || Q, quit more
     while(moreInput != "q" || moreInput != "Q")
     {
         switch(input)
         {
-            //Display next page
-            case SPACEBAR:
+            //If input == space, Display next page
+            case "\u00A0":
                 break;
                 
             //Display next line
-            case ENTER:
+            case 13:
                 //** wait for ENTER cmd input
                 while(enterInput)
                 {
@@ -190,7 +201,7 @@ function more()
                 }
                 break;
             //display next file
-            case f:
+            case "f":
                 var arrCount = 1;
                 while(arrDirectory.length != arrCount)
                 {
@@ -205,12 +216,12 @@ function more()
                 break;
                 
             //quit
-            case q:
+            case "q":
                 moreInput = "q";
                 break;
                 
             //show available commands
-            case "?":
+            case "?": case "h":
                 console.log("SPACEBAR : Display next page");
                 console.log("ENTER : Display next line");
                 console.log("f : Display next file");
