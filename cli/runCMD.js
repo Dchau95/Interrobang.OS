@@ -4,9 +4,11 @@ function runCMD(userInput)
     var pointerTwo = "";
     var arrFiles = [];
     var command = userInput.split(' ');
-    
-    console.log(userInput);
 
+    //perhaps switch to run case rather than 
+    //display cmd input
+
+    console.log(userInput);
     // Check if userInput contains space.
     //Maybe later on, try cat'ing more than two files
     if (userInput.indexOf(' ') >= 0) 
