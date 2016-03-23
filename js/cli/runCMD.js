@@ -283,8 +283,8 @@ function ps()
 {
     var errorCode = 0;
     try{
-        for(var i = 1; statesQueue.length; i++)
-            commandOutput(+statesQueue[i].processName + " is currently "
+        for(var i = 1; i<statesQueue.length; i++)
+            commandOutput("Process "+statesQueue[i].processName + " is currently "
                     + statesQueue[i].process+"\n");
     }
     catch(err){
