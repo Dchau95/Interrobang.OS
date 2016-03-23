@@ -6,7 +6,7 @@ var fakepathname = document.getElementById("filepath");
 window.onmousedown = function () {return false;};
 
 function changeOutput(text) {
-    contentout.innerText = contentout.innerText + fakepathname.innerText + text;
+    contentout.innerText = contentout.innerText + "\n" + fakepathname.innerText + text;
 }
 function changeInput(text) {
     contentin.innerText = contentin.innerText + text;
