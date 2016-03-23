@@ -25,7 +25,7 @@ function runCMD(userInput)
         case "clear":
             clearCMD();
             break;
-        case "ls":
+        case "ls": case "dir":
             lsCMD();
             break;
         case "man": case "help":
@@ -44,7 +44,7 @@ function runCMD(userInput)
             kill(pointerOne);
             break;
         case "more":
-            more();
+            more(pointerOne);
             break;
         case "cat":
             cat(arrFiles);
@@ -88,7 +88,6 @@ function lsCMD()
         var keys = Object.keys(hashDirectory);
         for(var i = 0; i<keys.length; i++)
             commandOutput(keys[i]+"\n");
-        commandOutput("\n");
     }catch(err){
         errorCode = -1;
     }
@@ -130,9 +129,9 @@ function man()
     commandOutput("delete : Delete file\n");
     commandOutput("copy : Copy file\n");
     commandOutput("ps : Print process status\n");
-    commandOutput("kills : Ends current process\n");
+    commandOutput("kill : Ends current process\n");
     commandOutput("more : Display output screen\n");
-    commandOutput("cat : Display file content\n");
+    commandOutput("cat : Display file(s) content\n");
     commandOutput("man : Display help manual\n");
     commandOutput("contactp : Initiates the contact manager process\n");
     commandOutput("bankp : Initiates the bank calculator process\n");
@@ -140,7 +139,6 @@ function man()
     commandOutput("readp : Initiates the sort a list of numbers process\n");
     commandOutput("vectorp : Initiates the vector calculator process\n");
     commandOutput("statsp : Initiates the statistics calculator process\n");
-    commandOutput("\n");
     return errorCode;
 }
 
@@ -158,86 +156,94 @@ function cat(arrFiles)
         for(var keyName in hashDirectory)
         {
             if(arrFiles[i] == keyName)
-                commandOutput(hashDirectory[keyName])
+                commandOutput(hashDirectory[keyName]+"\n");
         }  
-        commandOutput("\n");
     }
     return errorCode;
 }
 
 /**
 Display output one screen at a time	
+At the moment, even when the more command is active, it allows usage of other commands
 */
-function more()
+var moreIncrement = 0;
+function more(fileName)
 {
-    var errorCode = 0;
     var moreInput = contentin.innerText;
-    //wait for cmd input after more 
-    /** wait for cmd input 
-        use setTimeout
-        http://stackoverflow.com/questions/5551378/javascript-pausing-execution-of-function-to-wait-for-user-input
-        http://stackoverflow.com/questions/2221836/how-can-i-make-a-program-wait-for-a-button-press-in-javascript
-        Syntax is setTimeout(more, 10000) 10 secs maybe?
-        In more function, it checks for keyboard input, if nothing, do setTimeout again
-        If there is keyboard input, then do one of the switch statements
-        If q/Q, it skips the if statement with setTimeout to leave
-    */
-    
-    //If moreInput == q || Q, quit more
-    while(moreInput != "q" || moreInput != "Q")
-    {
-        switch(input)
-        {
-            //If input == space, Display next page
-            case "\u00A0":
-                break;
-                
-            //Display next line
-            case 13:
-                //** wait for ENTER cmd input
-                while(enterInput)
-                {
-                    
-                }
-                break;
-            //display next file
-            case "f":
-                var arrCount = 1;
-                while(arrDirectory.length != arrCount)
-                {
-                    //** wait for f cmd input
-                    if(fInput == "f"){
-                        console.log(arrDirectory[i]);
-                        arrCount++;
-                    }
-                    else if(fInput == "q")
-                        break;
-                }
-                break;
-                
-            //quit
-            case "q":
-                moreInput = "q";
-                break;
-                
-            //show available commands
-            case "?": case "h":
-                console.log("SPACEBAR : Display next page");
-                console.log("ENTER : Display next line");
-                console.log("f : Display next file");
-                console.log("q : quit more command");
-                console.log("= : show line numbers");
-                
-                break;
-                
-            //show line numbers
-            case "=":
-                break;
+    contentin.innerText = "";
+    inputbox.value = "";
+    var splitFile = hashDirectory[fileName].match(/.{1,129}/g);
 
-        }// ENd "more" switch loop
-        moreInput = "q";
-    }//End more input check
-    return errorCode;
+    if(moreIncrement === 0)
+    {
+        //Show initial amount comparable to screen size, put in while loop
+        while((moreIncrement < 5) && (moreIncrement < splitFile.length))
+        {
+            commandOutput(splitFile[moreIncrement]+"\n");
+            moreIncrement = moreIncrement + 1;
+        }
+    }
+    
+    switch(moreInput)
+    {
+        //If input == space, Display next page/Next amount of text the browser can show/allowed to show
+        case "\u00A0":
+            var temp = moreIncrement;
+            while(moreIncrement < temp+5 && moreIncrement < splitFile.length){
+                commandOutput(splitFile[moreIncrement]+"\n");
+                moreIncrement = moreIncrement + 1;
+            }
+            break;
+        //Display next line, wrapped around screen, how do capture enter
+        case 13:
+            console.log("Display next line");
+            commandOutput(splitFile[moreIncrement]+"\n");
+            break;
+        //display next file?
+        case "f":
+            var arrCount = 1;
+//                while(arrDirectory.length != arrCount)
+//                {
+//                    //** wait for f cmd input
+//                    if(fInput == "f"){
+//                        console.log(arrDirectory[i]);
+//                        arrCount++;
+//                    }
+//                    else if(fInput == "q")
+//                        break;
+//                }
+            console.log("Display next file");
+            break;
+        //quit
+        case "q": case "Q":
+            moreInput = "q";
+            break;
+        //show available commands
+        case "?": case "h":
+            commandOutput("-------------------------------------------------\n");
+            commandOutput("? or H : Shows Help page\n");
+            commandOutput("SPACEBAR : Display next page\n");
+            commandOutput("ENTER : Display next line\n");
+            commandOutput("f : Display next file\n");
+            commandOutput("q or Q : quit more command\n");
+            commandOutput("= : show line numbers\n");
+            commandOutput("-------------------------------------------------\n");
+            break;
+        //show line numbers
+        case "=":
+            console.log("Show line numbers");
+            break;
+    }// ENd "more" switch loop
+    if(moreInput == "q" || moreIncrement >= splitFile.length-1)
+    {
+        moreIncrement = 0;
+    }
+    else
+    {
+        setTimeout(function(){
+            more(fileName);
+        }, 500);
+    }
 }//END more function
 
 /** 
@@ -248,7 +254,7 @@ function ps()
     var errorCode = 0;
     try{
         for(var i = 1; statesQueue.length; i++)
-            commandOutput(statesQueue[i].processName + " is currently "
+            commandOutput(+statesQueue[i].processName + " is currently "
                     + statesQueue[i].process+"\n");
     }
     catch(err){
@@ -273,6 +279,7 @@ function kill(processName)
                         arrWorker.splice(i, 1);
                     }
                 }
+                commandOutput("Killed the process\n");
                 break;
             case "bankp":
                 for(var i = 0; i<statesQueue.length; i++){
@@ -282,6 +289,7 @@ function kill(processName)
                         arrWorker.splice(i, 1);
                     }
                 }
+                commandOutput("Killed the process\n");
                 break;
             case "passwordp":
                 for(var i = 0; i<statesQueue.length; i++){
@@ -291,6 +299,7 @@ function kill(processName)
                         arrWorker.splice(i, 1);
                     }
                 }
+                commandOutput("Killed the process\n");
                 break;
             case "readp":
                 for(var i = 0; i<statesQueue.length; i++){
@@ -300,6 +309,7 @@ function kill(processName)
                         arrWorker.splice(i, 1);
                     }
                 }
+                commandOutput("Killed the process\n\n");
                 break;
             case "vectorp":
                 for(var i = 0; i<statesQueue.length; i++){
@@ -310,6 +320,7 @@ function kill(processName)
                         arrWorker.splice(i, 1);
                     }
                 }
+                commandOutput("Killed the process\n");
                 break;
             case "statsp":
                 for(var i = 0; i<statesQueue.length; i++){
@@ -319,9 +330,11 @@ function kill(processName)
                         arrWorker.splice(i, 1);
                     }
                 }
+                commandOutput("Killed the process\n");
                 break;
+            default:
+                commandOutput("There was no process to kill.");
         }
-        commandOutput("Killed the process\n");
     }catch(err){
         errorCode = -1;
     }    
