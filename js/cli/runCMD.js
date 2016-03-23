@@ -68,7 +68,7 @@ function runCMD(userInput)
             runVector();
             break;
         default:
-            commandOutput("That is not a valid command.\n\n");
+            commandOutput("That is not a valid command.\n");
             break;
     }
 }
@@ -126,12 +126,12 @@ function man()
     var errorCode = 0;
     commandOutput("clear : Clear terminal screen\n");
     commandOutput("ls or dir : List directory contents\n");
-    commandOutput("delete : Delete file\n");
-    commandOutput("copy : Copy file\n");
+    commandOutput("delete : Delete file. Requires one (or more) parameter\n");
+    commandOutput("copy : Copy file. Requires one parameter\n");
     commandOutput("ps : Print process status\n");
-    commandOutput("kill : Ends current process\n");
-    commandOutput("more : Display output screen\n");
-    commandOutput("cat : Display file(s) content\n");
+    commandOutput("kill : Ends current process. Requires one parameter\n");
+    commandOutput("more : Display file output screen. Requires one parameter\n");
+    commandOutput("cat : Display file(s) content. Requires one or more parameter\n");
     commandOutput("man : Display help manual\n");
     commandOutput("contactp : Initiates the contact manager process\n");
     commandOutput("bankp : Initiates the bank calculator process\n");
@@ -164,7 +164,10 @@ function cat(arrFiles)
 
 /**
 Display output one screen at a time	
-At the moment, even when the more command is active, it allows usage of other commands
+-At the moment, even when the more command is active, it allows usage of other linux commands
+-When you do = for current line number, it displays it on the console but doesn't go away
+-Need to capture the ENTER/return key. For now, just made it e
+
 */
 var moreIncrement = 0;
 function more(fileName)
@@ -173,11 +176,13 @@ function more(fileName)
     contentin.innerText = "";
     inputbox.value = "";
     var splitFile = hashDirectory[fileName].match(/.{1,129}/g);
+    //variable that represents how much to print per screen
+    var screenful = 5;
 
     if(moreIncrement === 0)
     {
-        //Show initial amount comparable to screen size, put in while loop
-        while((moreIncrement < 5) && (moreIncrement < splitFile.length))
+        //Show initial amount comparable to screen size
+        while((moreIncrement < screenful) && (moreIncrement < splitFile.length))
         {
             commandOutput(splitFile[moreIncrement]+"\n");
             moreIncrement = moreIncrement + 1;
@@ -187,54 +192,79 @@ function more(fileName)
     switch(moreInput)
     {
         //If input == space, Display next page/Next amount of text the browser can show/allowed to show
-        case "\u00A0":
+        //z is the same, however, any argument will become the new default. Is not implemented
+        case "\u00A0": case "z":
             var temp = moreIncrement;
-            while(moreIncrement < temp+5 && moreIncrement < splitFile.length){
+            while(moreIncrement < temp+screenful && moreIncrement < splitFile.length){
                 commandOutput(splitFile[moreIncrement]+"\n");
                 moreIncrement = moreIncrement + 1;
             }
             break;
         //Display next line, wrapped around screen, how do capture enter
-        case 13:
-            console.log("Display next line");
+        case "e":
             commandOutput(splitFile[moreIncrement]+"\n");
+            moreIncrement = moreIncrement + 1;
             break;
-        //display next file?
+        //Skip forward k lines and then does SPACEBAR case, where k is defaulted to 1.
+        case "s":
+            moreIncrement = moreIncrement + 1;
+            var temp = moreIncrement;
+            commandOutput("... skipping 1 line\n");
+            while(moreIncrement < temp+screenful && moreIncrement < splitFile.length){
+                commandOutput(splitFile[moreIncrement]+"\n");
+                moreIncrement = moreIncrement + 1;
+            }
+            break;
+        //display next file? Google says Skip forward k screenfuls of text. Defaults to 1.
+        // Made it do basically the same thing with "s", but with the screenful part.
         case "f":
             var arrCount = 1;
-//                while(arrDirectory.length != arrCount)
-//                {
-//                    //** wait for f cmd input
-//                    if(fInput == "f"){
-//                        console.log(arrDirectory[i]);
-//                        arrCount++;
-//                    }
-//                    else if(fInput == "q")
-//                        break;
+//            while(arrDirectory.length != arrCount)
+//            {
+//                //** wait for f cmd input
+//                if(fInput == "f"){
+//                    console.log(arrDirectory[i]);
+//                    arrCount++;
 //                }
+//                else if(fInput == "q")
+//                    break;
+//            }
+            moreIncrement = moreIncrement + screenful;
+            var temp = moreIncrement;
+            commandOutput("... skipping 1 screenful of text\n");
+            while(moreIncrement < temp+screenful && moreIncrement < splitFile.length){
+                commandOutput(splitFile[moreIncrement]+"\n");
+                moreIncrement = moreIncrement + 1;
+            }
             console.log("Display next file");
             break;
         //quit
         case "q": case "Q":
             moreInput = "q";
             break;
+        //Shows current file name and current line number
+        case ":f":
+            commandOutput("Current file is: "+fileName+" Current line number is: "+moreIncrement+"\n");
+            break;
         //show available commands
         case "?": case "h":
             commandOutput("-------------------------------------------------\n");
-            commandOutput("? or H : Shows Help page\n");
-            commandOutput("SPACEBAR : Display next page\n");
-            commandOutput("ENTER : Display next line\n");
-            commandOutput("f : Display next file\n");
-            commandOutput("q or Q : quit more command\n");
-            commandOutput("= : show line numbers\n");
+            commandOutput("? or H - Shows Help page\n");
+            commandOutput("SPACEBAR or z - Display next page. With z, any argument becomes new default\n");
+            commandOutput("ENTER(e for now) - Display next line\n");
+            commandOutput("s - Skips k lines where k is defaulted to 1\n");
+            commandOutput("f - Display next file\n");
+            commandOutput("q or Q - quit more command\n");
+            commandOutput(":f - show current file and line number\n");
+            commandOutput("= - show current line number\n");
             commandOutput("-------------------------------------------------\n");
             break;
-        //show line numbers
+        //show current line number
         case "=":
-            console.log("Show line numbers");
+            commandOutput("THE CURRENT LINE NUMBER IS: "+moreIncrement+"\n");
             break;
     }// ENd "more" switch loop
-    if(moreInput == "q" || moreIncrement >= splitFile.length-1)
+    if(moreInput === "q" || moreIncrement >= splitFile.length)
     {
         moreIncrement = 0;
     }
