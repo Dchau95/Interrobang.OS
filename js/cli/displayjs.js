@@ -20,6 +20,8 @@ function commandOutput(text){
 txtbox.addEventListener("keypress", function (event) {
     if (event.keyCode === 13) { //if enter
         var hold = contentin.innerText + "\n";
+        localStorage.setItem("lastCommandText", contentin.innerHTML);
+        localStorage.setItem("lastCommand", txtbox.value);
         changeOutput(hold);
         osCMD(txtbox.value);
         contentin.innerText = "";
@@ -44,4 +46,12 @@ txtbox.addEventListener("keydown", function(event){
         //Insert code for autocomplete
         //Pattern matching?
     }
+    // Get last input if up arrow button is used
+    else if (event.keyCode === 38) {
+        if (localStorage.getItem("lastCommand") != null){
+            document.getElementById("input").innerHTML = localStorage.getItem("lastCommandText");
+            txtbox.value = localStorage.getItem("lastCommand");
+        }
+    }
+    
 });
