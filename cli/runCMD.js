@@ -172,10 +172,11 @@ Display output one screen at a time
 var moreIncrement = 0;
 function more(fileName)
 {
+    var splitFile = hashDirectory[fileName].match(/.{1,129}/g);
+    document.getElementById("filepath").innerHTML = "--more (" + Math.round(100 * (moreIncrement / splitFile.length)) + "%)--";
     var moreInput = contentin.innerText;
     contentin.innerText = "";
     inputbox.value = "";
-    var splitFile = hashDirectory[fileName].match(/.{1,129}/g);
     //variable that represents how much to print per screen
     var screenful = 5;
 
@@ -266,6 +267,7 @@ function more(fileName)
     }// ENd "more" switch loop
     if(moreInput === "q" || moreIncrement >= splitFile.length)
     {
+        document.getElementById("filepath").innerHTML = "C:\TeamSwag>";
         moreIncrement = 0;
     }
     else
