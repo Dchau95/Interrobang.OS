@@ -172,6 +172,7 @@ Display output one screen at a time
 var moreIncrement = 0;
 function more(fileName)
 {    
+    moreFlag = 1;
     var splitFile = hashDirectory[fileName].match(/.{1,129}/g);
     document.getElementById("filepath").innerHTML = "--more (" + Math.round(100 * (moreIncrement / splitFile.length)) + "%)--";
     var moreInput = contentin.innerText;
@@ -267,8 +268,9 @@ function more(fileName)
     }// ENd "more" switch loop
     if(moreInput === "q" || moreIncrement >= splitFile.length)
     {
-        document.getElementById("filepath").innerHTML = "C:\Interrobang>";
+        document.getElementById("filepath").innerHTML = "C:\\Interrobang>";
         moreIncrement = 0;
+        moreFlag = 0;
     }
     else
     {

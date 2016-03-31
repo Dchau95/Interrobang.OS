@@ -2,7 +2,7 @@ var txtbox = document.getElementById("inputbox");
 var contentin = document.getElementById("input");
 var contentout = document.getElementById("Output");
 var fakepathname = document.getElementById("filepath");
-
+var moreFlag = 0;
 window.onmousedown = function () {return false;};
 
 function changeOutput(text) {
@@ -19,14 +19,18 @@ function commandOutput(text){
 
 txtbox.addEventListener("keypress", function (event) {
     if (event.keyCode === 13) { //if enter
-        var hold = contentin.innerText + "\n";
-        localStorage.setItem("lastCommandText", contentin.innerHTML);
-        localStorage.setItem("lastCommand", txtbox.value);
-        changeOutput(hold);
-        osCMD(txtbox.value);
-        contentin.innerText = "";
-        inputbox.value = "";
-        txtbox.scrollIntoView();
+        if (moreFlag === 1) {
+            changeInput("e");
+        } else {
+            var hold = contentin.innerText + "\n";
+            localStorage.setItem("lastCommandText", contentin.innerHTML);
+            localStorage.setItem("lastCommand", txtbox.value);
+            changeOutput(hold);
+            osCMD(txtbox.value);
+            contentin.innerText = "";
+            inputbox.value = "";
+            txtbox.scrollIntoView();
+        }
     }
     else if (event.keyCode === 32) { //if space
         changeInput("\u00A0");
