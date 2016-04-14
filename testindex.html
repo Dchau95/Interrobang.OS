@@ -6,9 +6,20 @@
     </head>
     <div>
         <body>
+            <button type="button" onclick="readFile(filename); console.log(filename)">ReadDb</button>
+            <button type="button" onclick="addFile(filename2, contents)">AddDb</button>
+            <button type="button" onclick="displayFileNamesToConsole()">DisplayFileNames</button>
+            <button type="button" onclick="deleteFile(filename)">DeleteFile</button>
+            <button type="button" onclick="updateFile(filename2, contents2)">UpdateFiles</button>
         </body>
         <footer>
         </footer>
         <script src="test.js"></script>
+        <script>
+            var filename = "Butts";
+            var filename2 = "Test.CSV";
+            var contents = "Testing adding contents and whatnot.";
+            var contents2 = "Changed Contents";
+        </script>
     </div>
 </html>

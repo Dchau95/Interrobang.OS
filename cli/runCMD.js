@@ -47,7 +47,7 @@ function runCMD(userInput)
             more(pointerOne);
             break;
         case "cat":
-            cat(arrFiles);
+            cat(arrFiles, 0);
             break;
         case "contactp":
             runContact();
@@ -67,6 +67,9 @@ function runCMD(userInput)
         case "vectorp":
             runVector();
             break;
+        case "reset":
+            reset();
+            break;
         default:
             commandOutput("That is not a valid command.\n");
             break;
@@ -80,40 +83,74 @@ function clearCMD()
     return errorCode;
 }
 
+function reset(){
+//    console.clear();
+//    console.log(indexedDB.deleteDatabase("hashDirectory"));
+//    openDb();
+}
+
 function lsCMD()
 {
-    console.log(hashDirectory)
-    var errorCode = 0;
-    try{
-        var keys = Object.keys(hashDirectory);
-        for(var i = 0; i<keys.length; i++)
-            commandOutput(keys[i]+"\n");
-    }catch(err){
-        errorCode = -1;
+    var transact = db.transaction(["files"]);
+    var store = transact.objectStore("files");
+    var index = store.index("by_filename");
+    index.openCursor().onsuccess = function(event) {
+        var cursor = event.target.result;
+        if(cursor) {
+            commandOutput(cursor.value.filename + "\n");
+            cursor.continue();
+        } else {
+            console.log("All Entries Displayed.");
+        }
     }
-    return errorCode;
+    index.openCursor().onerror = function(event) {
+        console.log("An error has occured.");
+        console.log(event.target.errorCode);
+    }
 }
 
 function deleteCMD(fileName)
 {
-    if (hashDirectory[fileName] != null)
-    {
-        delete hashDirectory[fileName];
-        lsCMD();
-        return 0;
-    }
-    else
-    {
-        commandOutput("File does not exist.\n"); 
-        return -1;
+    var transact = db.transaction(["files"], "readwrite");
+    var store = transact.objectStore("files");
+    var index = store.index("by_filename");
+    index.openCursor().onsuccess = function(event){
+        var cursor = event.target.result;
+        if(cursor) {
+            if (cursor.value.filename === fileName){
+                var request = store.delete(cursor.primaryKey);
+                request.onsuccess = function(){
+                    console.log(request.result);
+                    console.log("File Deleted: " + fileName);
+                }
+            }
+            cursor.continue();
+        }
     }
 }
 
 function copyCMD(fileName, copyFileName)
 {
     var errorCode = 0;
-    hashDirectory[copyFileName] = hashDirectory[fileName];
-    lsCMD();
+    var transact = db.transaction(["files"], "readwrite");
+    var store = transact.objectStore("files");
+    var index = store.index("by_filename");
+    
+    var request = index.get(fileName);
+    request.onsuccess = function() {
+        console.log("Copying File: " + fileName + " to: copyFileName: " + copyFileName);
+        var hold = request.result.content;
+        request = store.put({filename: copyFileName, content: hold});
+        request.onsuccess = function(event){
+            console.log("Copying: Success!");
+        }
+        request.onerror = function(event){
+            console.log("Copying: Failed!");
+        }
+    }
+    request.onerror = function(event){
+        console.log("An error has occured.");
+    }
     return errorCode;
 }
 
@@ -148,16 +185,34 @@ Concatenate files and print on the standard output
 /**compare array of "files passed in then print"
 file elements matching hastable(array of files)
 */
-function cat(arrFiles)
+function cat(arrFiles, rec)
 {
+    var transact = db.transaction(["files"]);
+    var store = transact.objectStore("files");
+    var index = store.index("by_filename");
+    var i = rec;
     var errorCode = 0;
-    for(var i=0; i < arrFiles.length; i++)
-    {
-        for(var keyName in hashDirectory)
-        {
-            if(arrFiles[i] == keyName)
-                commandOutput(hashDirectory[keyName]+"\n");
-        }  
+    
+    var request = index.get(arrFiles[i]);
+    request.onsuccess = function(){
+        if(request.result === undefined){
+            console.log("File Not Found");
+            commandOutput("File not found.\n");
+        } else {
+        console.log("Reading File: " + arrFiles[i] + " Contents: " + request.result.content);
+        commandOutput(request.result.content + "\n");
+        }
+        i++;
+        if(i < arrFiles.length){
+            cat(arrFiles, i);
+        }
+    }
+    request.onerror = function(event) {
+        console.log("An error occured");
+        i++;
+        if(i < arrFiles.length){
+            cat(arrFiles, i);
+        }
     }
     return errorCode;
 }

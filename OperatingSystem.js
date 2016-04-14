@@ -322,9 +322,7 @@ function onMessageProcess1 (e) {
         console.log("Result");
         console.log(statesQueue[e.data.processNumberI].result);
     }
-    setTimeout(function(){
         os.endOfFile(e.data.processNumberI, statesQueue[e.data.processNumberI].fileCsv);
-    }, 1000);
     if (statesQueue[e.data.processNumberI].EOF != statesQueue[e.data.processNumberI].result != "") {
         commandOutput("This is the end of the file for process "+statesQueue[e.data.processNumberI].processName+"\n");
         os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI);
