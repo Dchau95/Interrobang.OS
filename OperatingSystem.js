@@ -311,20 +311,23 @@ function runScript() {
     nStatesLength+=1;
     whileLoop();
     
-    // Run Script
+    // Open Database
     var transact = db.transaction(["files"]);
     var store = transact.objectStore("files");
     var index = store.index("by_filename");
     var request = index.get("script.sh");
+    
+    // Run Script
     request.onsuccess = function(event) {
         console.log(request.result.content);
         commands = request.result.content.split(",");
-        for (var i = 0; i < commands.length; i++){
+        setTimeout(function(){
+            for (var i = 0; i < commands.length; i++){
                 command = commands[i].replace(/[0]/g, '');
                 runCMD(command);
-        }
+            }
+        },3000);
     };
-    
 }
 
 function osCMD(userInput)

@@ -34,7 +34,7 @@ function runCMD(userInput)
         case "delete": case "rm":
             deleteCMD(pointerOne);
             break;
-        case "copy":
+        case "copy": case "cp":
             copyCMD(pointerOne, pointerTwo);
             break;
         case "ps":
@@ -87,9 +87,8 @@ function clearCMD()
 }
 
 function reset(){
-//    console.clear();
-//    console.log(indexedDB.deleteDatabase("hashDirectory"));
-//    openDb();
+    console.log(window.indexedDB.deleteDatabase("hashDirectory"));
+    location.reload();
 }
 
 function lsCMD()
@@ -169,9 +168,10 @@ function man()
 {
     var errorCode = 0;
     commandOutput("clear : Clear terminal screen\n");
+    commandOutput("reset : Clear terminal and reset database\n");
     commandOutput("ls or dir : List directory contents\n");
-    commandOutput("delete : Delete file. Requires one (or more) parameter\n");
-    commandOutput("copy : Copy file. Requires one parameter\n");
+    commandOutput("delete or rm : Delete file. Requires one (or more) parameter\n");
+    commandOutput("copy or cp: Copy file. Requires one parameter\n");
     commandOutput("ps : Print process status\n");
     commandOutput("kill : Ends current process. Requires one parameter\n");
     commandOutput("more : Display file output screen. Requires one parameter\n");
@@ -183,6 +183,7 @@ function man()
     commandOutput("readp : Initiates the sort a list of numbers process\n");
     commandOutput("vectorp : Initiates the vector calculator process\n");
     commandOutput("statsp : Initiates the statistics calculator process\n");
+    commandOutput("script : Initiates the script process and runs script\n");
     return errorCode;
 }
 
