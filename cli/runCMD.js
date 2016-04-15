@@ -226,25 +226,32 @@ Display output one screen at a time
 */
 var moreIncrement = 0;
 function more(fileName)
-{    
+{  
+    var transact = db.transaction(["files"], "readwrite");
+    var store = transact.objectStore("files");
+    var index = store.index("by_filename");
+    
     moreFlag = 1;
-    var splitFile = hashDirectory[fileName].match(/.{1,129}/g);
-    document.getElementById("filepath").innerHTML = "--more (" + Math.round(100 * (moreIncrement / splitFile.length)) + "%)--";
-    var moreInput = contentin.innerText;
-    contentin.innerText = "";
-    inputbox.value = "";
-    //variable that represents how much to print per screen
-    var screenful = 5;
+    var request = index.get(fileName);
+    request.onsuccess = function(){
+        
+        var splitFile = request.result.content.match(/.{1,129}/g);
+        document.getElementById("filepath").innerHTML = "--more (" + Math.round(100 * (moreIncrement / splitFile.length)) + "%)--";
+        var moreInput = contentin.innerText;
+        contentin.innerText = "";
+        inputbox.value = "";
+        //variable that represents how much to print per screen
+        var screenful = 5;
 
-    if(moreIncrement === 0)
-    {
-        //Show initial amount comparable to screen size
-        while((moreIncrement < screenful) && (moreIncrement < splitFile.length))
+        if(moreIncrement === 0)
         {
-            commandOutput(splitFile[moreIncrement]+"\n");
-            moreIncrement = moreIncrement + 1;
+        //Show initial amount comparable to screen size
+            while((moreIncrement < screenful) && (moreIncrement < splitFile.length))
+            {
+                commandOutput(splitFile[moreIncrement]+"\n");
+                moreIncrement = moreIncrement + 1;
+            }
         }
-    }
     
     switch(moreInput)
     {
@@ -332,6 +339,7 @@ function more(fileName)
         setTimeout(function(){
             more(fileName);
         }, 10);
+    }
     }
 }//END more function
 
