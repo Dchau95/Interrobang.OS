@@ -302,6 +302,31 @@ function runStats() {
     whileLoop();
 }
 
+function runScript() {
+    var commandprocess = new Worker("ScriptProcess.js");
+    console.log(request);
+    commandprocess.onmessage = onMessageProcess2;
+    statesQueue.push({process : "Starting", processName: "ScriptProcess", EOF: false, result: 0, resultCsv: "script.sh", fileCsv: "commands.CSV"});
+    arrWorker.push(commandprocess);
+    nStatesLength+=1;
+    whileLoop();
+    
+    // Run Script
+    var transact = db.transaction(["files"]);
+    var store = transact.objectStore("files");
+    var index = store.index("by_filename");
+    var request = index.get("script.sh");
+    request.onsuccess = function(event) {
+        console.log(request.result.content);
+        commands = request.result.content.split(",");
+        for (var i = 0; i < commands.length; i++){
+                command = commands[i].replace(/[0]/g, '');
+                runCMD(command);
+        }
+    };
+    
+}
+
 function osCMD(userInput)
 {
     runCMD(userInput);

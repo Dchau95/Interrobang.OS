@@ -31,7 +31,7 @@ function runCMD(userInput)
         case "man": case "help":
             man();
             break;
-        case "delete":
+        case "delete": case "rm":
             deleteCMD(pointerOne);
             break;
         case "copy":
@@ -66,6 +66,9 @@ function runCMD(userInput)
             break;
         case "vectorp":
             runVector();
+            break;
+        case "script":
+            runScript();
             break;
         case "reset":
             reset();
@@ -114,6 +117,7 @@ function deleteCMD(fileName)
     var transact = db.transaction(["files"], "readwrite");
     var store = transact.objectStore("files");
     var index = store.index("by_filename");
+    
     index.openCursor().onsuccess = function(event){
         var cursor = event.target.result;
         if(cursor) {
@@ -121,12 +125,15 @@ function deleteCMD(fileName)
                 var request = store.delete(cursor.primaryKey);
                 request.onsuccess = function(){
                     console.log(request.result);
-                    console.log("File Deleted: " + fileName);
+                    console.log("File Deleted: " + fileName)
+                    commandOutput("File Removed")
                 }
             }
             cursor.continue();
         }
+
     }
+
 }
 
 function copyCMD(fileName, copyFileName)
@@ -422,6 +429,16 @@ function kill(processName)
             case "statsp":
                 for(var i = 0; i<statesQueue.length; i++){
                     if (statesQueue[i].processName === "StatsProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
+                commandOutput("Killed the process\n");
+                break;
+            case "script":
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "ScriptProcess") {
                         statesQueue.splice(i, 1);
                         arrWorker[i].terminate();
                         arrWorker.splice(i, 1);
