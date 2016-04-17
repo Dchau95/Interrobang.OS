@@ -7,7 +7,7 @@ function scriptProcess (arrCsv) {
          commands.push(arr[i]);
     }
     console.log("Commands: " + commands);
-    return commands;
+    return commands.join('');
 }
 
 //The function that signifies the message received from the OS.

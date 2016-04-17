@@ -304,30 +304,34 @@ function runStats() {
 
 function runScript() {
     var commandprocess = new Worker("ScriptProcess.js");
-    console.log(request);
-    commandprocess.onmessage = onMessageProcess2;
+    commandprocess.onmessage = onMessageProcess1;
     statesQueue.push({process : "Starting", processName: "ScriptProcess", EOF: false, result: 0, resultCsv: "script.sh", fileCsv: "commands.CSV"});
     arrWorker.push(commandprocess);
     nStatesLength+=1;
     whileLoop();
     
-    // Open Database
-    var transact = db.transaction(["files"]);
-    var store = transact.objectStore("files");
-    var index = store.index("by_filename");
-    var request = index.get("script.sh");
-    
-    // Run Script
-    request.onsuccess = function(event) {
-        console.log(request.result.content);
-        commands = request.result.content.split(",");
-        setTimeout(function(){
-            for (var i = 0; i < commands.length; i++){
-                command = commands[i].replace(/[0]/g, '');
-                runCMD(command);
-            }
-        },3000);
-    };
+    // Access Database for Script file
+    (function Script(){
+        var transact = db.transaction(["files"]);
+        var store = transact.objectStore("files");
+        var index = store.index("by_filename");
+        var request = index.get("script.sh");
+        request.onsuccess = function(event) {
+            setTimeout(function() {
+                try {
+                    // Running script by using Operating System to control command line.
+                    commands = request.result.content.split(",")
+                    commandOutput("<>.Running Script of Commands: " + commands +  ".<>\n");
+                    for (var i = 0; i < commands.length; i++){
+                        osCMD(commands[i]);
+                    }
+                } 
+                catch(err) {
+                    Script();
+                }
+            },1400);
+        }
+    })();
 }
 
 function osCMD(userInput)

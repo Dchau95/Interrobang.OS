@@ -87,7 +87,7 @@ function clearCMD()
 }
 
 function reset(){
-    console.log(window.indexedDB.deleteDatabase("hashDirectory"));
+    console.log(indexedDB.deleteDatabase("hashDirectory"));
     location.reload();
 }
 
