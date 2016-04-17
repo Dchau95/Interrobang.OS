@@ -22,7 +22,7 @@ function runCMD(userInput)
 
     switch(command[0].toLowerCase())
     {
-        case "clear":
+        case "clear": case "cls":
             clearCMD();
             break;
         case "ls": case "dir":

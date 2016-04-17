@@ -1,13 +1,13 @@
 function scriptProcess (arrCsv) {
     console.log("Starting up Script Process");
-    var arr = arrCsv.split(", ");
+    var textCommands = arrCsv.split(',');
     var commands = [];
-    for (var i=0;i<arr.length;i++)
+    for (var i=0;i<textCommands.length;i++)
     {
-         commands.push(arr[i]);
+         commands.push('run: ' + textCommands[i].replace(/\s*/,''));
     }
     console.log("Commands: " + commands);
-    return commands.join('');
+    return commands.join(', ');
 }
 
 //The function that signifies the message received from the OS.

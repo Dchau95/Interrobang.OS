@@ -321,9 +321,10 @@ function runScript() {
                 try {
                     // Running script by using Operating System to control command line.
                     commands = request.result.content.split(",")
-                    commandOutput("<>.Running Script of Commands: " + commands +  ".<>\n");
+                    commandOutput("<>.Script Commands: " + commands +  ".<>\n");
                     for (var i = 0; i < commands.length; i++){
-                        osCMD(commands[i]);
+                        command = commands[i].replace(/\s*run:\s*/, '');
+                        osCMD(command);
                     }
                 } 
                 catch(err) {
