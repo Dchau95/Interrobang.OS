@@ -364,25 +364,16 @@ function onMessageCharWatch (e) {
 	thread.postMessage(data);
 }
 
-//Need to fix
 //This creates the file and outputs the shared array
 //if file exists, then just output the shared array
 function onMessageCharThread (e) {
 	console.log("Back from thread");
 	sharedArray = e.data.sharedArray;
 	commandOutput("Process "+statesQueue[e.data.processNumberI].processName+" has responded with data\n");
-//    if(e.data.errorCon !== -1 && e.data.result !== "undefined" && e.data.result !== ""){
-//        statesQueue[e.data.processNumberI].result = e.data.result;
-//        console.log("Result");
-//        console.log(statesQueue[e.data.processNumberI].result);
-//    }
-//    else {
-//        os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI);
-//        os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, statesQueue[e.data.processNumberI].result);
-//        os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
-//        statesQueue[e.data.processNumberI].process = "Stopping";
-//        commandOutput("Result is "+statesQueue[e.data.processNumberI].result+"\n");
-//    }
+	var result = sharedArray.toString()+"\n";
+	os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI);
+	os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, result);
+	commandOutput("Result is "+result+"\n");
 }
 
 function osCMD(userInput)
