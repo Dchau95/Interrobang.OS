@@ -443,7 +443,7 @@ function kill(processName)
                 break;
             case "scriptp":
                 for(var i = 0; i<statesQueue.length; i++){
-                    if (statesQueue[i].processName === "ScriptProcess") {
+                    if (statesQueue[i].processName === "ScriptCreatorProcess") {
                         statesQueue.splice(i, 1);
                         arrWorker[i].terminate();
                         arrWorker.splice(i, 1);
