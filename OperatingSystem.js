@@ -309,38 +309,7 @@ function runScript() {
     arrWorker.push(commandprocess);
     nStatesLength+=1;
     whileLoop();
-    
-    // Access Database for Script file
-    (function Script(){
-        var transact = db.transaction(["files"]);
-        var store = transact.objectStore("files");
-        var index = store.index("by_filename");
-        var request = index.get("script.sh");
-        request.onsuccess = function(event) {
-            
-            // Running script by using Operating System to control command line.
-            setTimeout(function() {
-                try {
-                    commands = request.result.content.split(",")
-                    commandOutput("<>.Script Commands: " + commands +  ".<>\n");
-                    
-                    // Checking for valid script file from directory.
-                    if (commands[0].indexOf("run:") >= 0){
-                        for (var i = 0; i < commands.length; i++){
-                            command = commands[i].replace(/\s*run:\s*/, '');
-                            osCMD(command);
-                        }
-                    }
-                    else{
-                        commandOutput("This file contains invalid commands.\n")
-                    }
-                } 
-                catch(err) {
-                    Script();
-                }
-            },1400);
-        }
-    })();
+    script("script.sh");
 }
 
 function runCharWatch() {

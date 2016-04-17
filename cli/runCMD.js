@@ -49,6 +49,9 @@ function runCMD(userInput)
         case "cat":
             cat(arrFiles, 0);
             break;
+        case "script": case "sh": case "bash":
+            script(pointerOne)
+            break;
         case "contactp":
             runContact();
             break;
@@ -180,6 +183,7 @@ function man()
     commandOutput("more : Display file output screen. Requires one parameter\n");
     commandOutput("cat : Display file(s) content. Requires one or more parameter\n");
     commandOutput("man : Display help manual\n");
+    commandOutput("script or sh or bash: Run a script from a file. Requires one parameter\n");
     commandOutput("contactp : Initiates the contact manager process\n");
     commandOutput("bankp : Initiates the bank calculator process\n");
     commandOutput("passwordp : Initiates the password process\n");
@@ -371,6 +375,35 @@ function ps()
     }
     return errorCode;
 }
+
+function script(fileName){
+    setTimeout(function() {
+        var transact = db.transaction(["files"]);
+        var store = transact.objectStore("files");
+        var index = store.index("by_filename");
+        var request = index.get(fileName);
+        request.onsuccess = function(event) {
+            try {
+                commands = request.result.content.split(",")
+                commandOutput("<>.Script Commands: " + commands +  ".<>\n");
+
+                // Checking for valid script file from directory.
+                if (commands[0].indexOf("run:") >= 0){
+                    for (var i = 0; i < commands.length; i++){
+                        command = commands[i].replace(/\s*run:\s*/, '');
+                        osCMD(command);
+                    }
+                }
+                else{
+                    commandOutput("This file contains invalid commands.\n")
+                }
+            } 
+            catch(err) {
+                script(fileName);
+            }
+        }
+    },1250);
+    }
 
 /**
 Terminate current running process
