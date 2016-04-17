@@ -497,99 +497,254 @@ onmessage = function(e) {
 			}
 			postMessage(result);
 			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
-//		case "a":
-//			sharedArray[e.data.char-32]+=1;
-//			break;
+		case "!":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "@":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "#":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "$":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "%":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "^":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "&":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "*":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "(":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case ")":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "-":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "_":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "+":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "=":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "{":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "}":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "[":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "]":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "|":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "\\":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case ":":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case ";":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "'":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "\"":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case ",":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "<":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case ".":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case ">":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "?":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case "/":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
+		case " ":
+			e.data.charArray[e.data.arrayIndex]+=1;
+			var result = {
+				sharedArray: e.data.charArray,
+				processNumberI : e.data.processNumberI
+			}
+			postMessage(result);
+			break;
 	}
 	
 }
