@@ -305,7 +305,7 @@ function runStats() {
 function runScript() {
     var commandprocess = new Worker("ScriptProcess.js");
     commandprocess.onmessage = onMessageProcess1;
-    statesQueue.push({process : "Starting", processName: "ScriptProcess", EOF: false, result: 0, resultCsv: "script.sh", fileCsv: "commands.CSV"});
+    statesQueue.push({process : "Starting", processName: "ScriptCreatorProcess", EOF: false, result: 0, resultCsv: "script.sh", fileCsv: "commands.CSV"});
     arrWorker.push(commandprocess);
     nStatesLength+=1;
     whileLoop();
