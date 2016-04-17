@@ -67,9 +67,12 @@ function runCMD(userInput)
         case "vectorp":
             runVector();
             break;
-        case "script":
+        case "scriptp":
             runScript();
             break;
+		case "charwatchp":
+			runCharWatch();
+			break;
         case "reset":
             reset();
             break;
@@ -183,7 +186,8 @@ function man()
     commandOutput("readp : Initiates the sort a list of numbers process\n");
     commandOutput("vectorp : Initiates the vector calculator process\n");
     commandOutput("statsp : Initiates the statistics calculator process\n");
-    commandOutput("script : Initiates the script process and runs script\n");
+    commandOutput("scriptp : Initiates the script process and runs script\n");
+	commandOutput("charwatchp : Initiates the character watch process\n");
     return errorCode;
 }
 
@@ -437,7 +441,7 @@ function kill(processName)
                 }
                 commandOutput("Killed the process\n");
                 break;
-            case "script":
+            case "scriptp":
                 for(var i = 0; i<statesQueue.length; i++){
                     if (statesQueue[i].processName === "ScriptProcess") {
                         statesQueue.splice(i, 1);
@@ -447,6 +451,17 @@ function kill(processName)
                 }
                 commandOutput("Killed the process\n");
                 break;
+			case "charwatchp":
+				for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "CharWatchProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+					charWatchInfo.charWatchFlag = false;
+                }
+                commandOutput("Killed the process\n");
+				break;
             default:
                 commandOutput("There was no process to kill.");
         }

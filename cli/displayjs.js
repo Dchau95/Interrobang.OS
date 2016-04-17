@@ -3,6 +3,10 @@ var contentin = document.getElementById("input");
 var contentout = document.getElementById("Output");
 var fakepathname = document.getElementById("filepath");
 var moreFlag = 0;
+var charWatchInfo = {
+    charWatchFlag: false,
+    charPIndex: 0
+}
 window.onmousedown = function () {return false;};
 
 function changeOutput(text) {
@@ -37,7 +41,15 @@ txtbox.addEventListener("keypress", function (event) {
     }
     else {
         var hold = String.fromCharCode(event.charCode);
+        var processID = charWatchInfo.charPIndex;
         changeInput(hold);
+        var arg = {
+            character: hold,
+            nProcessID: processID,
+        }
+        if(charWatchInfo.charWatchFlag) {
+            arrWorker[processID].postMessage(arg);
+        }
     }
 });
 
