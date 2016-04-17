@@ -317,14 +317,22 @@ function runScript() {
         var index = store.index("by_filename");
         var request = index.get("script.sh");
         request.onsuccess = function(event) {
+            
+            // Running script by using Operating System to control command line.
             setTimeout(function() {
                 try {
-                    // Running script by using Operating System to control command line.
                     commands = request.result.content.split(",")
                     commandOutput("<>.Script Commands: " + commands +  ".<>\n");
-                    for (var i = 0; i < commands.length; i++){
-                        command = commands[i].replace(/\s*run:\s*/, '');
-                        osCMD(command);
+                    
+                    // Checking for valid script file from directory.
+                    if (commands[0].indexOf("run:") >= 0){
+                        for (var i = 0; i < commands.length; i++){
+                            command = commands[i].replace(/\s*run:\s*/, '');
+                            osCMD(command);
+                        }
+                    }
+                    else{
+                        commandOutput("This file contains invalid commands.\n")
                     }
                 } 
                 catch(err) {

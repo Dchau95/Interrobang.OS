@@ -463,7 +463,7 @@ function kill(processName)
                 commandOutput("Killed the process\n");
 				break;
             default:
-                commandOutput("There was no process to kill.");
+                commandOutput("There was no process to kill.\n");
         }
     }catch(err){
         errorCode = -1;
