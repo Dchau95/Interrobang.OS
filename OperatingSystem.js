@@ -324,21 +324,21 @@ function runCharWatch() {
 
 var sharedArray = [];
 for (var i = 0; i<93; i++) {
-	sharedArray.push(0);
+    sharedArray.push(0);
 }
 
 function onMessageCharWatch (e) {
-	console.log("Back from process");
-	var thread = new Worker("CharWatchThread.js");
-	thread.onmessage = onMessageCharThread;
-	//Handle mutex
-	var data = {
-		processNumberI : e.data.processNumberI,
-		arrayIndex : e.data.arrayIndex,
-		character : e.data.character,
-		charArray : sharedArray
-	}
-	thread.postMessage(data);
+    console.log("Back from process");
+    var thread = new Worker("CharWatchThread.js");
+    thread.onmessage = onMessageCharThread;
+    //Handle mutex
+    var data = {
+        processNumberI : e.data.processNumberI,
+        arrayIndex : e.data.arrayIndex,
+        character : e.data.character,
+        charArray : sharedArray
+    }
+    thread.postMessage(data);
 }
 
 //This creates the file and outputs the shared array
@@ -346,13 +346,13 @@ function onMessageCharWatch (e) {
 //Put an if statement if the file's already created
 //Overwriting the file seems to be fucked, I dunno
 function onMessageCharThread (e) {
-	console.log("Back from thread");
-	sharedArray = e.data.sharedArray;
-	commandOutput("Process "+statesQueue[e.data.processNumberI].processName+" has responded with data\n");
-	var result = sharedArray.toString()+'\n';
-	os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI);
-	os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, result);
-	commandOutput("Result is "+result+"\n");
+    console.log("Back from thread");
+    sharedArray = e.data.sharedArray;
+    commandOutput("Process "+statesQueue[e.data.processNumberI].processName+" has responded with data\n");
+    var result = sharedArray.toString()+'\n';
+    os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI);
+    os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, result);
+    commandOutput("Result is "+result+"\n");
 }
 
 function osCMD(userInput)
