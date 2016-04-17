@@ -249,7 +249,7 @@ function onMessageDevice(event) {
 }
 
 function runContact() {
-    var contact = new Worker("/Assignment1Processes/ContactManager.js");
+    var contact = new Worker("ContactManager.js");
     contact.onmessage = onMessageProcess1;
     statesQueue.push({ process : "Starting", processName: "ContactManager", EOF: false, result: "", resultCsv: "Result1.CSV", fileCsv: "Contact.CSV"});
     arrWorker.push(contact);
@@ -258,7 +258,7 @@ function runContact() {
 }
 
 function runBank() {
-    var bank = new Worker("/Assignment1Processes/BankProcess.js");
+    var bank = new Worker("BankProcess.js");
     bank.onmessage = onMessageProcess2;
     statesQueue.push({process : "Starting", processName: "BankProcess", EOF: false, result: 0, resultCsv: "Result2.CSV", fileCsv: "Bank.CSV"});
     arrWorker.push(bank);
@@ -267,7 +267,7 @@ function runBank() {
 }
 
 function runPassword() {
-    var password = new Worker("/Assignment1Processes/passwordchanger.js");
+    var password = new Worker("passwordchanger.js");
     password.onmessage = onMessageProcess1;
     statesQueue.push({process : "Starting", processName: "PasswordProcess", EOF: false, result: "", resultCsv: "Result3.CSV", fileCsv: "password.CSV"});
     arrWorker.push(password);
@@ -276,7 +276,7 @@ function runPassword() {
 }
 
 function runRead() {
-    var read = new Worker("/Assignment1Processes/ReadFile.js");
+    var read = new Worker("ReadFile.js");
     read.onmessage = onMessageProcess2;
     statesQueue.push({process : "Starting", processName: "ReadProcess", EOF: false, result: "", resultCsv: "Result4.CSV", fileCsv: "read.CSV"});
     arrWorker.push(read);
@@ -285,7 +285,7 @@ function runRead() {
 }
 
 function runVector() {
-    var vector = new Worker("/Assignment1Processes/VectorCalculate.js");
+    var vector = new Worker("VectorCalculate.js");
     vector.onmessage = onMessageProcess1;
     statesQueue.push({ process : "Starting", processName: "VectorProcess", EOF: false, result: "", resultCsv: "Result5.CSV", fileCsv: "vector.CSV"});
     arrWorker.push(vector);
@@ -294,7 +294,7 @@ function runVector() {
 }
 
 function runStats() {
-    var stats = new Worker("/Assignment1Processes/StatisticsCalculate.js")
+    var stats = new Worker("StatisticsCalculate.js")
     stats.onmessage = onMessageProcess1;
     statesQueue.push({process : "Starting", processName: "StatsProcess", EOF: false, result: "", resultCsv: "Result6.CSV", fileCsv: "stats.CSV"});
     arrWorker.push(stats);
@@ -303,7 +303,7 @@ function runStats() {
 }
 
 function runScript() {
-    var commandprocess = new Worker("/Assignment4Processes/ScriptProcess.js");
+    var commandprocess = new Worker("ScriptProcess.js");
     commandprocess.onmessage = onMessageProcess1;
     statesQueue.push({process : "Starting", processName: "ScriptCreatorProcess", EOF: false, result: 0, resultCsv: "script.sh", fileCsv: "commands.CSV"});
     arrWorker.push(commandprocess);
@@ -337,7 +337,7 @@ function runScript() {
 
 function runCharWatch() {
     charWatchInfo.charWatchFlag = true;
-    var charWatch = new Worker("/Assignment4Processes/CharWatchProcess.js");
+    var charWatch = new Worker("CharWatchProcess.js");
     charWatch.onmessage = onMessageCharWatch;
     statesQueue.push({process : "Running", processName: "CharWatchProcess", EOF: false, result: "", resultCsv: "CharWatch.txt", fileCsv: ""});
     arrWorker.push(charWatch);
@@ -352,7 +352,7 @@ for (var i = 0; i<93; i++) {
 
 function onMessageCharWatch (e) {
 	console.log("Back from process");
-	var thread = new Worker("/Assignment4Processes/CharWatchThread.js");
+	var thread = new Worker("CharWatchThread.js");
 	thread.onmessage = onMessageCharThread;
 	//Handle mutex
 	var data = {
