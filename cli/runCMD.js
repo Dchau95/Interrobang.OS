@@ -195,6 +195,7 @@ var errorCode = 0;
     commandOutput("statsp : Initiates the statistics calculator process\n");
     commandOutput("scriptp : Initiates the script process and runs script\n");
     commandOutput("charwatchp : Initiates the character watch process\n");
+    commandOutput("starterp : Starts the starter process, which starts the mather process and statsp process\n");
     return errorCode;
 }
 
@@ -480,6 +481,16 @@ function kill(processName)
             case "scriptp":
                 for(var i = 0; i<statesQueue.length; i++){
                     if (statesQueue[i].processName === "ScriptCreatorProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
+                commandOutput("Killed the process\n");
+                break;
+            case "starterp":
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === ("StarterProcess" || "MathsProcess" || "StatsMatherProcess")) {
                         statesQueue.splice(i, 1);
                         arrWorker[i].terminate();
                         arrWorker.splice(i, 1);
