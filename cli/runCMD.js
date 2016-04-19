@@ -85,6 +85,9 @@ function runCMD(userInput)
         case "memstats":
             displayMemory();
             break;
+        case "philp":
+			runPhil();
+			break;
         default:
             commandOutput("That is not a valid command.\n");
             break;
