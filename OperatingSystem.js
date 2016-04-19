@@ -330,6 +330,14 @@ function runStarter(){
     nStatesLength+=1;
     whileLoop();
 }
+function runPhil(){
+	var phil = new Worker("DinePhil.js");
+	phil.onmessage = onMessagePhilProcess;
+	statesQueue.push({process: "Ready", processName: "PhilProcess", EOF: false, result: "", resultCsv: "", fileCsv: ""});
+    arrWorker.push(phil);
+    nStatesLength+=1;
+    whileLoop();
+}
 
 var sharedArray = [];
 for (var i = 0; i<93; i++) {
