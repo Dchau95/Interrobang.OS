@@ -490,7 +490,17 @@ function kill(processName)
                 break;
             case "starterp":
                 for(var i = 0; i<statesQueue.length; i++){
-                    if (statesQueue[i].processName === ("StarterProcess" || "MathsProcess" || "StatsMatherProcess")) {
+                    if (statesQueue[i].processName === "StarterProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                    if (statesQueue[i].processName === "MathsProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                    if (statesQueue[i].processName === "StatsMatherProcess") {
                         statesQueue.splice(i, 1);
                         arrWorker[i].terminate();
                         arrWorker.splice(i, 1);
