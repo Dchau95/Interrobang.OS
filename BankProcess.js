@@ -1,9 +1,5 @@
 function bankProcess (arrCsv) {
     console.log("Starting up bankprocess");
-    console.log(arrCsv);
-    if(typeof arrCsv === 'undefined') {
-        return "undefined";
-    }
     var arr = arrCsv.split(", ");
     var balance = 0;
 
@@ -18,15 +14,19 @@ function bankProcess (arrCsv) {
 
 //The function that signifies the message received from the OS.
 onmessage = function (event){
-    console.log(event);
-    console.log(event.data);
-    console.log(event.data.data);
-    console.log("Got the message");
+    var errorCon = 0;
     var arrCsv = event.data.data;
-    var nResult = bankProcess(arrCsv);
+    var nResult;
+    try{
+       nResult = bankProcess(arrCsv);
+    } catch(err){
+        nResult = "";
+        errorCon = -1;
+    }
     var bankResult = {
         result : nResult,
-        processNumberI : event.data.nProcessID
-    }
+        processNumberI : event.data.nProcessID,
+        errorCon : errorCon
+    };
     postMessage(bankResult);
 }

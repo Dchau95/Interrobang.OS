@@ -12,15 +12,19 @@ function readFile(arrNum) {
 
 //The function that signifies the message received from the OS.
 onmessage = function (event) {
-    console.log(event);
-    console.log(event.data);
-    console.log(event.data.data);
-    console.log("Got the message");
+    var errorCon = 0;
     var arrCsv = event.data.data;
-    var szResult = readFile(arrCsv);
+    var szResult;
+    try{
+        szResult = readFile(arrCsv);
+    }catch(err){
+        szResult = "";
+        errorCon = -1;
+    }
     var readResult = {
         result : szResult,
-        processNumberI : event.data.nProcessID
+        processNumberI : event.data.nProcessID,
+        errorCon : errorCon
     }
     postMessage(readResult);
 };

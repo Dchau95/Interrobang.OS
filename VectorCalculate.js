@@ -21,15 +21,19 @@ function getFinalVector(vectorListCsv) {
 
 //The function that signifies the message received from the OS.
 onmessage = function (event) {
-    console.log(event);
-    console.log(event.data);
-    console.log(event.data.data);
-    console.log("Got the message");
     var arrCsv = event.data.data;
-    var szResult = getFinalVector(arrCsv);
+    var errorCon = 0;
+    var szResult;
+    try{
+        szResult = getFinalVector(arrCsv);
+    }catch(err){
+        szResult = "";
+        errorCon = -1;
+    }
     var vectorResult = {
         result : szResult,
-        processNumberI : event.data.nProcessID
+        processNumberI : event.data.nProcessID,
+        errorCon : errorCon
     }
     postMessage(vectorResult);
 };
