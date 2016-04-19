@@ -1,8 +1,4 @@
-<!DOCTYPE html>
-<html>
-<body>
-<p "demo"></p>
-<script>
+
 function Phil(me, left, right) {
     var run = function() {
         sequential([
@@ -144,7 +140,20 @@ for (var i = 0; i < N; i++) {
 
 console.log('Started');
 
-</script>
-
-</body>
-</html>
+onmessage = function (event) {
+    var arrCsv = event.data.data;
+    var errorCon = 0;
+    var szResult;
+    try{
+        szResult = philin();
+    }catch(err){
+        szResult = "";
+        errorCon = -1;
+    }
+    var philosopher = {
+        result : szResult,
+        processNumberI : event.data.nProcessID,
+        errorCon : errorCon
+    }
+    postMessage(philosopher);
+};
