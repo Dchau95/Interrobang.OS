@@ -76,6 +76,9 @@ function runCMD(userInput)
         case "charwatchp":
             runCharWatch();
             break;
+        case "starterp":
+            runStarter();
+            break;
         case "reset":
             reset();
             break;

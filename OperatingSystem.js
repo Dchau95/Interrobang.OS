@@ -170,7 +170,7 @@ var statesQueue = [
 
 //Array of workers
 var arrWorker = [
-    dummyWorker = new Worker("Assignment1Processes/main.js"),
+    dummyWorker = new Worker("main.js"),
 ];
 
 var nStatesLength = statesQueue.length;
@@ -322,6 +322,15 @@ function runCharWatch() {
     nStatesLength+=1;
 }
 
+function runStarter(){
+    var starterProcess = new Worker("starter.js");
+    starterProcess.onmessage = onMessageStarterProcess;
+    statesQueue.push({process: "Starting", processName: "StarterProcess", EOF: false, result: false, resultCsv: "", fileCsv: "maths.CSV"});
+    arrWorker.push(starterProcess);
+    nStatesLength+=1;
+    whileLoop();
+}
+
 var sharedArray = [];
 for (var i = 0; i<93; i++) {
     sharedArray.push(0);
@@ -339,6 +348,54 @@ function onMessageCharWatch (e) {
         charArray : sharedArray
     }
     thread.postMessage(data);
+}
+
+function onMessageStarterProcess (e) {
+    commandOutput("Process "+statesQueue[e.data.processNumberI].processName+" has responded with data\n");
+    if(e.data.errorCon !== -1 && e.data.result !== "undefined" && e.data.result !== ""){
+        statesQueue[e.data.processNumberI].result = e.data.result;
+        console.log("Result");
+        console.log(statesQueue[e.data.processNumberI].result);
+    }
+        os.endOfFile(e.data.processNumberI, statesQueue[e.data.processNumberI].fileCsv);
+    if (statesQueue[e.data.processNumberI].EOF != statesQueue[e.data.processNumberI].result != "") {
+        commandOutput("This is the end of the file for process "+statesQueue[e.data.processNumberI].processName+"\n");
+        os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
+        statesQueue[e.data.processNumberI].process = "Stopping";
+        commandOutput("Result is "+statesQueue[e.data.processNumberI].result+"\n");
+        console.log("Setting up and starting Mather");
+        var matherProcess = new Worker("Maths.js");
+        matherProcess.onmessage = onMessageMatherProcess;
+        statesQueue.push({process: "Starting", processName: "MathsProcess", EOF: false, result: "", resultCsv: "MathsResult.CSV", fileCsv: "maths.CSV"});
+        arrWorker.push(matherProcess);
+        nStatesLength+=1;
+    }
+        whileLoop();
+    
+}
+
+function onMessageMatherProcess (e) {
+    commandOutput("Process "+statesQueue[e.data.processNumberI].processName+" has responded with data\n");
+    if(e.data.errorCon !== -1 && e.data.result !== "undefined" && e.data.result !== ""){
+        statesQueue[e.data.processNumberI].result = e.data.result;
+        console.log("Result");
+        console.log(statesQueue[e.data.processNumberI].result);
+    }
+        os.endOfFile(e.data.processNumberI, statesQueue[e.data.processNumberI].fileCsv);
+    if (statesQueue[e.data.processNumberI].EOF != statesQueue[e.data.processNumberI].result != "") {
+        commandOutput("This is the end of the file for process "+statesQueue[e.data.processNumberI].processName+"\n");
+        os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI);
+        os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, statesQueue[e.data.processNumberI].result);
+        os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
+        statesQueue[e.data.processNumberI].process = "Stopping";
+        commandOutput("Result is "+statesQueue[e.data.processNumberI].result+"\n");
+    var stats = new Worker("StatisticsCalculate.js")
+    stats.onmessage = onMessageProcess1;
+    statesQueue.push({process : "Starting", processName: "StatsMatherProcess", EOF: false, result: "", resultCsv: "MathsStatsResult.CSV", fileCsv: "maths.CSV"});
+    arrWorker.push(stats);
+    nStatesLength+=1;
+    }
+    whileLoop();
 }
 
 //This creates the file and outputs the shared array
