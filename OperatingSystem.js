@@ -363,8 +363,9 @@ function onMessageStarterProcess (e) {
         os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
         statesQueue[e.data.processNumberI].process = "Stopping";
         commandOutput("Result is "+statesQueue[e.data.processNumberI].result+"\n");
+        console.log("Setting up and starting Mather");
         var matherProcess = new Worker("Maths.js");
-        matherProcess.onMessageMatherProcess;
+        matherProcess.onmessage = onMessageMatherProcess;
         statesQueue.push({process: "Starting", processName: "MathsProcess", EOF: false, result: "", resultCsv: "MathsResult.CSV", fileCsv: "maths.CSV"});
         arrWorker.push(matherProcess);
         nStatesLength+=1;
