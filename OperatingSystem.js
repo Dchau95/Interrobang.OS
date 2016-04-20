@@ -412,9 +412,87 @@ function onMessageCharThread (e) {
     commandOutput("Result is "+result+"\n");
 }
 
+function runSleep()
+{
+    var sleep = new Worker("SleepProcess.js")
+    sleep.onmessage = onSleepMessage;// return operation
+    statesQueue.push({process : "Starting", processName: "SleepProcess", EOF: false, result: "", resultCsv: "", fileCsv: "sleep.CSV"});
+    arrWorker.push(sleep);
+    nStatesLength+=1;
+    
+    whileLoop();
+}
+
+var flag = false;
+function runSignal()
+{
+    var signal = new Worker("SignalProcess.js");
+    signal.onmessage = onSignalMessage;// return operation
+    console.log(signal);
+    statesQueue.push({process : "Starting", processName: "SignalProcess", EOF: false, result: "", resultCsv: "", fileCsv: "signal.CSV"});
+    arrWorker.push(signal);
+    nStatesLength+=1;
+    if(flag) {
+        statesQueue[statesQueue.length-1].process = "Running";
+        statesQueue[statesQueue.length-1].EOF = true;
+    }
+    whileLoop();
+}
+
+function runPhil()
+{
+    var phil = new Worker("DinePhil.js");
+    phil.onmessage = onPhilMessage;
+    statesQueue.push({process : "Starting", processName: "PhilosopherProcess", EOF: false, result: "", resultCsv: "", fileCsv: ""});
+    arrWorker.push(signal);
+    nStatesLength+=1;
+    //Post message here
+}
+
 function osCMD(userInput)
 {
     runCMD(userInput);
+}
+
+function onSleepMessage(e){
+    commandOutput("Process " + statesQueue[e.data.processNumberI].processName + " is  " + e.data.sleepString + "\n");
+    console.log(e.data.sleepString);
+    
+    statesQueue[e.data.processNumberI].process = "Stopping";
+            console.log("pre splicing");
+
+    if(e.data.sleepString === "sleepy"){
+        console.log("Splciing");
+        //statesQueue.splice(e.data.processNumberI, 1);
+        os.write(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI, e.data.sleepString);
+        statesQueue.pop();
+        arrWorker.pop()
+        nStatesLength-=1;
+        runSignal();
+    }
+    else {
+        console.log("Not splicing");
+        whileLoop();
+    }
+}
+
+//starts process 2 to signal back to p1
+function onSignalMessage(e){
+    console.log(e);
+    console.log(statesQueue);
+    console.log(e.data.processNumberI);
+    commandOutput("Process " + statesQueue[e.data.processNumberI].processName + " is  " + e.data.signalString + "\n");
+//    os.close(statesQueue[e.data.processNumberI].fileCsv,
+//    e.data.processNumberI);
+    
+    os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
+    
+    statesQueue[e.data.processNumberI].process = "Stopping";
+//    statesQueue.pop();
+//    arrWorker.pop();
+//    nStatesLength-=1;
+    flag = true;
+    runSleep();
 }
 
 //Tried implementing a timeout for the IO in these two blocks, however ran into an error where

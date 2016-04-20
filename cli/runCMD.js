@@ -79,6 +79,12 @@ function runCMD(userInput)
         case "starterp":
             runStarter();
             break;
+        case "sleepp":
+            runSleep();
+            break;
+        case "philp":
+            runPhil();
+            break;
         case "reset":
             reset();
             break;
@@ -178,27 +184,38 @@ clear, ls or dir, delete, copy, ps, kill, more, cat, man …
 */
 function man()
 {
-var errorCode = 0;
+    var errorCode = 0;
+    commandOutput("\nAssignment 2 Processes\n");
+    commandOutput("------------------------------------------------------\n");
     commandOutput("clear : Clear terminal screen\n");
     commandOutput("reset : Clear terminal and reset database\n");
     commandOutput("ls or dir : List directory contents\n");
     commandOutput("delete or rm : Delete file. Requires one (or more) parameter\n");
-    commandOutput("copy or cp: Copy file. Requires one parameter\n");
+    commandOutput("copy or cp: Copy file. Requires two parameters\n");
     commandOutput("ps : Print process status\n");
     commandOutput("kill : Ends current process. Requires one parameter\n");
     commandOutput("more : Display file output screen. Requires one parameter\n");
     commandOutput("cat : Display file(s) content. Requires one or more parameter\n");
-    commandOutput("man : Display help manual\n");
-    commandOutput("script or sh or bash: Run a script from a file. Requires one parameter\n");
+    commandOutput("man or help : Display help manual\n");
+    commandOutput("\nAssignment 1 Processes\n");
+    commandOutput("------------------------------------------------------\n");
     commandOutput("contactp : Initiates the contact manager process\n");
     commandOutput("bankp : Initiates the bank calculator process\n");
     commandOutput("passwordp : Initiates the password process\n");
     commandOutput("readp : Initiates the sort a list of numbers process\n");
     commandOutput("vectorp : Initiates the vector calculator process\n");
     commandOutput("statsp : Initiates the statistics calculator process\n");
+    commandOutput("\nAssignment 4 Processes\n");
+    commandOutput("------------------------------------------------------\n");
     commandOutput("scriptp : Initiates the script process and runs script\n");
+    commandOutput("script or sh or bash: Run a script from a file. Requires one parameter\n");
     commandOutput("charwatchp : Initiates the character watch process\n");
     commandOutput("starterp : Starts the starter process, which starts the mather process and statsp process\n");
+    commandOutput("sleepp : Starts the sleep process which sleeps after doing some work, starts a new process which starts and finishes work, and then alerts the sleep process to wake up\n");
+    commandOutput("philp : Starts the philosopher process\n");
+    commandOutput("\nAssignment 5 Processes\n");
+    commandOutput("------------------------------------------------------\n");
+    commandOutput("memstats: Displays the remaining memory in the Operating System\n");
     return errorCode;
 }
 
@@ -509,6 +526,32 @@ function kill(processName)
                         arrWorker.splice(i, 1);
                     }
                     charWatchInfo.charWatchFlag = false;
+                }
+                commandOutput("Killed the process\n");
+                break;
+            case "sleepp":
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === ("SleepProcess")) {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+
+                    if (statesQueue[i].processName === ("SignalProcess")) {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
+                commandOutput("Killed the process\n");
+                break;
+            case "philp":
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "PhilosopherProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
                 }
                 commandOutput("Killed the process\n");
                 break;
