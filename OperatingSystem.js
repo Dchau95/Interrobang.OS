@@ -454,6 +454,10 @@ function osCMD(userInput)
     runCMD(userInput);
 }
 
+function onPhilMessage(e) {
+    //Do something
+}
+
 function onSleepMessage(e){
     commandOutput("Process " + statesQueue[e.data.processNumberI].processName + " is  " + e.data.sleepString + "\n");
     console.log(e.data.sleepString);
