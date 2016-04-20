@@ -143,6 +143,7 @@ console.log('Started');
 
 onmessage = function (event) {
     var arrCsv = event.data.data;
+    console.log("Hi");
     var errorCon = 0;
     var szResult;
     try{
