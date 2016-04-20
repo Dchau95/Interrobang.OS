@@ -444,9 +444,10 @@ function runPhil()
     var phil = new Worker("DinePhil.js");
     phil.onmessage = onPhilMessage;
     statesQueue.push({process : "Starting", processName: "PhilosopherProcess", EOF: false, result: "", resultCsv: "", fileCsv: ""});
-    arrWorker.push(signal);
+    arrWorker.push(phil);
     nStatesLength+=1;
     //Post message here
+    arrWorker[nStatesLength-1].postMessage({hi: "HI"});
 }
 
 function osCMD(userInput)
@@ -456,6 +457,7 @@ function osCMD(userInput)
 
 function onPhilMessage(e) {
     //Do something
+    console.log("Back");
 }
 
 function onSleepMessage(e){
