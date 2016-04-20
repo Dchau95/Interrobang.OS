@@ -82,6 +82,9 @@ function runCMD(userInput)
         case "reset":
             reset();
             break;
+        case "sleepp":
+            runSleep();
+            break;
         default:
             commandOutput("That is not a valid command.\n");
             break;
@@ -508,6 +511,21 @@ function kill(processName)
                     charWatchInfo.charWatchFlag = false;
                 }
                 commandOutput("Killed the process\n");
+                break;
+            case "sleepp":
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === ("SleepProcess")) {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                    
+                    if (statesQueue[i].processName === ("SignalProcess")) {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
                 break;
             default:
                 commandOutput("There was no process to kill.\n");
