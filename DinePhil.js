@@ -1,8 +1,3 @@
-<!DOCTYPE html>
-<html>
-<body>
-<p "demo"></p>
-<script>
 function Phil(me, left, right) {
     var run = function() {
         sequential([
@@ -10,10 +5,10 @@ function Phil(me, left, right) {
             function() { console.log(me + ' sits'); },
             left, // channel
             function() { console.log(me + ' picked left fork'); },
-            
+            500,
             right,
             function() { console.log(me + ' picked right fork'); },
-            500,
+            
             function() { console.log(me + ' eats'); },
             500,
             left,
@@ -126,7 +121,7 @@ function channel() {
         }
     }
 }
-
+function runPhil(){         //THIS IS THE MAIN METHOD THAT WILL RUN THE ABOVE FUNCTIONS
 var philToLeftFork = [];
 var philToRightFork = [];
 
@@ -144,7 +139,22 @@ for (var i = 0; i < N; i++) {
 
 console.log('Started');
 
-</script>
+}
 
-</body>
-</html>
+onmessage = function (event) {
+    var arrCsv = event.data.data;
+    var errorCon = 0;
+    var szResult;
+    try{
+        runPhil();
+    }catch(err){
+        szResult = "";
+        errorCon = -1;
+    }
+    var philosopher = {
+        result : "No result",
+        processNumberI : event.data.nProcessID,
+        errorCon : errorCon
+    }
+    postMessage(philosopher);
+};
