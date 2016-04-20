@@ -12,18 +12,15 @@ onmessage = function (e) {
         processNumberI : e.data.nProcessID,
         errorCon : errorCon
     };
-    switch(e.data.data)
+    if(e.data.data === "!sleepy")
     {
-        case "sleepy":
-            console.log("I'm in sleepy")
-            sleepResult.sleepString = "!sleepy";
-            break;
-        case "!sleepy":
-            console.log("I'm in !sleepy")
-            sleepResult.sleepString = "sleepy";
-            break;
-        default:
-            break;
+        console.log("I'm in !sleepy")
+        sleepResult.sleepString = "sleepy";
+    }
+    else
+    {
+        console.log("I'm in sleepy")
+        sleepResult.sleepString = "!sleepy";
     }
     postMessage(sleepResult);
 }

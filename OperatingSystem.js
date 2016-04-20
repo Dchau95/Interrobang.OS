@@ -412,7 +412,6 @@ function onMessageCharThread (e) {
     commandOutput("Result is "+result+"\n");
 }
 
-var flag = false;
 function runSleep()
 {
     var sleep = new Worker("SleepProcess.js")
@@ -424,6 +423,7 @@ function runSleep()
     whileLoop();
 }
 
+var flag = false;
 function runSignal()
 {
     var signal = new Worker("SignalProcess.js");
@@ -439,10 +439,23 @@ function runSignal()
     whileLoop();
 }
 
+function runPhil()
+{
+    var phil = new Worker("DinePhil.js");
+    phil.onmessage = onPhilMessage;
+    statesQueue.push({process : "Starting", processName: "PhilosopherProcess", EOF: false, result: "", resultCsv: "", fileCsv: ""});
+    arrWorker.push(signal);
+    nStatesLength+=1;
+    //Post message here
+}
 
 function osCMD(userInput)
 {
     runCMD(userInput);
+}
+
+function onPhilMessage(e) {
+    
 }
 
 function onSleepMessage(e){
@@ -463,7 +476,6 @@ function onSleepMessage(e){
     }
     else {
         console.log("Not splicing");
-//        os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
         whileLoop();
     }
 }

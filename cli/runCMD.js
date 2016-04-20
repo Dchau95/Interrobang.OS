@@ -85,6 +85,9 @@ function runCMD(userInput)
         case "sleepp":
             runSleep();
             break;
+        case "philp":
+            runPhil();
+            break;
         default:
             commandOutput("That is not a valid command.\n");
             break;
@@ -179,6 +182,8 @@ clear, ls or dir, delete, copy, ps, kill, more, cat, man …
 function man()
 {
 var errorCode = 0;
+    commandOutput("ASSIGNMENT 2 PROCESSES\n");
+    commandOutput("------------------------------------------------------\n");
     commandOutput("clear : Clear terminal screen\n");
     commandOutput("reset : Clear terminal and reset database\n");
     commandOutput("ls or dir : List directory contents\n");
@@ -189,16 +194,22 @@ var errorCode = 0;
     commandOutput("more : Display file output screen. Requires one parameter\n");
     commandOutput("cat : Display file(s) content. Requires one or more parameter\n");
     commandOutput("man : Display help manual\n");
-    commandOutput("script or sh or bash: Run a script from a file. Requires one parameter\n");
+    commandOutput("ASSIGNMENT 1 PROCESSES\n");
+    commandOutput("------------------------------------------------------\n");
     commandOutput("contactp : Initiates the contact manager process\n");
     commandOutput("bankp : Initiates the bank calculator process\n");
     commandOutput("passwordp : Initiates the password process\n");
     commandOutput("readp : Initiates the sort a list of numbers process\n");
     commandOutput("vectorp : Initiates the vector calculator process\n");
     commandOutput("statsp : Initiates the statistics calculator process\n");
+    commandOutput("ASSIGNMENT 4 PROCESSES\n");
+    commandOutput("------------------------------------------------------\n");
     commandOutput("scriptp : Initiates the script process and runs script\n");
+    commandOutput("script or sh or bash: Run a script from a file. Requires one parameter\n");
     commandOutput("charwatchp : Initiates the character watch process\n");
     commandOutput("starterp : Starts the starter process, which starts the mather process and statsp process\n");
+    commandOutput("sleepp : Starts the sleep process which sleeps after doing some work, starts a new process which starts and finishes work, and then alerts the sleep process to wake up\n");
+    commandOutput("philp : Starts the philosopher process\n");
     return errorCode;
 }
 
@@ -536,6 +547,17 @@ function kill(processName)
                         arrWorker.splice(i, 1);
                     }
                 }
+                commandOutput("Killed the process\n");
+                break;
+            case "philp":
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "PhilosopherProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                    }
+                }
+                commandOutput("Killed the process\n");
                 break;
             default:
                 commandOutput("There was no process to kill.\n");
