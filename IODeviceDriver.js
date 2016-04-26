@@ -129,6 +129,7 @@ function onMessage(event) {
             postMessage(task);
         } break;
         case "Write File": {
+            //Maybe have a settimeout here to mimic writing 100 characters at a time.
             console.log("Writing File");
             console.log(task.data);
             index.openCursor().onsuccess = function(event){
@@ -146,7 +147,9 @@ function onMessage(event) {
                                 console.log("File Updated: " + task.fileName);
                             }
                         } else {
-                            hold.content += ((task.data).match(/.{1,100}/g)).toString();
+//                            hold.content += ((task.data).match(/.{1,100}/g));
+                            console.log(((task.data).match(/.{1,100}/g)));
+                            hold.content += task.data;
                             
                             arrOpenFiles[task.fileName].contents[arrOpenFiles[task.fileName].nPosition] = ((task.data).match(/.{1,100}/g)).toString();
                             

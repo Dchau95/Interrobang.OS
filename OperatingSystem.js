@@ -336,6 +336,7 @@ for (var i = 0; i<93; i++) {
     sharedArray.push(0);
 }
 
+//Do a settimeout whenever writing to mimic the 100 character limit?
 function onMessageCharWatch (e) {
     console.log("Back from process");
     var thread = new Worker("CharWatchThread.js");
@@ -398,15 +399,11 @@ function onMessageMatherProcess (e) {
     whileLoop();
 }
 
-//This creates the file and outputs the shared array
-//if file exists, then just output the shared array
-//Put an if statement if the file's already created
-//Overwriting the file seems to be fucked, I dunno
 function onMessageCharThread (e) {
     console.log("Back from thread");
     sharedArray = e.data.sharedArray;
     commandOutput("Process "+statesQueue[e.data.processNumberI].processName+" has responded with data\n");
-    var result = sharedArray.toString()+'\n';
+    var result = "\n"+sharedArray.toString();
     os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI);
     os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, result);
     commandOutput("Result is "+result+"\n");
