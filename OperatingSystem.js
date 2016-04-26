@@ -419,22 +419,26 @@ function runSleep()
     statesQueue.push({process : "Starting", processName: "SleepProcess", EOF: false, result: "", resultCsv: "", fileCsv: "sleep.CSV"});
     arrWorker.push(sleep);
     nStatesLength+=1;
+    if(semaphoreQueue.length === 0)
+        semaphoreQueue.push(new SemaphoreObject(statesQueue[nStatesLength-1].fileCsv));
+      
+    semaphoreQueue[semaphoreQueue.length-1].P();
     
     whileLoop();
 }
 
-var flag = false;
+var semaphoreQueue = [];
 function runSignal()
 {
     var signal = new Worker("SignalProcess.js");
     signal.onmessage = onSignalMessage;// return operation
     console.log(signal);
-    statesQueue.push({process : "Starting", processName: "SignalProcess", EOF: false, result: "", resultCsv: "", fileCsv: "signal.CSV"});
+    statesQueue.push({process : "Starting", processName: "SignalProcess", EOF: false, result: "", resultCsv: "", fileCsv: "sleep.CSV"});
     arrWorker.push(signal);
     nStatesLength+=1;
-    if(flag) {
+    if(semaphoreQueue[semaphoreQueue.length-1].S <= 0) {
         statesQueue[statesQueue.length-1].process = "Running";
-        statesQueue[statesQueue.length-1].EOF = true;
+//        statesQueue[statesQueue.length-1].EOF = true;
     }
     whileLoop();
 }
@@ -469,10 +473,9 @@ function onSleepMessage(e){
 
     if(e.data.sleepString === "sleepy"){
         console.log("Splciing");
-        //statesQueue.splice(e.data.processNumberI, 1);
         os.write(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI, e.data.sleepString);
         statesQueue.pop();
-        arrWorker.pop()
+        arrWorker.pop();
         nStatesLength-=1;
         runSignal();
     }
@@ -488,16 +491,11 @@ function onSignalMessage(e){
     console.log(statesQueue);
     console.log(e.data.processNumberI);
     commandOutput("Process " + statesQueue[e.data.processNumberI].processName + " is  " + e.data.signalString + "\n");
-//    os.close(statesQueue[e.data.processNumberI].fileCsv,
-//    e.data.processNumberI);
     
     os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
     
     statesQueue[e.data.processNumberI].process = "Stopping";
-//    statesQueue.pop();
-//    arrWorker.pop();
-//    nStatesLength-=1;
-    flag = true;
+    semaphoreQueue[semaphoreQueue.length-1].V();
     runSleep();
 }
 
