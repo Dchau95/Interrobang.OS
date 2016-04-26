@@ -336,6 +336,7 @@ for (var i = 0; i<93; i++) {
     sharedArray.push(0);
 }
 
+//Do a settimeout for all write functions to simulate 100 characters?
 function onMessageCharWatch (e) {
     console.log("Back from process");
     var thread = new Worker("CharWatchThread.js");

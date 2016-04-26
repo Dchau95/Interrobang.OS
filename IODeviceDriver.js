@@ -187,8 +187,9 @@ function onMessage(event) {
                                 updateMemoryUsage();
                             }
                         } else {
-                            hold.content += ((task.data).match(/.{1,100}/g)).toString();
-                            hold.filesize = (hold.content).length;
+                            hold.content += "\n"+((task.data).match(/.{1,100}/g)).toString();
+//                            hold.content += task.data;
+//                            hold.filesize = (hold.content).length;
                             arrOpenFiles[task.fileName].contents[arrOpenFiles[task.fileName].nPosition] = ((task.data).match(/.{1,100}/g)).toString();
                             
                             var request = cursor.update(hold);
