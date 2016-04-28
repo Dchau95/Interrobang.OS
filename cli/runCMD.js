@@ -558,6 +558,7 @@ function kill(processName)
                         statesQueue.splice(i, 1);
                         arrWorker[i].terminate();
                         arrWorker.splice(i, 1);
+                        defaultStart -= 1;
                     }
                     charWatchInfo.charWatchFlag = false;
                 }
@@ -585,6 +586,7 @@ function kill(processName)
                         statesQueue.splice(i, 1);
                         arrWorker[i].terminate();
                         arrWorker.splice(i, 1);
+                        defaultStart -= 1;
                     }
                 }
                 commandOutput("Killed the process\n");
