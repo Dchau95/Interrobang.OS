@@ -88,9 +88,9 @@ function updateMemoryUsage(){
 }
 
 function displayMemory(){
-    console.log("Total Memory Limit = " + totalMemoryLimit + " bytes.");
-    console.log("Total Memory Used = " + totalMemoryUsed + " bytes.");
-    console.log("Total Memory Remaining = " + (totalMemoryLimit - totalMemoryUsed) + " bytes.");
+    commandOutput("Total Memory Limit = " + totalMemoryLimit + " bytes.\n");
+    commandOutput("Total Memory Used = " + totalMemoryUsed + " bytes.\n");
+    commandOutput("Total Memory Remaining = " + (totalMemoryLimit - totalMemoryUsed) + " bytes.\n");
 }
 
 
