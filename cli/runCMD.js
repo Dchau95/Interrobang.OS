@@ -1,4 +1,4 @@
-var folderLocation = "files"
+var folderLocation = "root"
 function runCMD(userInput)
 {
     var pointerOne = "";
@@ -106,16 +106,23 @@ function cdCMD(folder)
 {
     //Make sure it's a folder
     //Make sure it goes back a folder
-    if(folder === ".." && folderLocation !== "files")
+    
+    if(folder === ".." && folderLocation !== "root")
     {
         document.getElementById("filepath").innerHTML = "C:\\Interrobang\>";
-        folderLocation = "files";
-        
+        folderLocation = "root";
+        return;
+    }
+    else if (folder.toLowerCase() !== "results")
+    {
+        commandOutput("The folder does not exist\n")
+        return;
     }
     else 
     {
         document.getElementById("filepath").innerHTML = "C:\\Interrobang\\" + folder + ">";
         folderLocation = folder.toLowerCase().toString();
+        return;
     }
 }
 
@@ -154,8 +161,8 @@ function lsCMD()
 
 function deleteCMD(fileName)
 {
-    var transact = db.transaction(["files"], "readwrite");
-    var store = transact.objectStore("files");
+    var transact = db.transaction([folderLocation], "readwrite");
+    var store = transact.objectStore(folderLocation);
     var index = store.index("by_filename");
 
     index.openCursor().onsuccess = function(event){
@@ -176,11 +183,12 @@ function deleteCMD(fileName)
 
 }
 
+//Maybe todo CopyFilename be directories
 function copyCMD(fileName, copyFileName)
 {
     var errorCode = 0;
-    var transact = db.transaction(["files"], "readwrite");
-    var store = transact.objectStore("files");
+    var transact = db.transaction([folderLocation], "readwrite");
+    var store = transact.objectStore(folderLocation);
     var index = store.index("by_filename");
 
     var request = index.get(fileName);
@@ -250,8 +258,8 @@ file elements matching hastable(array of files)
 */
 function cat(arrFiles, rec)
 {
-    var transact = db.transaction(["files"]);
-    var store = transact.objectStore("files");
+    var transact = db.transaction([folderLocation]);
+    var store = transact.objectStore(folderLocation);
     var index = store.index("by_filename");
     var i = rec;
     var errorCode = 0;
@@ -293,8 +301,8 @@ Display output one screen at a time
 var moreIncrement = 0;
 function more(fileName)
 {  
-    var transact = db.transaction(["files"], "readwrite");
-    var store = transact.objectStore("files");
+    var transact = db.transaction([folderLocation], "readwrite");
+    var store = transact.objectStore(folderLocation);
     var index = store.index("by_filename");
 
     moreFlag = 1;

@@ -28,7 +28,7 @@ function openDb() {
     request.onupgradeneeded = function (event) {
         console.log("openDB upgradeneeded");
         //Create a store named "files", which contains two indices, "filename" and "content"
-        var store = event.currentTarget.result.createObjectStore("files", {autoIncrement: true});
+        var store = event.currentTarget.result.createObjectStore("root", {autoIncrement: true});
         var storeResult = event.currentTarget.result.createObjectStore("results", {autoIncrement: true});
         store.createIndex("by_filepath", "filepath");
         store.createIndex("by_filename", "filename", {unique: true});
@@ -69,8 +69,8 @@ var arrOpenFiles = {
 
 function updateMemoryUsage(){
     console.log("Updating memory");
-    var transact = db.transaction(["files"], "readwrite");
-    var store = transact.objectStore("files");
+    var transact = db.transaction(["root"], "readwrite");
+    var store = transact.objectStore("root");
     var index = store.index("by_filename");
     totalMemoryUsed = 0;
     
@@ -111,8 +111,8 @@ function displayMemory(){
 //The function where the IODevice received its messages from the OS
 function onMessage(event) {
     var task = event.data;
-    var transact = db.transaction(["files"], "readwrite");
-    var store = transact.objectStore("files");
+    var transact = db.transaction(["root"], "readwrite");
+    var store = transact.objectStore("root");
     var index = store.index("by_filename");
     
     var transactResult = db.transaction(["results"], "readwrite");
