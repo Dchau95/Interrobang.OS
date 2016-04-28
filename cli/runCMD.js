@@ -423,12 +423,12 @@ Display the process and the state of each running process
 function ps()
 {
     var errorCode = 0;
-    try{
+    try {
         for(var i = 1; i<statesQueue.length; i++)
             commandOutput("Process "+statesQueue[i].processName + " is currently "
                     + statesQueue[i].process+"\n");
     }
-    catch(err){
+    catch(err) {
         errorCode = -1;
     }
     return errorCode;
@@ -436,8 +436,8 @@ function ps()
 
 function script(fileName){
     setTimeout(function() {
-        var transact = db.transaction(["files"]);
-        var store = transact.objectStore("files");
+        var transact = db.transaction(["results"]);
+        var store = transact.objectStore("results");
         var index = store.index("by_filename");
         var request = index.get(fileName);
         request.onsuccess = function(event) {

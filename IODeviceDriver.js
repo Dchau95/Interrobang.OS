@@ -189,7 +189,7 @@ function onMessage(event) {
         case "Write File": {
             console.log("Writing File");
             console.log(task.data);
-            index.openCursor().onsuccess = function(event){
+            indexResult.openCursor().onsuccess = function(event){
                 var cursor = event.target.result;
                 if (cursor) {
                     if (cursor.value.filename === task.fileName){
