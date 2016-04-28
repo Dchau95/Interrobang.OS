@@ -168,6 +168,8 @@ var statesQueue = [
     { process: "Stopped", processName: "Dummy", EOF: false, result: "", resultCsv: "", fileCsv: ""},
 ];
 
+var defaultStart = 0;
+
 //Array of workers
 var arrWorker = [
     dummyWorker = new Worker("main.js"),
@@ -179,7 +181,7 @@ var nStatesLength = statesQueue.length;
 function whileLoop() {
     while (nStatesLength !== 1) {
         if (processNumberI >= statesQueue.length - 1) {
-            processNumberI = 0;
+            processNumberI = defaultStart;
         }
         processNumberI += 1;
         console.log("Right fucking here " + processNumberI);
@@ -320,6 +322,7 @@ function runCharWatch() {
     arrWorker.push(charWatch);
     charWatchInfo.charPIndex = nStatesLength;
     nStatesLength+=1;
+    defaultStart +=1;
 }
 
 function runStarter(){
@@ -446,6 +449,7 @@ function runPhil()
     statesQueue.push({process : "Starting", processName: "PhilosopherProcess", EOF: false, result: "", resultCsv: "", fileCsv: ""});
     arrWorker.push(phil);
     nStatesLength+=1;
+    defaultStart +=1;
     //Post message here
     arrWorker[nStatesLength-1].postMessage({hi: "HI"});
 }
