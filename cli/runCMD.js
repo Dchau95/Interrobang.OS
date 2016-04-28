@@ -1,3 +1,4 @@
+var folderLocation = "files"
 function runCMD(userInput)
 {
     var pointerOne = "";
@@ -91,9 +92,30 @@ function runCMD(userInput)
         case "memstats":
             displayMemory();
             break;
+        case "cd":
+            cdCMD(pointerOne);
+            break;
         default:
             commandOutput("That is not a valid command.\n");
             break;
+    }
+}
+
+
+function cdCMD(folder)
+{
+    //Make sure it's a folder
+    //Make sure it goes back a folder
+    if(folder === ".." && folderLocation !== "files")
+    {
+        document.getElementById("filepath").innerHTML = "C:\\Interrobang\>";
+        folderLocation = "files";
+        
+    }
+    else 
+    {
+        document.getElementById("filepath").innerHTML = "C:\\Interrobang\\" + folder + ">";
+        folderLocation = folder.toLowerCase().toString();
     }
 }
 
@@ -111,8 +133,9 @@ function reset(){
 
 function lsCMD()
 {
-    var transact = db.transaction(["files"]);
-    var store = transact.objectStore("files");
+    console.log(folderLocation);
+    var transact = db.transaction([folderLocation]);
+    var store = transact.objectStore(folderLocation);
     var index = store.index("by_filename");
     index.openCursor().onsuccess = function(event) {
         var cursor = event.target.result;
@@ -240,7 +263,10 @@ function cat(arrFiles, rec)
             commandOutput("File not found.\n");
         } else {
         console.log("Reading File: " + arrFiles[i] + " Contents: " + request.result.content);
-        commandOutput(request.result.content + "\n");
+        if (request.result.content !== "Folder")
+            commandOutput(request.result.content + "\n");
+        else
+            commandOutput(arrFiles[i] +": Is a directory " + "\n");
         }
         i++;
         if(i < arrFiles.length){

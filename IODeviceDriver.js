@@ -29,13 +29,20 @@ function openDb() {
         console.log("openDB upgradeneeded");
         //Create a store named "files", which contains two indices, "filename" and "content"
         var store = event.currentTarget.result.createObjectStore("files", {autoIncrement: true});
+        var storeResult = event.currentTarget.result.createObjectStore("results", {autoIncrement: true});
         store.createIndex("by_filepath", "filepath");
         store.createIndex("by_filename", "filename", {unique: true});
         store.createIndex("by_content", "content");
         store.createIndex("by_filesize", "filesize");
     
+        storeResult.createIndex("by_filepath", "filepath");
+        storeResult.createIndex("by_filename", "filename", {unique: true});
+        storeResult.createIndex("by_content", "content");
+        storeResult.createIndex("by_filesize", "filesize");
+        
         //add an entry to the "files" store
         store.put({filepath: "", filename: "Contact.CSV", content: "David: Secretary, Tony: Gangster, Jason: Dancer, Benson: Duke, Andrew: Gangster, Thomas: Traitor, Matt: Lame", filesize: 0});
+        store.put({filepath: "", filename: "Results", content: "Folder", filesize: 0});
         store.put({filepath: "", filename: "Bank.CSV", content: "100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000", filesize: 0});
         store.put({filepath: "", filename: "password.CSV", content: "popchiek:hi,gamrgod88:l337420,slides:mcgee,taeyona:taeyona,thommy:commie", filesize: 0});
         store.put({filepath: "", filename: "read.CSV", content: "1, 2, 4, 6, 7, 11, 3, 2, 7, 9, 10, 3, 4, 11, 5, 7, 8, 10, 1, 5, 7, 4, 7, 10, 11, 12, 13, 5, 7, 8, 100, 11, 12, 32, 200", filesize: 0});
@@ -65,6 +72,13 @@ function updateMemoryUsage(){
     var transact = db.transaction(["files"], "readwrite");
     var store = transact.objectStore("files");
     var index = store.index("by_filename");
+    totalMemoryUsed = 0;
+    
+    // Results folder
+    console.log("Updating memory");
+    var transactResult = db.transaction(["results"], "readwrite");
+    var storeResult = transactResult.objectStore("results");
+    var indexResult = storeResult.index("by_filename");
     totalMemoryUsed = 0;
     
     index.openCursor().onsuccess = function(event) {
@@ -101,6 +115,10 @@ function onMessage(event) {
     var store = transact.objectStore("files");
     var index = store.index("by_filename");
     
+    var transactResult = db.transaction(["results"], "readwrite");
+    var storeResult = transactResult.objectStore("results");
+    var indexResult = storeResult.index("by_filename");
+    
     switch (task.sysCall) {
         case "Open File": {
             console.log("Opening File");
@@ -128,7 +146,7 @@ function onMessage(event) {
         } break;
         case "Create File": {
             console.log("Creating File");
-            var request = store.put({filepath: "", filename: task.fileName, content: "", filesize: 0})
+            var request = storeResult.put({filepath: "", filename: task.fileName, content: "", filesize: 0})
             request.onsuccess = function(event) {
                 arrOpenFiles[task.fileName] = {
                     szMode: task.mode,
