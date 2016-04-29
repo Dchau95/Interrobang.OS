@@ -70,6 +70,7 @@ txtbox.addEventListener("keydown", function(event){
     }
     // Get last input if up arrow button is used
     else if (event.keyCode === 38) {
+        event.preventDefault();
         if (localStorage.getItem("lastCommand") != null){
             document.getElementById("input").innerHTML = localStorage.getItem("lastCommandText");
             txtbox.value = localStorage.getItem("lastCommand");

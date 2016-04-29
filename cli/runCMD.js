@@ -3,55 +3,46 @@ function runCMD(userInput)
 {
     var pointerOne = "";
     var pointerTwo = "";
-    var arrFiles = [];
+    var arrArguments = [];
     var command = userInput.split(' ');
 
     console.log(userInput);
 
-    // Check if userInput contains space.
-    //Maybe later on, try cat'ing more than two files
-    if (userInput.indexOf(' ') >= 0) 
-    {
-        userInput = command[0];
-        pointerOne = command[1];
-        arrFiles.push(pointerOne);
-        if (command.length == 3){
-            pointerTwo = command[2];
-            arrFiles.push(pointerTwo);
-        }
+    for(var i = 1; i < command.length; i++) {
+        arrArguments.push(command[i]);
     }
-
+    
     switch(command[0].toLowerCase())
     {
         case "clear": case "cls":
             clearCMD();
             break;
         case "ls": case "dir":
-            lsCMD();
+            lsCMD(arrArguments);
             break;
         case "man": case "help":
             man();
             break;
         case "delete": case "rm":
-            deleteCMD(pointerOne);
+            deleteCMD(arrArguments[0]);
             break;
         case "copy": case "cp":
-            copyCMD(pointerOne, pointerTwo);
+            copyCMD(arrArguments[0], arrArguments[1]);
             break;
         case "ps":
             ps();
             break;
         case "kill":
-            kill(pointerOne);
+            kill(arrArguments[0]);
             break;
         case "more":
-            more(pointerOne);
+            more(arrArguments[0]);
             break;
         case "cat":
-            cat(arrFiles, 0);
+            cat(arrArguments, 0);
             break;
         case "script": case "sh": case "bash":
-            script(pointerOne)
+            script(arrArguments[0])
             break;
         case "contactp":
             runContact();
@@ -93,7 +84,7 @@ function runCMD(userInput)
             displayMemory();
             break;
         case "cd":
-            cdCMD(pointerOne);
+            cdCMD(arrArguments[0]);
             break;
         default:
             commandOutput("That is not a valid command.\n");
@@ -138,25 +129,50 @@ function reset(){
     location.reload();
 }
 
-function lsCMD()
+function lsCMD(directories)
 {
     console.log(folderLocation);
-    var transact = db.transaction([folderLocation]);
-    var store = transact.objectStore(folderLocation);
-    var index = store.index("by_filename");
-    index.openCursor().onsuccess = function(event) {
-        var cursor = event.target.result;
-        if(cursor) {
-            commandOutput(cursor.value.filename + "\n");
-            cursor.continue();
-        } else {
-            console.log("All Entries Displayed.");
+    //List current directory
+    if(directories.length === 0) {
+        var transact = db.transaction([folderLocation]);
+        var store = transact.objectStore(folderLocation);
+        var index = store.index("by_filename");
+        index.openCursor().onsuccess = function(event) {
+            var cursor = event.target.result;
+            if(cursor) {
+                commandOutput(cursor.value.filename + "\n");
+                cursor.continue();
+            } else {
+                console.log("All Entries Displayed.");
+            }
+        }
+        index.openCursor().onerror = function(event) {
+            console.log("An error has occured.");
+            console.log(event.target.errorCode);
         }
     }
-    index.openCursor().onerror = function(event) {
-        console.log("An error has occured.");
-        console.log(event.target.errorCode);
+    //List one or more directories listed
+    else {
+        for(var i = 0; i < directories.length; i++) {
+            var transact = db.transaction([directories[i].toLowerCase()]);
+            var store = transact.objectStore(directories[i].toLowerCase());
+            var index = store.index("by_filename");
+            index.openCursor().onsuccess = function(event) {
+                var cursor = event.target.result;
+                if(cursor) {
+                    commandOutput(cursor.value.filename + "\n");
+                    cursor.continue();
+                } else {
+                    console.log("All Entries Displayed.");
+                }
+            }
+            index.openCursor().onerror = function(event) {
+                console.log("An error has occured.");
+                console.log(event.target.errorCode);
+            }
+        }
     }
+    
 }
 
 function deleteCMD(fileName)
