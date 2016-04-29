@@ -38,20 +38,25 @@ txtbox.addEventListener("keypress", function (event) {
     }
     else if (event.keyCode === 32) { //if space
         changeInput("\u00A0");
+        sendToCharWatch(event.keyCode);
     }
     else {
         var hold = String.fromCharCode(event.charCode);
-        var processID = charWatchInfo.charPIndex;
         changeInput(hold);
-        var arg = {
-            character: hold,
-            nProcessID: processID,
-        }
-        if(charWatchInfo.charWatchFlag) {
-            arrWorker[processID].postMessage(arg);
-        }
+        sendToCharWatch(event.charCode);
     }
 });
+
+function sendToCharWatch(hold) {
+    var processID = charWatchInfo.charPIndex;
+    var arg = {
+        characterCode: hold,
+        nProcessID: processID,
+    }
+    if(charWatchInfo.charWatchFlag) {
+        arrWorker[processID].postMessage(arg);
+    }
+}
 
 txtbox.addEventListener("keydown", function(event){
     if (event.keyCode === 8) { //if backspace

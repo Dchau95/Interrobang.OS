@@ -351,6 +351,8 @@ function onMessageCharWatch (e) {
         character : e.data.character,
         charArray : sharedArray
     }
+    console.log(sharedArray);
+    console.log(data.charArray);
     thread.postMessage(data);
 }
 

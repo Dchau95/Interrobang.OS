@@ -1,5 +1,6 @@
 onmessage = function(e) {
-    console.log("I'm in thread");
+    console.log(e);
+    console.log(e.data.charArray.length);
     switch(e.data.character) {
         case "a":
             e.data.charArray[e.data.arrayIndex]+=1;
