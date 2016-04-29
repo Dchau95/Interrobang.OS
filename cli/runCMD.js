@@ -4,7 +4,7 @@ function runCMD(userInput)
     var pointerOne = "";
     var pointerTwo = "";
     var arrArguments = [];
-    var command = userInput.split(' ');
+    var command = userInput.split(/\s+/g);
 
     console.log(userInput);
 
@@ -132,30 +132,12 @@ function reset(){
 function lsCMD(directories)
 {
     console.log(folderLocation);
-    //List current directory
-    if(directories.length === 0) {
-        var transact = db.transaction([folderLocation]);
-        var store = transact.objectStore(folderLocation);
-        var index = store.index("by_filename");
-        index.openCursor().onsuccess = function(event) {
-            var cursor = event.target.result;
-            if(cursor) {
-                commandOutput(cursor.value.filename + "\n");
-                cursor.continue();
-            } else {
-                console.log("All Entries Displayed.");
-            }
-        }
-        index.openCursor().onerror = function(event) {
-            console.log("An error has occured.");
-            console.log(event.target.errorCode);
-        }
-    }
-    //List one or more directories listed
-    else {
-        for(var i = 0; i < directories.length; i++) {
-            var transact = db.transaction([directories[i].toLowerCase()]);
-            var store = transact.objectStore(directories[i].toLowerCase());
+    console.log(directories);
+    try {
+        //List current directory
+        if(directories.length === 0 || directories[0] === "") {
+            var transact = db.transaction([folderLocation]);
+            var store = transact.objectStore(folderLocation);
             var index = store.index("by_filename");
             index.openCursor().onsuccess = function(event) {
                 var cursor = event.target.result;
@@ -171,6 +153,31 @@ function lsCMD(directories)
                 console.log(event.target.errorCode);
             }
         }
+        //List one or more directories listed
+        else {
+            for(var i = 0; i < directories.length; i++) {
+                var transact = db.transaction([directories[i].toLowerCase()]);
+                var store = transact.objectStore(directories[i].toLowerCase());
+                var index = store.index("by_filename");
+                index.openCursor().onsuccess = function(event) {
+                    var cursor = event.target.result;
+                    if(cursor) {
+                        commandOutput(cursor.value.filename + "\n");
+                        cursor.continue();
+                    } else {
+                        console.log("All Entries Displayed.");
+                    }
+                }
+                index.openCursor().onerror = function(event) {
+                    console.log("An error has occured.");
+                    console.log(event.target.errorCode);
+                }
+            }
+        }
+    } 
+    catch (error){
+        commandOutput("That directory does not exist.\n");
+        return;
     }
     
 }
