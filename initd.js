@@ -41,6 +41,9 @@ function onMessageDevice(event) {
         commandOutput("Total Memory Used = " + task.memoryUsed + " bytes.\n");
         commandOutput("Total Memory Remaining = " + (task.memoryLimit - task.memoryUsed) + " bytes.\n");
     }
+    else if (task.sysCall === "Memory failure") {
+        commandOutput("OUT OF DISK SPACE ERROR: 12");
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {

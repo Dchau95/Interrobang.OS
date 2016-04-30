@@ -89,7 +89,12 @@ function OperatingSystem() {
             data : contents
         };
         commandOutput("Writing File\n");
-        device.postMessage(task);
+        try{
+            device.postMessage(task);
+        }
+        catch(exception) {
+            console.log("exceiption");
+        }
     };
     
     /*

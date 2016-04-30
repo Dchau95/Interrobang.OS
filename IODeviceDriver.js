@@ -199,41 +199,49 @@ function onMessage(event) {
         case "Write File": {
             console.log("Writing File");
             console.log(task.data);
-            indexResult.openCursor().onsuccess = function(event){
+            var testLimit = task.data.length;
+            if(testLimit+totalMemoryUsed >= totalMemoryLimit) {
+                var memoryError = {
+                    sysCall: "Memory failure"
+                };
+                postMessage(memoryError);
+            }
+            else {
+                indexResult.openCursor().onsuccess = function(event){
                 var cursor = event.target.result;
-                if (cursor) {
-                    if (cursor.value.filename === task.fileName){
-                        var hold = cursor.value;
-                        if (task.data === parseInt(task.data, 10)){
-                            hold.content += ((task.data.toString()).match(/.{1,100}/g)).toString();
-                            hold.filesize = (hold.content).length;
-                            arrOpenFiles[task.fileName].contents[arrOpenFiles[task.fileName].nPosition] = ((task.data.toString()).match(/.{1,100}/g)).toString();
-                            
-                            var request = cursor.update(hold);
-                            request.onsuccess = function() {
-                                console.log("File Updated: " + task.fileName);
-                                updateMemoryUsage();
-                            }
-                        } else {
-                            hold.content += "\n"+((task.data).match(/.{1,100}/g)).toString();
-//                            hold.content += task.data;
-//                            hold.filesize = (hold.content).length;
-                            arrOpenFiles[task.fileName].contents[arrOpenFiles[task.fileName].nPosition] = ((task.data).match(/.{1,100}/g)).toString();
-                            
-                            var request = cursor.update(hold);
-                            request.onsuccess = function() {
-                                console.log("File Updated: " + task.fileName);
-                                updateMemoryUsage();
+                    if (cursor) {
+                        if (cursor.value.filename === task.fileName){
+                            var hold = cursor.value;
+                            if (task.data === parseInt(task.data, 10)){
+                                hold.content += ((task.data.toString()).match(/.{1,100}/g)).toString();
+                                hold.filesize = (hold.content).length;
+                                 arrOpenFiles[task.fileName].contents[arrOpenFiles[task.fileName].nPosition] = ((task.data.toString()).match(/.{1,100}/g)).toString();
+
+                                var request = cursor.update(hold);
+                                request.onsuccess = function() {
+                                    console.log("File Updated: " + task.fileName);
+                                    updateMemoryUsage();
+                                }
+                            } else {
+                                hold.content += "\n"+((task.data).match(/.{1,100}/g)).toString();
+    //                            hold.content += task.data;
+    //                            hold.filesize = (hold.content).length;
+                                arrOpenFiles[task.fileName].contents[arrOpenFiles[task.fileName].nPosition] = ((task.data).match(/.{1,100}/g)).toString();
+
+                                var request = cursor.update(hold);
+                                request.onsuccess = function() {
+                                    console.log("File Updated: " + task.fileName);
+                                    updateMemoryUsage();
+                                }
                             }
                         }
+                        cursor.continue();
                     }
-                    cursor.continue();
                 }
-                
+                task.length = task.data.length;
+                task.position = (arrOpenFiles[task.fileName].nPosition)+ 1;
+                postMessage(task);
             }
-            task.length = task.data.length;
-            task.position = (arrOpenFiles[task.fileName].nPosition)+ 1;
-            postMessage(task);
         } break;
         case "Length of File": {
             var request = index.get(task.fileName);

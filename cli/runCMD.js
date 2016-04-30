@@ -213,7 +213,7 @@ function deleteCMD(fileName)
 
 }
 
-//Maybe todo CopyFilename be directories
+//Maybe todo CopyFilename be directories + filename
 function copyCMD(fileName, copyFileName)
 {
     var errorCode = 0;
@@ -225,13 +225,17 @@ function copyCMD(fileName, copyFileName)
     request.onsuccess = function() {
         console.log("Copying File: " + fileName + " to: copyFileName: " + copyFileName);
         var hold = request.result.content;
-        request = store.put({filename: copyFileName, content: hold});
-        request.onsuccess = function(event){
-            console.log("Copying: Success!");
-        }
-        request.onerror = function(event){
-            console.log("Copying: Failed!");
-        }
+        
+        os.create(copyFileName, "write", 10);
+        os.write(copyFileName, 1, hold, 10);
+        
+//        request = store.put({filename: copyFileName, content: hold});
+//        request.onsuccess = function(event){
+//            console.log("Copying: Success!");
+//        }
+//        request.onerror = function(event){
+//            console.log("Copying: Failed!");
+//        }
     }
     request.onerror = function(event){
         console.log("An error has occured.");
