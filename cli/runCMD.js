@@ -93,6 +93,13 @@ function runCMD(userInput)
 }
 
 
+function displayMemory() {
+    var task = {
+        sysCall : "Memory Stats",
+    };
+    device.postMessage(task);
+}
+
 function cdCMD(folder)
 {
     //Make sure it's a folder
@@ -243,13 +250,13 @@ function man()
     commandOutput("------------------------------------------------------\n");
     commandOutput("clear : Clear terminal screen\n");
     commandOutput("reset : Clear terminal and reset database\n");
-    commandOutput("ls or dir : List directory contents\n");
+    commandOutput("ls or dir : List directory contents, takes in one or more parameters\n");
     commandOutput("delete or rm : Delete file. Requires one (or more) parameter\n");
     commandOutput("copy or cp: Copy file. Requires two parameters\n");
     commandOutput("ps : Print process status\n");
     commandOutput("kill : Ends current process. Requires one parameter\n");
     commandOutput("more : Display file output screen. Requires one parameter\n");
-    commandOutput("cat : Display file(s) content. Requires one or more parameter\n");
+    commandOutput("cat : Display file(s) content. Requires one or more parameters\n");
     commandOutput("man or help : Display help manual\n");
     commandOutput("\nAssignment 1 Processes\n");
     commandOutput("------------------------------------------------------\n");
@@ -270,6 +277,7 @@ function man()
     commandOutput("\nAssignment 5 Processes\n");
     commandOutput("------------------------------------------------------\n");
     commandOutput("memstats: Displays the remaining memory in the Operating System\n");
+    commandOutput("cd: Change directory, requires one parameter\n");
     return errorCode;
 }
 

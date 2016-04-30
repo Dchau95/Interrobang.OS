@@ -168,6 +168,7 @@ var defaultStart = 0;
 var arrWorker = [];
 
 var semaphoreQueue = [];
+var mutexQueue = [];
 
 //Process Scheduler
 //Function that operates as the loop for the entire OS until there are no more processes left.

@@ -79,7 +79,6 @@ function updateMemoryUsage(){
     var transactResult = db.transaction(["results"], "readwrite");
     var storeResult = transactResult.objectStore("results");
     var indexResult = storeResult.index("by_filename");
-    totalMemoryUsed = 0;
     
     index.openCursor().onsuccess = function(event) {
         var cursor = event.target.result;
@@ -99,14 +98,26 @@ function updateMemoryUsage(){
             }
         }
     }
+    
+    indexResult.openCursor().onsuccess = function(event) {
+        var cursor = event.target.result;
+        if(cursor) {
+            var hold = cursor.value;
+            var memoryUsed = hold.content.length;
+            hold.filesize = memoryUsed;
+            var request = cursor.update(hold);
+            request.onsuccess = function() {
+                totalMemoryUsed += memoryUsed;
+                cursor.continue();
+            }
+            request.onerror = function(event){
+                console.log("File: " + hold.filename + " could not be updated.");
+                console.log(event.target.errorCode);
+                cursor.continue();
+            }
+        }
+    }
 }
-
-function displayMemory(){
-    commandOutput("Total Memory Limit = " + totalMemoryLimit + " bytes.\n");
-    commandOutput("Total Memory Used = " + totalMemoryUsed + " bytes.\n");
-    commandOutput("Total Memory Remaining = " + (totalMemoryLimit - totalMemoryUsed) + " bytes.\n");
-}
-
 
 //The function where the IODevice received its messages from the OS
 function onMessage(event) {
@@ -155,7 +166,6 @@ function onMessage(event) {
                     contents: []
                 };
                 console.log()
-                updateMemoryUsage();
                 postMessage(task);
             }
         } break;
@@ -251,6 +261,14 @@ function onMessage(event) {
             }
                 postMessage(task);
         } break;
+        case "Memory Stats":
+            var response = {
+                sysCall: "Memory Stats",
+                memoryLimit: totalMemoryLimit,
+                memoryUsed: totalMemoryUsed,
+            }
+            postMessage(response);
+            break;
     }
 }
 

@@ -5,6 +5,7 @@ function initd() {
     device = new Worker('IODeviceDriver.js');
     device.onmessage = onMessageDevice;
     //Push initd into this too as it is a process
+    //Its file is init.bat
     statesQueue.push({ process: "Running", processName: "CLI", EOF: false, result: "", resultCsv: "", fileCsv: ""});
     arrWorker.push(new Worker("cli/runCMD.js"));
     nStatesLength = statesQueue.length;
@@ -34,6 +35,11 @@ function onMessageDevice(event) {
         else{
             statesQueue[task.nProcessID].EOF = task.checkEOF;
         }
+    }
+    else if (task.sysCall === "Memory Stats") {
+        commandOutput("Total Memory Limit = " + task.memoryLimit + " bytes.\n");
+        commandOutput("Total Memory Used = " + task.memoryUsed + " bytes.\n");
+        commandOutput("Total Memory Remaining = " + (task.memoryLimit - task.memoryUsed) + " bytes.\n");
     }
 }
 
