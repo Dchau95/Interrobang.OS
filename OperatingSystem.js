@@ -1,7 +1,3 @@
-//The IO device driver
-var device = new Worker('IODeviceDriver.js');
-device.onmessage = onMessageDevice;
-
 //The Operating System class
 function OperatingSystem() {
     "use strict";
@@ -164,19 +160,16 @@ var os = new OperatingSystem();
 var processNumberI = 0;
 
 //Queue/array for the states of the processes
-var statesQueue = [
-    { process: "Stopped", processName: "Dummy", EOF: false, result: "", resultCsv: "", fileCsv: ""},
-];
+var statesQueue = [];
 
 var defaultStart = 0;
 
 //Array of workers
-var arrWorker = [
-    dummyWorker = new Worker("main.js"),
-];
+var arrWorker = [];
 
-var nStatesLength = statesQueue.length;
+var semaphoreQueue = [];
 
+//Process Scheduler
 //Function that operates as the loop for the entire OS until there are no more processes left.
 function whileLoop() {
     while (nStatesLength !== 1) {
@@ -219,33 +212,6 @@ function whileLoop() {
             statesQueue.splice(processNumberI,1);
             arrWorker.splice(processNumberI,1);
             continue;
-        }
-    }
-}
-
-//Function that gets the response from the IODevice
-function onMessageDevice(event) {
-    var task = event.data;
-    if (task.sysCall === "Open File") {
-        whileLoop();
-    }
-    else if (task.sysCall === "Read File") {
-        if( arrWorker[task.nProcessID] === 'undefined'){
-            arrWorker[task.nProcessID-1].postMessage(task);
-        }else{
-            arrWorker[task.nProcessID].postMessage(task);
-        }
-    }
-    else if (task.sysCall === "Close File") {
-        console.log("We closed the damn file");
-    }
-    else if (task.sysCall === "End of File") {
-        console.log("End of file");
-        if(task.nProcessID >= statesQueue.length){
-            statesQueue[task.nProcessID-1].EOF = task.checkEOF; 
-        }
-        else{
-            statesQueue[task.nProcessID].EOF = task.checkEOF;
         }
     }
 }
@@ -431,7 +397,6 @@ function runSleep()
     whileLoop();
 }
 
-var semaphoreQueue = [];
 function runSignal()
 {
     var signal = new Worker("SignalProcess.js");
