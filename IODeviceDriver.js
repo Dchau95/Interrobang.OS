@@ -64,6 +64,7 @@ function openDb() {
         groupStore.createIndex("by_Readp", "readp");
         groupStore.createIndex("by_Statsp", "statsp");
         groupStore.createIndex("by_Vectorp", "vectorp");
+        groupStore.createIndex("by_Scriptp", "scriptp");
         groupStore.createIndex("by_Charwatchp", "charwatchp");
         groupStore.createIndex("by_Starterp", "starterp");
         groupStore.createIndex("by_Sleepp", "sleepp");
