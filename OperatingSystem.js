@@ -370,10 +370,6 @@ function onMessageMatherProcess (e) {
     whileLoop();
 }
 
-//This creates the file and outputs the shared array
-//if file exists, then just output the shared array
-//Put an if statement if the file's already created
-//Overwriting the file seems to be fucked, I dunno
 function onMessageCharThread (e) {
     console.log("Back from thread");
     sharedArray = e.data.sharedArray;
@@ -472,28 +468,6 @@ function onSignalMessage(e){
     runSleep();
 }
 
-//// consumep
-function onConsume(){
-    console.log(e);
-    console.log(statesQueue);
-    console.log(e.data.processNumberI);
-    commandOutput("Process " + statesQueue[e.data.processNumberI].processName + " is  " + e.data.signalString + "\n");
-    
-    os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
-    
-    statesQueue[e.data.processNumberI].process = "NOM NOM NOM THE MEMORY!";
-    semaphoreQueue[semaphoreQueue.length-1].V();
-    runSleep(); 
-}
-
-//Tried implementing a timeout for the IO in these two blocks, however ran into an error where
-//it said:
-//OperatingSystem.js:369 Uncaught TypeError: Cannot read property 'fileCsv' of undefined
-//OperatingSystem.js:363 Uncaught TypeError: Cannot read property 'resultCsv' of undefined
-//OperatingSystem.js:366 Uncaught TypeError: Cannot read property 'resultCsv' of undefined
-//Looked into what the statesQueue contained and it only contained the dummy
-//So I can only assume that the statesQueue was dequeued too early
-//The states queue being dequeued too early seems to be a big bug in terms of output
 function onMessageProcess1 (e) {
     commandOutput("Process "+statesQueue[e.data.processNumberI].processName+" has responded with data\n");
     if(e.data.errorCon !== -1 && e.data.result !== "undefined" && e.data.result !== ""){
