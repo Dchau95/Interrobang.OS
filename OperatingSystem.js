@@ -80,21 +80,17 @@ function OperatingSystem() {
               filePointer: The number/index that points to the file in arrOpenFiles in IODeviceDriver.js
               contents: Data retreived from the process to be written
      */
-    this.write = function (fileName, filePointer, contents, processID) {
+    this.write = function (fileName, filePointer, contents, location) {
         var task = {
-            nProcessID: processID,
+//            nProcessID: processID,
             sysCall : "Write File",
             fileName: fileName,
             filePointer : filePointer,
-            data : contents
+            data : contents,
+            location: location
         };
         commandOutput("Writing File\n");
-        try{
-            device.postMessage(task);
-        }
-        catch(exception) {
-            console.log("exceiption");
-        }
+        device.postMessage(task);
     };
     
     /*
@@ -361,7 +357,7 @@ function onMessageMatherProcess (e) {
     if (statesQueue[e.data.processNumberI].EOF != statesQueue[e.data.processNumberI].result != "") {
         commandOutput("This is the end of the file for process "+statesQueue[e.data.processNumberI].processName+"\n");
         os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI);
-        os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, statesQueue[e.data.processNumberI].result);
+        os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, statesQueue[e.data.processNumberI].result, "result");
         os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
         statesQueue[e.data.processNumberI].process = "Stopping";
         commandOutput("Result is "+statesQueue[e.data.processNumberI].result+"\n");
@@ -384,7 +380,7 @@ function onMessageCharThread (e) {
     commandOutput("Process "+statesQueue[e.data.processNumberI].processName+" has responded with data\n");
     var result = sharedArray.toString()+'\n';
     os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI);
-    os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, result);
+    os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, result, "result");
     commandOutput("Result is "+result+"\n");
 }
 
@@ -446,11 +442,11 @@ function onSleepMessage(e){
     console.log(e.data.sleepString);
     
     statesQueue[e.data.processNumberI].process = "Stopping";
-            console.log("pre splicing");
+    console.log("pre splicing");
 
     if(e.data.sleepString === "sleepy"){
         console.log("Splciing");
-        os.write(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI, e.data.sleepString);
+        os.write(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI, e.data.sleepString, "root");
         statesQueue.pop();
         arrWorker.pop();
         nStatesLength-=1;
@@ -509,7 +505,7 @@ function onMessageProcess1 (e) {
     if (statesQueue[e.data.processNumberI].EOF != statesQueue[e.data.processNumberI].result != "") {
         commandOutput("This is the end of the file for process "+statesQueue[e.data.processNumberI].processName+"\n");
         os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI);
-        os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, statesQueue[e.data.processNumberI].result);
+        os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, statesQueue[e.data.processNumberI].result, "result");
         os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
         statesQueue[e.data.processNumberI].process = "Stopping";
         commandOutput("Result is "+statesQueue[e.data.processNumberI].result+"\n");
@@ -528,7 +524,7 @@ function onMessageProcess2 (e) {
     if (statesQueue[e.data.processNumberI].EOF != statesQueue[e.data.processNumberI].result != "") {
         commandOutput("This is the end of the file for process "+statesQueue[e.data.processNumberI].processName+"\n");
         os.create(statesQueue[e.data.processNumberI].resultCsv, "Write", e.data.processNumberI);
-        os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, statesQueue[e.data.processNumberI].result);
+        os.write(statesQueue[e.data.processNumberI].resultCsv, e.data.processNumberI, statesQueue[e.data.processNumberI].result, "result");
         os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
         statesQueue[e.data.processNumberI].process = "Stopping";
         commandOutput("Result is "+statesQueue[e.data.processNumberI].result+"\n");

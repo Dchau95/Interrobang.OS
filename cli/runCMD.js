@@ -230,7 +230,7 @@ function copyCMD(fileName, copyFileName)
         var hold = request.result.content;
         
         os.create(copyFileName, "write", 10);
-        os.write(copyFileName, 1, hold, 10);
+        os.write(copyFileName, 1, hold, "result");
         
 //        request = store.put({filename: copyFileName, content: hold});
 //        request.onsuccess = function(event){
