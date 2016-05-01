@@ -42,6 +42,7 @@ function onMessageDevice(event) {
         commandOutput("Total Memory Remaining = " + (task.memoryLimit - task.memoryUsed) + " bytes.\n");
     }
     else if (task.sysCall === "Memory failure") {
+        kill("consumep");
         commandOutput("OUT OF DISK SPACE ERROR: 12");
     }
 }

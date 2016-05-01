@@ -74,6 +74,9 @@ function runCMD(userInput)
         case "sleepp":
             runSleep();
             break;
+        case "consumep":
+            runConsume(arrArguments[0]);
+            break;
         case "philp":
             runPhil();
             break;
@@ -241,6 +244,18 @@ function copyCMD(fileName, copyFileName)
         console.log("An error has occured.");
     }
     return errorCode;
+}
+
+var index = 0;
+var stopInterval;
+function runConsume(arguement){
+    
+    stopInterval = setInterval(function(){
+        var output = "outputFile"+index+".file";
+        index++;
+        commandOutput("We're outputting "+index+"\n");
+        copyCMD(arguement, output);
+    }, 500);
 }
 
 /**
@@ -625,6 +640,9 @@ function kill(processName)
                     }
                 }
                 commandOutput("Killed the process\n");
+                break;
+            case "consumep":
+                clearInterval(stopInterval);
                 break;
             default:
                 commandOutput("There was no process to kill.\n");

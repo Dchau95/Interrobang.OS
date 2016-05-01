@@ -418,6 +418,7 @@ function runSignal()
     whileLoop();
 }
 
+
 function runPhil()
 {
     var phil = new Worker("DinePhil.js");
@@ -473,6 +474,20 @@ function onSignalMessage(e){
     statesQueue[e.data.processNumberI].process = "Stopping";
     semaphoreQueue[semaphoreQueue.length-1].V();
     runSleep();
+}
+
+//// consumep
+function onConsume(){
+    console.log(e);
+    console.log(statesQueue);
+    console.log(e.data.processNumberI);
+    commandOutput("Process " + statesQueue[e.data.processNumberI].processName + " is  " + e.data.signalString + "\n");
+    
+    os.close(statesQueue[e.data.processNumberI].fileCsv, e.data.processNumberI);
+    
+    statesQueue[e.data.processNumberI].process = "NOM NOM NOM THE MEMORY!";
+    semaphoreQueue[semaphoreQueue.length-1].V();
+    runSleep(); 
 }
 
 //Tried implementing a timeout for the IO in these two blocks, however ran into an error where
