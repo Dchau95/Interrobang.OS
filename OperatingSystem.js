@@ -410,6 +410,19 @@ function runSignal()
     whileLoop();
 }
 
+function runConsumeProcess(argument)
+{
+    if(argument === "" || typeof argument === 'undefined') {
+        commandOutput("You did not specify a file to copy\n");
+        return;
+    }
+    var dummyConsume = new Worker("test.js");
+    statesQueue.push({process : "Running", processName: "ConsumeProcess", EOF: false, result: "", resultCsv: "", fileCsv: ""});
+    arrWorker.push(dummyConsume);
+    nStatesLength+=1;
+    defaultStart += 1;
+    runConsume(argument);
+}
 
 function runPhil()
 {

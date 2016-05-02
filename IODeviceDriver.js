@@ -1,6 +1,5 @@
 var db;
-var totalMemoryLimit = 700000;
-//var totalMemoryLimit = 100000000;
+var totalMemoryLimit = 100000000;
 var totalMemoryUsed = 0;
 
 //Opens the database and populates it with our basic files and their contents.

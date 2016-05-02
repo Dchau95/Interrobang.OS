@@ -75,7 +75,7 @@ function runCMD(userInput)
             runSleep();
             break;
         case "consumep":
-            runConsume(arrArguments[0]);
+            runConsumeProcess(arrArguments[0]);
             break;
         case "philp":
             runPhil();
@@ -88,6 +88,9 @@ function runCMD(userInput)
             break;
         case "cd":
             cdCMD(arrArguments[0]);
+            break;
+        case "mkdir":
+            mkdirCMD(arrArguments[0]);
             break;
         default:
             commandOutput("That is not a valid command.\n");
@@ -231,14 +234,6 @@ function copyCMD(fileName, copyFileName)
         
         os.create(copyFileName, "write", 10);
         os.write(copyFileName, 1, hold, "result");
-        
-//        request = store.put({filename: copyFileName, content: hold});
-//        request.onsuccess = function(event){
-//            console.log("Copying: Success!");
-//        }
-//        request.onerror = function(event){
-//            console.log("Copying: Failed!");
-//        }
     }
     request.onerror = function(event){
         console.log("An error has occured.");
@@ -249,13 +244,17 @@ function copyCMD(fileName, copyFileName)
 var index = 0;
 var stopInterval;
 function runConsume(arguement){
-    
+    commandOutput("You may want to do something else while this runs\n");
     stopInterval = setInterval(function(){
         var output = "outputFile"+index+".file";
         index++;
         commandOutput("We're outputting "+index+"\n");
         copyCMD(arguement, output);
-    }, 500);
+    }, 3000);
+}
+
+function mkdirCMD(folder) {
+    lsCMD([]);
 }
 
 /**
@@ -297,6 +296,7 @@ function man()
     commandOutput("------------------------------------------------------\n");
     commandOutput("memstats: Displays the remaining memory in the Operating System\n");
     commandOutput("cd: Change directory, requires one parameter\n");
+    commandOutput("consumep: Copies the specified file over and over. Takes in one parameter\n");
     return errorCode;
 }
 
@@ -407,16 +407,6 @@ function more(fileName)
             // Made it do basically the same thing with "s", but with the screenful part.
             case "f":
                 var arrCount = 1;
-        //            while(arrDirectory.length != arrCount)
-        //            {
-        //                //** wait for f cmd input
-        //                if(fInput == "f"){
-        //                    console.log(arrDirectory[i]);
-        //                    arrCount++;
-        //                }
-        //                else if(fInput == "q")
-        //                    break;
-        //            }
                 moreIncrement = moreIncrement + screenful;
                 var temp = moreIncrement;
                 commandOutput("... skipping 1 screenful of text\n");
@@ -477,6 +467,7 @@ function ps()
         for(var i = 1; i<statesQueue.length; i++)
             commandOutput("Process "+statesQueue[i].processName + " is currently "
                     + statesQueue[i].process+"\n");
+        commandOutput("Process ps is currently running");
     }
     catch(err) {
         errorCode = -1;
@@ -642,7 +633,16 @@ function kill(processName)
                 commandOutput("Killed the process\n");
                 break;
             case "consumep":
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "ConsumeProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                        defaultStart -= 1;
+                    }
+                }
                 clearInterval(stopInterval);
+                commandOutput("Killed the process\n");
                 break;
             default:
                 commandOutput("There was no process to kill.\n");
