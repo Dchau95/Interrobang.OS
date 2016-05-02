@@ -1,11 +1,8 @@
 var folderLocation = "root"
 function runCMD(userInput)
 {
-    var pointerOne = "";
-    var pointerTwo = "";
     var arrArguments = [];
     var command = userInput.split(/\s+/g);
-
     console.log(userInput);
 
     for(var i = 1; i < command.length; i++) {
@@ -146,6 +143,7 @@ function lsCMD(directories)
 {
     console.log(folderLocation);
     console.log(directories);
+    var result = "";
     try {
         //List current directory
         if(directories.length === 0 || directories[0] === "") {
@@ -155,10 +153,12 @@ function lsCMD(directories)
             index.openCursor().onsuccess = function(event) {
                 var cursor = event.target.result;
                 if(cursor) {
-                    commandOutput(cursor.value.filename + "\n");
+                    result = result.concat(cursor.value.filename + "\n");
                     cursor.continue();
                 } else {
                     console.log("All Entries Displayed.");
+                    commandOutput(result);
+                    return result;
                 }
             }
             index.openCursor().onerror = function(event) {
@@ -175,10 +175,12 @@ function lsCMD(directories)
                 index.openCursor().onsuccess = function(event) {
                     var cursor = event.target.result;
                     if(cursor) {
-                        commandOutput(cursor.value.filename + "\n");
+                        result= result.concat(cursor.value.filename + "\n");
                         cursor.continue();
                     } else {
                         console.log("All Entries Displayed.");
+                        commandOutput(result);
+                        return result;
                     }
                 }
                 index.openCursor().onerror = function(event) {
@@ -192,7 +194,6 @@ function lsCMD(directories)
         commandOutput("That directory does not exist.\n");
         return;
     }
-    
 }
 
 function deleteCMD(fileName)
@@ -264,40 +265,41 @@ clear, ls or dir, delete, copy, ps, kill, more, cat, man …
 function man()
 {
     var errorCode = 0;
-    commandOutput("\nAssignment 2 Processes\n");
-    commandOutput("------------------------------------------------------\n");
-    commandOutput("clear : Clear terminal screen\n");
-    commandOutput("reset : Clear terminal and reset database\n");
-    commandOutput("ls or dir : List directory contents, takes in one or more parameters\n");
-    commandOutput("delete or rm : Delete file. Requires one (or more) parameter\n");
-    commandOutput("copy or cp: Copy file. Requires two parameters\n");
-    commandOutput("ps : Print process status\n");
-    commandOutput("kill : Ends current process. Requires one parameter\n");
-    commandOutput("more : Display file output screen. Requires one parameter\n");
-    commandOutput("cat : Display file(s) content. Requires one or more parameters\n");
-    commandOutput("man or help : Display help manual\n");
-    commandOutput("\nAssignment 1 Processes\n");
-    commandOutput("------------------------------------------------------\n");
-    commandOutput("contactp : Initiates the contact manager process\n");
-    commandOutput("bankp : Initiates the bank calculator process\n");
-    commandOutput("passwordp : Initiates the password process\n");
-    commandOutput("readp : Initiates the sort a list of numbers process\n");
-    commandOutput("vectorp : Initiates the vector calculator process\n");
-    commandOutput("statsp : Initiates the statistics calculator process\n");
-    commandOutput("\nAssignment 4 Processes\n");
-    commandOutput("------------------------------------------------------\n");
-    commandOutput("scriptp : Initiates the script process and runs script\n");
-    commandOutput("script or sh or bash: Run a script from a file. Requires one parameter\n");
-    commandOutput("charwatchp : Initiates the character watch process\n");
-    commandOutput("starterp : Starts the starter process, which starts the mather process and statsp process\n");
-    commandOutput("sleepp : Starts the sleep process which sleeps after doing some work, starts a new process which starts and finishes work, and then alerts the sleep process to wake up\n");
-    commandOutput("philp : Starts the philosopher process\n");
-    commandOutput("\nAssignment 5 Processes\n");
-    commandOutput("------------------------------------------------------\n");
-    commandOutput("memstats: Displays the remaining memory in the Operating System\n");
-    commandOutput("cd: Change directory, requires one parameter\n");
-    commandOutput("consumep: Copies the specified file over and over. Takes in one parameter\n");
-    return errorCode;
+    var result = "\nAssignment 2 Processes\n";
+    result += "------------------------------------------------------\n";
+    result += "clear : Clear terminal screen\n";
+    result += "reset : Clear terminal and reset database\n";
+    result += "ls or dir : List directory contents, takes in one or more parameters\n";
+    result += "delete or rm : Delete file. Requires one (or more) parameter\n";
+    result += "copy or cp: Copy file. Requires two parameters\n";
+    result += "ps : Print process status\n";
+    result += "kill : Ends current process. Requires one parameter\n";
+    result += "more : Display file output screen. Requires one parameter\n";
+    result += "cat : Display file(s) content. Requires one or more parameters\n";
+    result += "man or help : Display help manual\n";
+    result += "\nAssignment 1 Processes\n";
+    result += "------------------------------------------------------\n";
+    result += "contactp : Initiates the contact manager process\n";
+    result += "bankp : Initiates the bank calculator process\n";
+    result += "passwordp : Initiates the password process\n";
+    result += "readp : Initiates the sort a list of numbers process\n";
+    result += "vectorp : Initiates the vector calculator process\n";
+    result += "statsp : Initiates the statistics calculator process\n";
+    result += "\nAssignment 4 Processes\n";
+    result += "------------------------------------------------------\n";
+    result += "scriptp : Initiates the script process and runs script\n";
+    result += "script or sh or bash: Run a script from a file. Requires one parameter\n";
+    result += "charwatchp : Initiates the character watch process\n";
+    result += "starterp : Starts the starter process, which starts the mather process and statsp process\n";
+    result += "sleepp : Starts the sleep process which sleeps after doing some work, starts a new process which starts and finishes work, and then alerts the sleep process to wake up\n";
+    result += "philp : Starts the philosopher process\n";
+    result += "\nAssignment 5 Processes\n";
+    result += "------------------------------------------------------\n";
+    result += "memstats: Displays the remaining memory in the Operating System\n";
+    result += "cd: Change directory, requires one parameter\n";
+    result += "consumep: Copies the specified file over and over. Takes in one parameter\n";
+    commandOutput(result);
+    return result;
 }
 
 /**
@@ -313,7 +315,6 @@ function cat(arrFiles, rec)
     var index = store.index("by_filename");
     var i = rec;
     var errorCode = 0;
-
     var request = index.get(arrFiles[i]);
     request.onsuccess = function(){
         if(request.result === undefined){
@@ -463,16 +464,18 @@ Display the process and the state of each running process
 function ps()
 {
     var errorCode = 0;
+    var result = "";
     try {
-        for(var i = 1; i<statesQueue.length; i++)
-            commandOutput("Process "+statesQueue[i].processName + " is currently "
-                    + statesQueue[i].process+"\n");
-        commandOutput("Process ps is currently running");
+        for(var i = 0; i<statesQueue.length; i++)
+            result += "Process "+statesQueue[i].processName + " is currently "
+                    + statesQueue[i].process+"\n" ;
+        result += "Process ps is currently Running";
+        commandOutput(result);
     }
     catch(err) {
         errorCode = -1;
     }
-    return errorCode;
+    return result;
 }
 
 function script(fileName){

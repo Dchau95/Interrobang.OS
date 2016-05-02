@@ -8,7 +8,7 @@ function Phil(me, left, right) {
             500,
             right,
             function() { console.log(me + ' picked right fork'); },
-            
+            500,
             function() { console.log(me + ' eats'); },
             500,
             left,
@@ -28,12 +28,12 @@ function Fork(me, left, right) {
         rendezvous(
             left, function() {
                 rendezvous(left, function() {
-                    setTimeout(run, 0);
+                    setTimeout(run, 600);
                 });
             },
             right, function() {
                 rendezvous(right, function() {
-                    setTimeout(run, 0);
+                    setTimeout(run, 600);
                 });
             }
         );
@@ -113,31 +113,29 @@ function channel() {
             }
         }
         
-        // assert(funcs.length == 2);
-        // assert(requests.length == 0);
-        
         for (var i = 0; i < funcs.length; i++) {
             funcs[i]();
         }
     }
 }
+
 function runPhil(){         //THIS IS THE MAIN METHOD THAT WILL RUN THE ABOVE FUNCTIONS
-var philToLeftFork = [];
-var philToRightFork = [];
+    var philToLeftFork = [];
+    var philToRightFork = [];
 
-var N = 5;
+    var N = 5;
 
-for (var i = 0; i < N; i++) {
-    philToLeftFork.push(new channel());
-    philToRightFork.push(new channel());
-}
+    for (var i = 0; i < N; i++) {
+        philToLeftFork.push(new channel());
+        philToRightFork.push(new channel());
+    }
 
-for (var i = 0; i < N; i++) {
-    Phil(i, philToRightFork[(i+1)%N], philToLeftFork[i]);
-    Fork(i, philToLeftFork[i], philToRightFork[i]);
-}
+    for (var i = 0; i < N; i++) {
+        Phil(i, philToRightFork[(i+1)%N], philToLeftFork[i]);
+        Fork(i, philToLeftFork[i], philToRightFork[i]);
+    }
 
-console.log('Started');
+    console.log('Started');
 
 }
 
