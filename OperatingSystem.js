@@ -446,6 +446,7 @@ function runSignal()
 
 function runPhil()
 {
+    commandOutput("Check console for state of things\n");
     var phil = new Worker("DinePhil.js");
     phil.onmessage = onPhilMessage;
     statesQueue.push({process : "Starting", processName: "PhilosopherProcess", EOF: false, result: "", resultCsv: "", fileCsv: ""});
@@ -463,7 +464,7 @@ function osCMD(userInput)
 
 function onPhilMessage(e) {
     //Do something
-    console.log("Back");
+    commandOutput("The philosophers have reached a deadlock\n");
 }
 
 function onSleepMessage(e){
