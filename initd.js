@@ -65,5 +65,5 @@ function onMessageDevice(event) {
 
 document.addEventListener('DOMContentLoaded', function() {
     initd();
-    logInScreen();
+    //logInScreen();
 });

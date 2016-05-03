@@ -1,4 +1,6 @@
-var folderLocation = "root"
+var folderLocation = "root";
+var currentUser = "user";
+
 function runCMD(userInput)
 {
     var arrArguments = [];
@@ -90,7 +92,7 @@ function runCMD(userInput)
             mkdirCMD(arrArguments[0]);
             break;
         default:
-            commandOutput("That is not a valid command.\n");
+            commandOutput("'"+userInput+"'" + " is not a valid command.\n");
             break;
     }
 }
@@ -107,24 +109,37 @@ function cdCMD(folder)
 {
     //Make sure it's a folder
     //Make sure it goes back a folder
+    var transact = db.transaction([folderLocation]);
+    var store = transact.objectStore(folderLocation);
+    var index = store.index("by_filename");
     
-    if(folder === ".." && folderLocation !== "root")
-    {
-        document.getElementById("filepath").innerHTML = "C:\\Interrobang\>";
+    if (folder === ".." && folderLocation === currentUser) {
+        document.getElementById("filepath").innerHTML = "C:\\Interrobang>";
         folderLocation = "root";
         return;
     }
-    else if (folder.toLowerCase() !== "results")
-    {
-        commandOutput("The folder does not exist\n")
+    
+    if (folder === ".." && folderLocation === "results") {
+        document.getElementById("filepath").innerHTML = "C:\\Interrobang\\" + currentUser + ">";
+        folderLocation = currentUser;
         return;
     }
-    else 
-    {
-        document.getElementById("filepath").innerHTML = "C:\\Interrobang\\" + folder + ">";
-        folderLocation = folder.toLowerCase().toString();
-        return;
-    }
+    
+    index.openCursor().onsuccess = function(event) {
+        var cursor = event.target.result;
+        if(cursor) {
+            if (folder.toLowerCase() === cursor.value.filename.toLowerCase() && cursor.value.content === "Folder") {
+                document.getElementById("filepath").innerHTML = 
+                    document.getElementById("filepath").innerHTML.slice(0,-4) + "\\" + folder + ">";
+                folderLocation = folder.toLowerCase().toString();
+                return;
+            }
+            cursor.continue();
+        } else {
+            commandOutput("The system cannot find the path specified\n")
+            return;
+        }
+    }   
 }
 
 function clearCMD()
