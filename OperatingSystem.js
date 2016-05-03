@@ -426,6 +426,67 @@ function runPhil()
     arrWorker[nStatesLength-1].postMessage({hi: "HI"});
 }
 
+function runAddUser(usr, group){
+    var transact = db.transaction(["users"], "readwrite");
+    var store = transact.objectStore("users");
+    var index = store.index("by_username");
+    
+    index.openCursor().onsuccess = function(event){
+        var cursor = event.target.result;
+        if(cursor){
+            if(cursor.value.username === usr){
+                var hold = cursor.value;
+                var groupsplit = (hold.groups).split(',');
+                var exists = false;
+                for(var i = 0; i < groupsplit.length; i++){
+                    if(groupsplit[i] === group){
+                        commandOutput("User already a member of this group!");
+                        exists = true;
+                    }
+                }
+                if(!exists){
+                    hold.groups += "," + group;
+                    var request = cursor.update(hold);
+                    request.onsuccess = function(){
+                        console.log("User group updated");
+                    }
+                }
+            }
+            cursor.continue();
+        }
+    }
+}
+
+function runRemoveUser(usr, group){
+    var transact = db.transaction(["users"], "readwrite");
+    var store = transact.objectStore("users");
+    var index = store.index("by_username");
+    
+    index.openCursor().onsuccess = function(event){
+        var cursor = event.target.result;
+        if(cursor){
+            if(cursor.value.username === usr){
+                var hold = cursor.value;
+                var hold2 = "";
+                var groupsplit = (hold.groups).split(',');
+                console.log(groupsplit.length);
+                for(var i = 0; i < groupsplit.length; i++){
+                    console.log("I: " + i + " groupsplit[i]: " + groupsplit[i]);
+                    if(groupsplit[i] !== group){
+                        hold2 += "," + groupsplit[i];
+                    }
+                }
+                hold.groups = hold2;
+                var request = cursor.update(hold);
+                request.onsuccess = function(){
+                    console.log("User group updated");
+                }
+            }
+            cursor.continue();
+        }
+    }
+}
+
 function osCMD(userInput)
 {
     runCMD(userInput);

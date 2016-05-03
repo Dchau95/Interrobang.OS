@@ -29,6 +29,12 @@ function runCMD(userInput)
         case "copy": case "cp":
             copyCMD(arrArguments[0], arrArguments[1]);
             break;
+        case "adduser":
+            runAddUser(arrArguments[0], arrArguments[1]);
+            break;
+        case "removeuser":
+            runRemoveUser(arrArguments[0], arrArguments[1]);
+            break;
         case "ps":
             ps();
             break;
