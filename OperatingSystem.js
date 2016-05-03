@@ -307,6 +307,17 @@ for (var i = 0; i<93; i++) {
     sharedArray.push(0);
 }
 
+function sendToCharWatch(hold) {
+    var processID = charWatchInfo.charPIndex;
+    var arg = {
+        characterCode: hold,
+        nProcessID: processID,
+    }
+    if(charWatchInfo.charWatchFlag) {
+        arrWorker[processID].postMessage(arg);
+    }
+}
+
 //Do a settimeout for all write functions to simulate 100 characters?
 function onMessageCharWatch (e) {
     console.log("Back from process");

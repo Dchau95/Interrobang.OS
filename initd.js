@@ -11,6 +11,22 @@ function initd() {
     nStatesLength = statesQueue.length;
 }
 
+function logInScreen() {
+    var login = new Worker("LogInScreenProcess.js");
+    login.onmessage = onMessageLogin;
+    statesQueue.push({ process: "Starting", processName: "Login", EOF: false, result: "", resultCsv: "", fileCsv: ""});
+    arrWorker.push(login);
+    nStatesLength+=1;
+    
+}
+
+function onMessageLogin(event) {
+    //Check if eof
+    //if eof, return true/false and change dom accordingly
+    //else return to the while loop
+    console.log("Done");
+}
+
 //Function that gets the response from the IODevice
 function onMessageDevice(event) {
     var task = event.data;
@@ -49,4 +65,5 @@ function onMessageDevice(event) {
 
 document.addEventListener('DOMContentLoaded', function() {
     initd();
+    logInScreen();
 });

@@ -48,17 +48,6 @@ txtbox.addEventListener("keypress", function (event) {
     }
 });
 
-function sendToCharWatch(hold) {
-    var processID = charWatchInfo.charPIndex;
-    var arg = {
-        characterCode: hold,
-        nProcessID: processID,
-    }
-    if(charWatchInfo.charWatchFlag) {
-        arrWorker[processID].postMessage(arg);
-    }
-}
-
 txtbox.addEventListener("keydown", function(event){
     if (event.keyCode === 8) { //if backspace
         var hold = contentin.innerText.slice(0, (contentin.innerText.length - 1));

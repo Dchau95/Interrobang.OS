@@ -255,7 +255,15 @@ function runConsume(arguement){
 }
 
 function mkdirCMD(folder) {
-    lsCMD([]);
+    var store = db.createObjectStore(folder, {autoIncrement: true});
+    store.createIndex("by_filepath", "filepath");
+    store.createIndex("by_filename", "filename", {unique: true});
+    store.createIndex("by_content", "content");
+    store.createIndex("by_filesize", "filesize");
+    
+    var transact = db.transaction([folderLocation], "readwrite");
+    var store2 = transact.objectStore(folderLocation);
+    store2.put({filepath: "", filename: folder, content: "Folder", filesize: 0});
 }
 
 /**
