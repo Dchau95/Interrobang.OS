@@ -471,8 +471,8 @@ function runRemoveUser(usr, group){
                 var groupsplit = (hold.groups).split(',');
                 console.log(groupsplit.length);
                 for(var i = 0; i < groupsplit.length; i++){
-                    console.log("I: " + i + " groupsplit[i]: " + groupsplit[i]);
-                    if(groupsplit[i] !== group){
+                    console.log("I: " + i + " groupsplit[i]: " + groupsplit[i])
+                    if(groupsplit[i] !== group && groupsplit[i] !== ""){
                         hold2 += "," + groupsplit[i];
                     }
                 }
