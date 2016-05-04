@@ -10,7 +10,7 @@ function checkUserPassword(userPass, userFile) {
 onmessage = function(event) {
     var username = event.data.username;
     var password = event.data.password;
-    var userFile = event.data.fileCsv;
+    var userFile = event.data.fileCsv.split(",");
     
     var errorCon = 0;
     var logInResult = {
@@ -19,7 +19,9 @@ onmessage = function(event) {
         errorCon : errorCon
     }
     var up = username+":"+password;
-    logInResult = checkUserPassword(up, userFile);
-    
+    console.log(up);
+    console.log(userFile);
+    logInResult.result = checkUserPassword(up, userFile);
+
     postMessage(logInResult);
 }

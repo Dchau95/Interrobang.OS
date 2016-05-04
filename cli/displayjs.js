@@ -7,7 +7,6 @@ var charWatchInfo = {
     charWatchFlag: false,
     charPIndex: 0
 }
-window.onmousedown = function () {return false;};
 
 function changeOutput(text) {
     contentout.innerText = contentout.innerText + "\n" + fakepathname.innerText + text;
