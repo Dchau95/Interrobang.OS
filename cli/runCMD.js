@@ -152,20 +152,20 @@ function addUser(newUser)
         else { 
             store.put({filepath: "", filename: parsedUser[0], content: "Folder", filesize: 0});
             index.openCursor().onsuccess = function(event) {
-                    var cursor = event.target.result;
-                        if (cursor) {
-                            if (cursor.value.filename === "user.txt"){
-                                var hold = cursor.value;
-                                hold.content += newUser + ",";
-                                var request = cursor.update(hold);
-                                    request.onsuccess = function() {
-                                        commandOutput("User '" + parsedUser[0] + "' has been created\n");
-                                        console.log("Updated");
-                                        updateMemoryUsage();
-                                    }
+                var cursor = event.target.result;
+                if (cursor) {
+                    if (cursor.value.filename === "user.txt"){
+                        var hold = cursor.value;
+                        hold.content += newUser + ",";
+                        var request = cursor.update(hold);
+                            request.onsuccess = function() {
+                                commandOutput("User '" + parsedUser[0] + "' has been created\n");
+                                console.log("Updated");
+                                updateMemoryUsage();
                             }
-                            cursor.continue();
-                        }
+                    }
+                    cursor.continue();
+                }
             }
             
         }
@@ -549,6 +549,7 @@ function man()
     result += "deluser or userdel: Removes a user; only available for SuperUser, input is user:pass\n";
     result += "addtogroup: Takes two arguments, user and group, and adds the user to a group.\n";
     result += "removefromgroup: Takes two arguments, user and group, and removes the user from a group.\n";
+    result += "su: Switches user from one user to another, input is user:pass"
     commandOutput(result);
     return result;
 }
