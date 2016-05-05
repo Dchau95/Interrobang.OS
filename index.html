@@ -27,14 +27,15 @@
     </head>
     <div>
         <body>
-            <div id="Output">Welcome! This is Interrobang.OS. It was created by David Chau, Hao Xian Zheng(Benson)
-                            Andrew Goff, Tony Tran and Hin Vong. We hope you have fun exploring our OS just as much
-                            as we had fun making it. Type Help and hit enter to see the commands!<br></div>
+            <div id="Output">Please input your username and password to use Interrobang OS<br></div>
         </body>
         <footer>
             <br>
             <div id ="filepath"></div><div id="input"></div>
-            <input id="inputbox" type="text" name="inputbox" autofocus>
+            <input id="inputbox" type="text" name="inputbox" disabled>
+            <input id = "namebox" type="text" name="namebox" autofocus />
+            <input id = "passwordbox" type="password" name="passwordbox" />
+            <button id = "submitUserPass">Submit</button>
         </footer>
         <script src = "initd.js"></script>
         <script src="Threading/Semaphore.js"></script>
