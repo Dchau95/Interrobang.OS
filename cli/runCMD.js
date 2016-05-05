@@ -324,7 +324,7 @@ function cdCMD(folder)
     
     if (folder === ".." && folderLocation === "results") {
         document.getElementById("filepath").innerHTML = "C:\\Interrobang\\" + currentUser + ">";
-        folderLocation = currentUser;
+        folderLocation = "userDirectory";
         return;
     }
     
@@ -471,7 +471,7 @@ function copyCMD(fileName, copyFileName)
 
 var index = 0;
 var stopInterval;
-function runConsume(arguement){
+function runConsume(argument){
     commandOutput("You may want to do something else while this runs\n");
     stopInterval = setInterval(function(){
         var output = "outputFile"+index+".file";
@@ -482,15 +482,19 @@ function runConsume(arguement){
 }
 
 function mkdirCMD(folder) {
-    var store = db.createObjectStore(folder, {autoIncrement: true});
-    store.createIndex("by_filepath", "filepath");
-    store.createIndex("by_filename", "filename", {unique: true});
-    store.createIndex("by_content", "content");
-    store.createIndex("by_filesize", "filesize");
+    var request = indexedDB.open("hashDirectory", 1);
+    request.onupgradeneeded = function (event) {
+        console.log("I GOT HERE");
+        var store = db.createObjectStore(folder, {autoIncrement: true});
+        store.createIndex("by_filepath", "filepath");
+        store.createIndex("by_filename", "filename", {unique: true});
+        store.createIndex("by_content", "content");
+        store.createIndex("by_filesize", "filesize");
+        var transact = db.transaction([folderLocation], "readwrite");
+        var store2 = transact.objectStore(folderLocation);
+        store2.put({filepath: "", filename: folder, content: "Folder", filesize: 0});
+    }
     
-    var transact = db.transaction([folderLocation], "readwrite");
-    var store2 = transact.objectStore(folderLocation);
-    store2.put({filepath: "", filename: folder, content: "Folder", filesize: 0});
 }
 
 /**
