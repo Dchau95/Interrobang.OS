@@ -25,6 +25,9 @@ function runCMD(userInput)
         case "deluser": case "userdel":
             delUser(arrArguments[0]);
             break;
+        case "passwd": case "pswd":
+            passChange(arrArguments[0], arrArguments[1]);
+            break;
         case "clear": case "cls":
             clearCMD();
             break;
@@ -125,6 +128,7 @@ function addUser(newUser)
     }
     
     var parsedUser = newUser.split(":");
+    
     // Open database for transaction.
     var transact = db.transaction(["root"], "readwrite");
     var store = transact.objectStore("root");
@@ -138,7 +142,7 @@ function addUser(newUser)
         // Create User.
         else { 
             store.put({filepath: "", filename: parsedUser[0], content: "Folder", filesize: 0});
-            index.openCursor().onsuccess = function(event){
+            index.openCursor().onsuccess = function(event) {
                     var cursor = event.target.result;
                         if (cursor) {
                             if (cursor.value.filename === "user.txt"){
@@ -163,6 +167,11 @@ function delUser(removedUser)
 {
     if (removedUser === "SuperUser:superuser") {
         commandOutput("You cannot remove the SuperUser.\n");
+        return;
+    }
+    
+    if (removedUser === currentUser) {
+        commandOutput("You cannot remove yourself.\n");
         return;
     }
     
@@ -210,6 +219,46 @@ function delUser(removedUser)
         // No user found.
         else { 
             commandOutput("'"+parsedUser[0]+"'" + " is not a user.")
+        }
+    }
+}
+
+function passChange(currentCredentials, newPassword)
+{
+    var parsedUser = currentCredentials.split(":");
+    var flag = 0;
+    // Open database for transaction.
+    var transact = db.transaction(["root"], "readwrite");
+    var store = transact.objectStore("root");
+    var index = store.index("by_filename");
+    
+    index.openCursor().onsuccess = function(event) {
+    var cursor = event.target.result;
+        if (cursor) {
+            if (cursor.value.filename === "user.txt") {
+                var hold = cursor.value;
+                parsedUserList = hold.content.split(",");
+                // tony:tony,benson:benson,david:newpass
+                for (var i = 0; i < parsedUserList.length; i++) {
+                    if (parsedUserList[i] === currentCredentials) {
+                        parsedUserList.splice(i,1);
+                        hold.content = parsedUserList.join(",");
+                        hold.content += parsedUser[0] + ":" + newPassword+ ",";
+                        flag = 1;
+                        commandOutput("Password successfully updated for " + "'"+parsedUser[0]+"'" )
+                        break;
+                    }
+                }
+                // message not found
+                if (!flag)
+                    commandOutput("Your credentials are not correct.\n")
+                var request = cursor.update(hold);
+                    request.onsuccess = function() {
+                        console.log("Updated");
+                        updateMemoryUsage();
+                    }
+            }
+            cursor.continue();
         }
     }
 }
