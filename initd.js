@@ -116,6 +116,8 @@ function onMessageDevice(event) {
     }
 }
 
+self.addEventListener('message', onMessageDevice, false);
+
 document.addEventListener('DOMContentLoaded', function() {
     initd();
 //    reset();

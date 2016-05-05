@@ -592,5 +592,3 @@ function onMessageProcess2 (e) {
     }
     whileLoop();
 }
-
-self.addEventListener('message', onMessageDevice, false);
