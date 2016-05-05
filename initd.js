@@ -26,17 +26,22 @@ function logInScreen() {
 
 button.addEventListener("click", function(event){
     //fileCsv is gotten from password.CSV or something
-    
-    var userCheck = {
-        username: userBox.value,
-        password: passBox.value,
-        nProcessID: 1,
-        fileCsv: "SuperUser:superuser"
+    var transact = db.transaction(["root"], "readwrite");
+    var store = transact.objectStore("root");
+    var index = store.index("by_filename");
+    var request = index.get("user.txt");
+    request.onsuccess = function(e) {
+        console.log(request.result.content);
+        var userCheck = {
+            username: userBox.value,
+            password: passBox.value,
+            nProcessID: 1,
+            fileCsv: request.result.content
+        }
+        arrWorker[1].postMessage(userCheck);
+        //Normally go to the while loop because the file it's checking might be big
+        //    whileLoop();
     }
-    console.log(userCheck);
-    arrWorker[1].postMessage(userCheck);
-    //Normally go to the while loop because the file it's checking might be big
-//    whileLoop();
 })
 
 function onMessageLogin(event) {
@@ -115,5 +120,6 @@ function onMessageDevice(event) {
 
 document.addEventListener('DOMContentLoaded', function() {
     initd();
+//    input.disabled = false;
     logInScreen();
 });
