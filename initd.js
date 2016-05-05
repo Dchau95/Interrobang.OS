@@ -56,9 +56,7 @@ function onMessageLogin(event) {
         input.disabled = false;
         input.focus();
         currentUser = userBox.value;
-        // Set default path. Catching weird unbreaking error that displays on console log.
-        try {document.getElementById("filepath").innerHTML += "C:\\Interrobang\\" + currentUser + ">";}
-        catch(error){};
+        document.getElementById("filepath").innerHTML += "C:\\Interrobang\\" + currentUser + ">";
         userBox.parentNode.removeChild(userBox);
         passBox.parentNode.removeChild(passBox);
         button.parentNode.removeChild(button);

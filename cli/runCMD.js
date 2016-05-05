@@ -28,6 +28,9 @@ function runCMD(userInput)
         case "passwd": case "pswd":
             passChange(arrArguments[0], arrArguments[1]);
             break;
+        case "su":
+            switchUser(arrArguments[0]);
+            break;
         case "clear": case "cls":
             clearCMD();
             break;
@@ -227,6 +230,7 @@ function passChange(currentCredentials, newPassword)
 {
     var parsedUser = currentCredentials.split(":");
     var flag = 0;
+    
     // Open database for transaction.
     var transact = db.transaction(["root"], "readwrite");
     var store = transact.objectStore("root");
@@ -238,7 +242,7 @@ function passChange(currentCredentials, newPassword)
             if (cursor.value.filename === "user.txt") {
                 var hold = cursor.value;
                 parsedUserList = hold.content.split(",");
-                // tony:tony,benson:benson,david:newpass
+                // Loop through list of users.
                 for (var i = 0; i < parsedUserList.length; i++) {
                     if (parsedUserList[i] === currentCredentials) {
                         parsedUserList.splice(i,1);
@@ -246,6 +250,46 @@ function passChange(currentCredentials, newPassword)
                         hold.content += parsedUser[0] + ":" + newPassword+ ",";
                         flag = 1;
                         commandOutput("Password successfully updated for " + "'"+parsedUser[0]+"'" )
+                        break;
+                    }
+                }
+                // message not found
+                if (!flag)
+                    commandOutput("Your credentials are not correct.\n")
+                var request = cursor.update(hold);
+                    request.onsuccess = function() {
+                        console.log("Updated");
+                        updateMemoryUsage();
+                    }
+            }
+            cursor.continue();
+        }
+    }
+}
+
+function switchUser(credentials)
+{
+    var parsedUser = credentials.split(":");
+    var flag = 0;
+    
+    // Open database for transaction.
+    var transact = db.transaction(["root"], "readwrite");
+    var store = transact.objectStore("root");
+    var index = store.index("by_filename");
+    
+    index.openCursor().onsuccess = function(event) {
+    var cursor = event.target.result;
+        if (cursor) {
+            if (cursor.value.filename === "user.txt") {
+                var hold = cursor.value;
+                parsedUserList = hold.content.split(",");
+                
+                for (var i = 0; i < parsedUserList.length; i++) {
+                    if (parsedUserList[i] === credentials) {
+                        currentUser = parsedUser[0];
+                        flag = 1;
+                        document.getElementById("filepath").innerHTML = "C:\\Interrobang\\" + currentUser + ">";
+                        folderLocation = "userDirectory";
                         break;
                     }
                 }
