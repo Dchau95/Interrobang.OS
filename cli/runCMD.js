@@ -27,6 +27,9 @@ function runCMD(userInput)
         case "useradd": case "adduser":
             addUser(arrArguments[0]);
             break;
+        case "deluser": case "userdel":
+            delUser(arrArguments[0]);
+            break;
         case "clear": case "cls":
             clearCMD();
             break;
@@ -134,12 +137,38 @@ function addUser(newUser)
     request.onsuccess = function(e) {
         // User already exist.
         if (request.result) {
-            commandOutput("That user already exist.");
+            commandOutput(+"'"+newUser+"'" + " already exists as a user.\n");
         }
         // Create User.
         else { 
             store.put({filepath: "", filename: newUser, content: "Folder", filesize: 0});
             commandOutput("User '" + newUser + "' has been created\n");
+        }
+    }
+}
+
+function delUser(removedUser)
+{
+    if (currentUser !== "SuperUser") {
+        commandOutput("You do not have priviledge to remove a user.\n");
+        return;
+    }
+    
+    // Open database for transaction.
+    var transact = db.transaction(["root"], "readwrite");
+    var store = transact.objectStore("root");
+    var index = store.index("by_filename");
+    var request = index.getKey(removedUser);
+    
+    request.onsuccess = function(e) {
+        // Found user, deleting... 
+        if (request.result) {
+            store.delete(request.result);
+            commandOutput("'"+removedUser+"'" + " has been removed as a user.")
+        }
+        // No user found.
+        else { 
+            commandOutput("'"+removedUser+"'" + " is not a user.")
         }
     }
 }
@@ -373,6 +402,7 @@ function man()
     result += "\nAssignment 6 Processes\n";
     result += "------------------------------------------------------\n";
     result += "adduser or useradd: Creates a new user; only available for SuperUser\n";
+    result += "deluser or userdel: removes a user; only available for SuperUser\n";
     commandOutput(result);
     return result;
 }
