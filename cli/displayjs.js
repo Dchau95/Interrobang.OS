@@ -7,7 +7,6 @@ var charWatchInfo = {
     charWatchFlag: false,
     charPIndex: 0
 }
-window.onmousedown = function () {return false;};
 
 function changeOutput(text) {
     contentout.innerText = contentout.innerText + "\n" + fakepathname.innerText + text;
@@ -47,17 +46,6 @@ txtbox.addEventListener("keypress", function (event) {
         sendToCharWatch(event.charCode);
     }
 });
-
-function sendToCharWatch(hold) {
-    var processID = charWatchInfo.charPIndex;
-    var arg = {
-        characterCode: hold,
-        nProcessID: processID,
-    }
-    if(charWatchInfo.charWatchFlag) {
-        arrWorker[processID].postMessage(arg);
-    }
-}
 
 txtbox.addEventListener("keydown", function(event){
     if (event.keyCode === 8) { //if backspace

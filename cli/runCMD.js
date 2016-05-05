@@ -1,11 +1,16 @@
-var folderLocation = "root"
+/**
+*   Filename: runCMD.js
+*   
+*   Contains all the command line functions.
+*/
+
+// Hardcoded default folderLocation and currentUser
+var folderLocation = "userDirectory";
+
 function runCMD(userInput)
 {
-    var pointerOne = "";
-    var pointerTwo = "";
     var arrArguments = [];
     var command = userInput.split(/\s+/g);
-
     console.log(userInput);
 
     for(var i = 1; i < command.length; i++) {
@@ -14,6 +19,12 @@ function runCMD(userInput)
     
     switch(command[0].toLowerCase())
     {
+        case "useradd": case "adduser":
+            addUser(arrArguments[0]);
+            break;
+        case "deluser": case "userdel":
+            delUser(arrArguments[0]);
+            break;
         case "clear": case "cls":
             clearCMD();
             break;
@@ -74,6 +85,9 @@ function runCMD(userInput)
         case "sleepp":
             runSleep();
             break;
+        case "consumep":
+            runConsumeProcess(arrArguments[0]);
+            break;
         case "philp":
             runPhil();
             break;
@@ -86,8 +100,11 @@ function runCMD(userInput)
         case "cd":
             cdCMD(arrArguments[0]);
             break;
+        case "mkdir":
+            mkdirCMD(arrArguments[0]);
+            break;
         default:
-            commandOutput("That is not a valid command.\n");
+            commandOutput("'"+userInput+"'" + " is not a valid command.\n");
             break;
     }
 }
@@ -100,28 +117,148 @@ function displayMemory() {
     device.postMessage(task);
 }
 
+function addUser(newUser)
+{
+    if (currentUser !== "SuperUser") {
+        commandOutput("You do not have priviledge to add a user.\n");
+        return;
+    }
+    
+    var parsedUser = newUser.split(":");
+    // Open database for transaction.
+    var transact = db.transaction(["root"], "readwrite");
+    var store = transact.objectStore("root");
+    var index = store.index("by_filename");
+    var request = index.get(parsedUser[0]);
+    request.onsuccess = function(e) {
+        // User already exist.
+        if (request.result) {
+            commandOutput("'"+parsedUser[0]+"'" + " already exists as a user.\n");
+        }
+        // Create User.
+        else { 
+            store.put({filepath: "", filename: parsedUser[0], content: "Folder", filesize: 0});
+            index.openCursor().onsuccess = function(event){
+                    var cursor = event.target.result;
+                        if (cursor) {
+                            if (cursor.value.filename === "user.txt"){
+                                var hold = cursor.value;
+                                hold.content += newUser + ",";
+                                var request = cursor.update(hold);
+                                    request.onsuccess = function() {
+                                        commandOutput("User '" + parsedUser[0] + "' has been created\n");
+                                        console.log("Updated");
+                                        updateMemoryUsage();
+                                    }
+                            }
+                            cursor.continue();
+                        }
+            }
+            
+        }
+    }
+}
+
+function delUser(removedUser)
+{
+    if (removedUser === "SuperUser:superuser") {
+        commandOutput("You cannot remove the SuperUser.\n");
+        return;
+    }
+    
+    if (currentUser !== "SuperUser") {
+        commandOutput("You do not have priviledge to remove a user.\n");
+        return;
+    }
+    
+    var parsedUser = removedUser.split(":");
+    
+    // Open database for transaction.
+    var transact = db.transaction(["root"], "readwrite");
+    var store = transact.objectStore("root");
+    var index = store.index("by_filename");
+    var request = index.getKey(parsedUser[0]);
+    
+    request.onsuccess = function(e) {
+        // Found user, deleting... 
+        if (request.result) {
+            store.delete(request.result);
+            index.openCursor().onsuccess = function(event) {
+            var cursor = event.target.result;
+                if (cursor) {
+                    if (cursor.value.filename === "user.txt") {
+                        var hold = cursor.value;
+                        parsedUserList = hold.content.split(",")
+                        for (var i = 0; i < parsedUserList.length; i++) {
+                            if (parsedUserList[i] === removedUser) {
+                                parsedUserList.splice(i,1);
+                                hold.content = parsedUserList.join(",");
+                                break;
+                            }
+                        }
+                        var request = cursor.update(hold);
+                            request.onsuccess = function() {
+                                commandOutput("'"+parsedUser[0]+"'" + " has been removed as a user.")
+                                console.log("Updated");
+                                updateMemoryUsage();
+                            }
+                    }
+                    cursor.continue();
+                }
+            }
+        }
+        // No user found.
+        else { 
+            commandOutput("'"+parsedUser[0]+"'" + " is not a user.")
+        }
+    }
+}
+
 function cdCMD(folder)
 {
     //Make sure it's a folder
     //Make sure it goes back a folder
+    var transact = db.transaction([folderLocation]);
+    var store = transact.objectStore(folderLocation);
+    var index = store.index("by_filename");
     
-    if(folder === ".." && folderLocation !== "root")
-    {
-        document.getElementById("filepath").innerHTML = "C:\\Interrobang\>";
+    // If currently in userDirectory, move back to root (User List) if SuperUser.
+    if (folder === ".." && folderLocation === "userDirectory" && currentUser === "SuperUser") {
+        document.getElementById("filepath").innerHTML = "C:\\Interrobang>";
         folderLocation = "root";
         return;
     }
-    else if (folder.toLowerCase() !== "results")
-    {
-        commandOutput("The folder does not exist\n")
+    
+    if (folder === ".." && folderLocation === "results") {
+        document.getElementById("filepath").innerHTML = "C:\\Interrobang\\" + currentUser + ">";
+        folderLocation = currentUser;
         return;
     }
-    else 
-    {
-        document.getElementById("filepath").innerHTML = "C:\\Interrobang\\" + folder + ">";
-        folderLocation = folder.toLowerCase().toString();
-        return;
-    }
+    
+    // Find available directories
+    index.openCursor().onsuccess = function(event) {
+        var cursor = event.target.result;
+        if(cursor) {
+            if (folder.toLowerCase() === cursor.value.filename.toLowerCase() && cursor.value.content === "Folder") {
+                document.getElementById("filepath").innerHTML = 
+                    document.getElementById("filepath").innerHTML.slice(0,-4) + "\\" + folder + ">";
+                
+                // If currently in root, move to user directory
+                if (folderLocation === "root") {
+                    folderLocation = "userDirectory"
+                    return;
+                }
+                
+                // Else, move to selected folder directory
+                folderLocation = folder.toLowerCase().toString();
+                return;
+            }
+            cursor.continue();
+        } else {
+            commandOutput("The system cannot find the path specified or you do not have priviledge to view that path.\n")
+            return;
+        }
+    }   
 }
 
 function clearCMD()
@@ -140,6 +277,7 @@ function lsCMD(directories)
 {
     console.log(folderLocation);
     console.log(directories);
+    var result = "";
     try {
         //List current directory
         if(directories.length === 0 || directories[0] === "") {
@@ -149,10 +287,12 @@ function lsCMD(directories)
             index.openCursor().onsuccess = function(event) {
                 var cursor = event.target.result;
                 if(cursor) {
-                    commandOutput(cursor.value.filename + "\n");
+                    result = result.concat(cursor.value.filename + "\n");
                     cursor.continue();
                 } else {
                     console.log("All Entries Displayed.");
+                    commandOutput(result);
+                    return result;
                 }
             }
             index.openCursor().onerror = function(event) {
@@ -169,10 +309,12 @@ function lsCMD(directories)
                 index.openCursor().onsuccess = function(event) {
                     var cursor = event.target.result;
                     if(cursor) {
-                        commandOutput(cursor.value.filename + "\n");
+                        result= result.concat(cursor.value.filename + "\n");
                         cursor.continue();
                     } else {
                         console.log("All Entries Displayed.");
+                        commandOutput(result);
+                        return result;
                     }
                 }
                 index.openCursor().onerror = function(event) {
@@ -186,7 +328,6 @@ function lsCMD(directories)
         commandOutput("That directory does not exist.\n");
         return;
     }
-    
 }
 
 function deleteCMD(fileName)
@@ -228,19 +369,35 @@ function copyCMD(fileName, copyFileName)
         
         os.create(copyFileName, "write", 10);
         os.write(copyFileName, 1, hold, "result");
-        
-//        request = store.put({filename: copyFileName, content: hold});
-//        request.onsuccess = function(event){
-//            console.log("Copying: Success!");
-//        }
-//        request.onerror = function(event){
-//            console.log("Copying: Failed!");
-//        }
     }
     request.onerror = function(event){
         console.log("An error has occured.");
     }
     return errorCode;
+}
+
+var index = 0;
+var stopInterval;
+function runConsume(arguement){
+    commandOutput("You may want to do something else while this runs\n");
+    stopInterval = setInterval(function(){
+        var output = "outputFile"+index+".file";
+        index++;
+        commandOutput("We're outputting "+index+"\n");
+        copyCMD(arguement, output);
+    }, 3000);
+}
+
+function mkdirCMD(folder) {
+    var store = db.createObjectStore(folder, {autoIncrement: true});
+    store.createIndex("by_filepath", "filepath");
+    store.createIndex("by_filename", "filename", {unique: true});
+    store.createIndex("by_content", "content");
+    store.createIndex("by_filesize", "filesize");
+    
+    var transact = db.transaction([folderLocation], "readwrite");
+    var store2 = transact.objectStore(folderLocation);
+    store2.put({filepath: "", filename: folder, content: "Folder", filesize: 0});
 }
 
 /**
@@ -250,39 +407,45 @@ clear, ls or dir, delete, copy, ps, kill, more, cat, man …
 function man()
 {
     var errorCode = 0;
-    commandOutput("\nAssignment 2 Processes\n");
-    commandOutput("------------------------------------------------------\n");
-    commandOutput("clear : Clear terminal screen\n");
-    commandOutput("reset : Clear terminal and reset database\n");
-    commandOutput("ls or dir : List directory contents, takes in one or more parameters\n");
-    commandOutput("delete or rm : Delete file. Requires one (or more) parameter\n");
-    commandOutput("copy or cp: Copy file. Requires two parameters\n");
-    commandOutput("ps : Print process status\n");
-    commandOutput("kill : Ends current process. Requires one parameter\n");
-    commandOutput("more : Display file output screen. Requires one parameter\n");
-    commandOutput("cat : Display file(s) content. Requires one or more parameters\n");
-    commandOutput("man or help : Display help manual\n");
-    commandOutput("\nAssignment 1 Processes\n");
-    commandOutput("------------------------------------------------------\n");
-    commandOutput("contactp : Initiates the contact manager process\n");
-    commandOutput("bankp : Initiates the bank calculator process\n");
-    commandOutput("passwordp : Initiates the password process\n");
-    commandOutput("readp : Initiates the sort a list of numbers process\n");
-    commandOutput("vectorp : Initiates the vector calculator process\n");
-    commandOutput("statsp : Initiates the statistics calculator process\n");
-    commandOutput("\nAssignment 4 Processes\n");
-    commandOutput("------------------------------------------------------\n");
-    commandOutput("scriptp : Initiates the script process and runs script\n");
-    commandOutput("script or sh or bash: Run a script from a file. Requires one parameter\n");
-    commandOutput("charwatchp : Initiates the character watch process\n");
-    commandOutput("starterp : Starts the starter process, which starts the mather process and statsp process\n");
-    commandOutput("sleepp : Starts the sleep process which sleeps after doing some work, starts a new process which starts and finishes work, and then alerts the sleep process to wake up\n");
-    commandOutput("philp : Starts the philosopher process\n");
-    commandOutput("\nAssignment 5 Processes\n");
-    commandOutput("------------------------------------------------------\n");
-    commandOutput("memstats: Displays the remaining memory in the Operating System\n");
-    commandOutput("cd: Change directory, requires one parameter\n");
-    return errorCode;
+    var result = "\nAssignment 2 Processes\n";
+    result += "------------------------------------------------------\n";
+    result += "clear : Clear terminal screen\n";
+    result += "reset : Clear terminal and reset database\n";
+    result += "ls or dir : List directory contents, takes in one or more parameters\n";
+    result += "delete or rm : Delete file. Requires one (or more) parameter\n";
+    result += "copy or cp: Copy file. Requires two parameters\n";
+    result += "ps : Print process status\n";
+    result += "kill : Ends current process. Requires one parameter\n";
+    result += "more : Display file output screen. Requires one parameter\n";
+    result += "cat : Display file(s) content. Requires one or more parameters\n";
+    result += "man or help : Display help manual\n";
+    result += "\nAssignment 1 Processes\n";
+    result += "------------------------------------------------------\n";
+    result += "contactp : Initiates the contact manager process\n";
+    result += "bankp : Initiates the bank calculator process\n";
+    result += "passwordp : Initiates the password process\n";
+    result += "readp : Initiates the sort a list of numbers process\n";
+    result += "vectorp : Initiates the vector calculator process\n";
+    result += "statsp : Initiates the statistics calculator process\n";
+    result += "\nAssignment 4 Processes\n";
+    result += "------------------------------------------------------\n";
+    result += "scriptp : Initiates the script process and runs script\n";
+    result += "script or sh or bash: Run a script from a file. Requires one parameter\n";
+    result += "charwatchp : Initiates the character watch process\n";
+    result += "starterp : Starts the starter process, which starts the mather process and statsp process\n";
+    result += "sleepp : Starts the sleep process which sleeps after doing some work, starts a new process which starts and finishes work, and then alerts the sleep process to wake up\n";
+    result += "philp : Starts the philosopher process\n";
+    result += "\nAssignment 5 Processes\n";
+    result += "------------------------------------------------------\n";
+    result += "memstats: Displays the remaining memory in the Operating System\n";
+    result += "cd: Change directory, requires one parameter\n";
+    result += "consumep: Copies the specified file over and over. Takes in one parameter\n";
+    result += "\nAssignment 6 Processes\n";
+    result += "------------------------------------------------------\n";
+    result += "adduser or useradd: Creates a new user; only available for SuperUser, input is user:pass\n";
+    result += "deluser or userdel: Removes a user; only available for SuperUser, input is user:pass\n";
+    commandOutput(result);
+    return result;
 }
 
 /**
@@ -298,7 +461,6 @@ function cat(arrFiles, rec)
     var index = store.index("by_filename");
     var i = rec;
     var errorCode = 0;
-
     var request = index.get(arrFiles[i]);
     request.onsuccess = function(){
         if(request.result === undefined){
@@ -392,16 +554,6 @@ function more(fileName)
             // Made it do basically the same thing with "s", but with the screenful part.
             case "f":
                 var arrCount = 1;
-        //            while(arrDirectory.length != arrCount)
-        //            {
-        //                //** wait for f cmd input
-        //                if(fInput == "f"){
-        //                    console.log(arrDirectory[i]);
-        //                    arrCount++;
-        //                }
-        //                else if(fInput == "q")
-        //                    break;
-        //            }
                 moreIncrement = moreIncrement + screenful;
                 var temp = moreIncrement;
                 commandOutput("... skipping 1 screenful of text\n");
@@ -458,15 +610,18 @@ Display the process and the state of each running process
 function ps()
 {
     var errorCode = 0;
+    var result = "";
     try {
-        for(var i = 1; i<statesQueue.length; i++)
-            commandOutput("Process "+statesQueue[i].processName + " is currently "
-                    + statesQueue[i].process+"\n");
+        for(var i = 0; i<statesQueue.length; i++)
+            result += "Process "+statesQueue[i].processName + " is currently "
+                    + statesQueue[i].process+"\n" ;
+        result += "Process ps is currently Running";
+        commandOutput(result);
     }
     catch(err) {
         errorCode = -1;
     }
-    return errorCode;
+    return result;
 }
 
 function script(fileName){
@@ -624,6 +779,18 @@ function kill(processName)
                         defaultStart -= 1;
                     }
                 }
+                commandOutput("Killed the process\n");
+                break;
+            case "consumep":
+                for(var i = 0; i<statesQueue.length; i++){
+                    if (statesQueue[i].processName === "ConsumeProcess") {
+                        statesQueue.splice(i, 1);
+                        arrWorker[i].terminate();
+                        arrWorker.splice(i, 1);
+                        defaultStart -= 1;
+                    }
+                }
+                clearInterval(stopInterval);
                 commandOutput("Killed the process\n");
                 break;
             default:

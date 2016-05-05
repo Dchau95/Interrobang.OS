@@ -307,6 +307,17 @@ for (var i = 0; i<93; i++) {
     sharedArray.push(0);
 }
 
+function sendToCharWatch(hold) {
+    var processID = charWatchInfo.charPIndex;
+    var arg = {
+        characterCode: hold,
+        nProcessID: processID,
+    }
+    if(charWatchInfo.charWatchFlag) {
+        arrWorker[processID].postMessage(arg);
+    }
+}
+
 //Do a settimeout for all write functions to simulate 100 characters?
 function onMessageCharWatch (e) {
     console.log("Back from process");
@@ -370,10 +381,6 @@ function onMessageMatherProcess (e) {
     whileLoop();
 }
 
-//This creates the file and outputs the shared array
-//if file exists, then just output the shared array
-//Put an if statement if the file's already created
-//Overwriting the file seems to be fucked, I dunno
 function onMessageCharThread (e) {
     console.log("Back from thread");
     sharedArray = e.data.sharedArray;
@@ -414,8 +421,23 @@ function runSignal()
     whileLoop();
 }
 
+function runConsumeProcess(argument)
+{
+    if(argument === "" || typeof argument === 'undefined') {
+        commandOutput("You did not specify a file to copy\n");
+        return;
+    }
+    var dummyConsume = new Worker("test.js");
+    statesQueue.push({process : "Running", processName: "ConsumeProcess", EOF: false, result: "", resultCsv: "", fileCsv: ""});
+    arrWorker.push(dummyConsume);
+    nStatesLength+=1;
+    defaultStart += 1;
+    runConsume(argument);
+}
+
 function runPhil()
 {
+    commandOutput("Check console for state of things\n");
     var phil = new Worker("DinePhil.js");
     phil.onmessage = onPhilMessage;
     statesQueue.push({process : "Starting", processName: "PhilosopherProcess", EOF: false, result: "", resultCsv: "", fileCsv: ""});
@@ -433,7 +455,7 @@ function osCMD(userInput)
 
 function onPhilMessage(e) {
     //Do something
-    console.log("Back");
+    commandOutput("The philosophers have reached a deadlock\n");
 }
 
 function onSleepMessage(e){
@@ -471,14 +493,6 @@ function onSignalMessage(e){
     runSleep();
 }
 
-//Tried implementing a timeout for the IO in these two blocks, however ran into an error where
-//it said:
-//OperatingSystem.js:369 Uncaught TypeError: Cannot read property 'fileCsv' of undefined
-//OperatingSystem.js:363 Uncaught TypeError: Cannot read property 'resultCsv' of undefined
-//OperatingSystem.js:366 Uncaught TypeError: Cannot read property 'resultCsv' of undefined
-//Looked into what the statesQueue contained and it only contained the dummy
-//So I can only assume that the statesQueue was dequeued too early
-//The states queue being dequeued too early seems to be a big bug in terms of output
 function onMessageProcess1 (e) {
     commandOutput("Process "+statesQueue[e.data.processNumberI].processName+" has responded with data\n");
     if(e.data.errorCon !== -1 && e.data.result !== "undefined" && e.data.result !== ""){
