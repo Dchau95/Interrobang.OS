@@ -18,18 +18,19 @@ function initd() {
 function logInScreen() {
     var login = new Worker("LogInScreenProcess.js");
     login.onmessage = onMessageLogin;
-    statesQueue.push({ process: "Starting", processName: "Login", EOF: false, result: "", resultCsv: "", fileCsv: "password.CSV"});
+    statesQueue.push({ process: "Starting", processName: "Login", EOF: false, result: "", resultCsv: "", fileCsv: ""});
     arrWorker.push(login);
     nStatesLength+=1;
 }
 
 button.addEventListener("click", function(event){
-    console.log("HI GUYS");
+    //fileCsv is gotten from password.CSV or something
+    
     var userCheck = {
         username: userBox.value,
         password: passBox.value,
         nProcessID: 1,
-        fileCsv: "popchiek:hi,gamrgod88:l337420,slides:mcgee,taeyona:taeyona,thommy:commie"
+        fileCsv: "david:chau,popchiek:hi,gamrgod88:l337420,slides:mcgee,taeyona:taeyona,thommy:commie"
     }
     console.log(userCheck);
     arrWorker[1].postMessage(userCheck);
@@ -41,9 +42,10 @@ function onMessageLogin(event) {
     //Check if eof
     //if eof, return true/false and change dom accordingly
     //else return to the while loop
-    console.log("Done");
     if(!event.data.result) {
         commandOutput("You entered the wrong username/password, enter again\n");
+        userBox.value = "";
+        passBox.value = "";
     } else {
         input.disabled = false;
         input.focus();
@@ -52,20 +54,23 @@ function onMessageLogin(event) {
         button.parentNode.removeChild(button);
         window.onmousedown = function(){return false};
         contentout.innerText = "Welcome! This is Interrobang.OS. It was created by David Chau, Hao Xian Zheng(Benson) Andrew Goff, Tony Tran and Hin Vong. We hope you have fun exploring our OS just as much as we had fun making it. Type Help and hit enter to see the commands!\n";
+        statesQueue.splice(1, 1);
+        arrWorker[1].terminate();
+        arrWorker.splice(1, 1);
     }
 }
 
-//userBox.addEventListener(event) {
-//    if (event.keyCode === 13) { 
-//        
-//    }
-//}
-//
-//passBox.addEventListener(event) {
-//    if (event.keyCode === 13) { 
-//        
-//    }
-//}
+userBox.addEventListener("keypress", function(event) {
+    if (event.keyCode === 13) { 
+        button.click();
+    }
+});
+
+passBox.addEventListener("keypress", function(event) {
+    if (event.keyCode === 13) { 
+        button.click();
+    }
+});
 
 //Function that gets the response from the IODevice
 function onMessageDevice(event) {
