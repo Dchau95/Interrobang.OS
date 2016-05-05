@@ -124,20 +124,37 @@ function addUser(newUser)
         return;
     }
     
+    var parsedUser = newUser.split(":");
     // Open database for transaction.
     var transact = db.transaction(["root"], "readwrite");
     var store = transact.objectStore("root");
     var index = store.index("by_filename");
-    var request = index.get(newUser);
+    var request = index.get(parsedUser[0]);
     request.onsuccess = function(e) {
         // User already exist.
         if (request.result) {
-            commandOutput(+"'"+newUser+"'" + " already exists as a user.\n");
+            commandOutput("'"+parsedUser[0]+"'" + " already exists as a user.\n");
         }
         // Create User.
         else { 
-            store.put({filepath: "", filename: newUser, content: "Folder", filesize: 0});
-            commandOutput("User '" + newUser + "' has been created\n");
+            store.put({filepath: "", filename: parsedUser[0], content: "Folder", filesize: 0});
+            index.openCursor().onsuccess = function(event){
+                    var cursor = event.target.result;
+                        if (cursor) {
+                            if (cursor.value.filename === "user.txt"){
+                                var hold = cursor.value;
+                                hold.content += newUser + ",";
+                                var request = cursor.update(hold);
+                                    request.onsuccess = function() {
+                                        commandOutput("User '" + parsedUser[0] + "' has been created\n");
+                                        console.log("Updated");
+                                        updateMemoryUsage();
+                                    }
+                            }
+                            cursor.continue();
+                        }
+            }
+            
         }
     }
 }
@@ -396,8 +413,8 @@ function man()
     result += "consumep: Copies the specified file over and over. Takes in one parameter\n";
     result += "\nAssignment 6 Processes\n";
     result += "------------------------------------------------------\n";
-    result += "adduser or useradd: Creates a new user; only available for SuperUser\n";
-    result += "deluser or userdel: removes a user; only available for SuperUser\n";
+    result += "adduser or useradd: Creates a new user; only available for SuperUser, input is user:pass\n";
+    result += "deluser or userdel: Removes a user; only available for SuperUser, input is user:pass\n";
     commandOutput(result);
     return result;
 }

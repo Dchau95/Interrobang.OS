@@ -120,6 +120,6 @@ function onMessageDevice(event) {
 
 document.addEventListener('DOMContentLoaded', function() {
     initd();
-//    input.disabled = false;
+//    reset();
     logInScreen();
 });
