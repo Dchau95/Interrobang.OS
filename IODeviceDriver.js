@@ -30,6 +30,8 @@ function openDb() {
         
         //Create a store named "files", which contains two indices, "filename" and "content"
         var store = event.currentTarget.result.createObjectStore("root", {autoIncrement: true});
+        var userStore = event.currentTarget.result.createObjectStore("users", {autoIncrement: true});
+        var groupStore = event.currentTarget.result.createObjectStore("groups", {autoIncrement: true});
         store.createIndex("by_filepath", "filepath");
         store.createIndex("by_filename", "filename", {unique: true});
         store.createIndex("by_content", "content");
@@ -49,7 +51,44 @@ function openDb() {
         storeResult.createIndex("by_content", "content");
         storeResult.createIndex("by_filesize", "filesize");
         
-        //add an entry to the "files" store
+        userStore.createIndex("by_username", "username", {unique: true});
+        userStore.createIndex("by_password", "password");
+        userStore.createIndex("by_group", "groups");
+        
+        groupStore.createIndex("by_Group", "group", {unique: true});
+        groupStore.createIndex("by_Clear", "clear");
+        groupStore.createIndex("by_Ls", "ls");
+        groupStore.createIndex("by_Man", "man");
+        groupStore.createIndex("by_Delete", "delete");
+        groupStore.createIndex("by_Copy", "copy");
+        groupStore.createIndex("by_Ps", "ps");
+        groupStore.createIndex("by_Kill", "kill");
+        groupStore.createIndex("by_More", "more");
+        groupStore.createIndex("by_Cat", "cat");
+        groupStore.createIndex("by_Script", "script");
+        groupStore.createIndex("by_Contactp", "contactp");
+        groupStore.createIndex("by_Bankp", "bankp");
+        groupStore.createIndex("by_Passwordp", "passwordp");
+        groupStore.createIndex("by_Readp", "readp");
+        groupStore.createIndex("by_Statsp", "statsp");
+        groupStore.createIndex("by_Vectorp", "vectorp");
+        groupStore.createIndex("by_Scriptp", "scriptp");
+        groupStore.createIndex("by_Charwatchp", "charwatchp");
+        groupStore.createIndex("by_Starterp", "starterp");
+        groupStore.createIndex("by_Sleepp", "sleepp");
+        groupStore.createIndex("by_Philp", "philp");
+        groupStore.createIndex("by_Reset", "reset");
+        groupStore.createIndex("by_Memstats", "memstats");
+        groupStore.createIndex("by_CD", "cd");
+        
+        userStore.put({username: "d@v1d", password: "123123", groups: "1,2"});
+        
+        //r = read, w = write, e = execute, 0 = ---, 1 = --e, 2 = -w-, 3 = -we, 4 = r--, 5 = r-e, 6 = rw-, 7 = rwe
+        //group 1
+        groupStore.put({group: "1", clear: "7", ls: "7", man: "7", delete: "7", copy: "7", ps: "7", kill: "7", more: "7", cat: "7", script: "7", contactp: "7", bankp: "7", passwordp: "7", readp: "7", statsp: "7", vectorp: "7", scriptp: "7", charwatchp: "7", starterp: "7", sleepp: "7", philp: "7", resetp: "7", memstats: "7", cd: "7",})
+        //group 2
+        groupStore.put({group: "2", clear: "7", ls: "7", man: "7", delete: "7", copy: "7", ps: "7", kill: "7", more: "7", cat: "7", script: "7", contactp: "7", bankp: "7", passwordp: "7", readp: "7", statsp: "7", vectorp: "7", scriptp: "7", charwatchp: "7", starterp: "7", sleepp: "7", philp: "7", resetp: "7", memstats: "7", cd: "7",})
+        
         store.put({filepath: "", filename: "SuperUser", content: "Folder", filesize: 0});
         storeUserDirectory.put({filepath: "", filename: "Contact.CSV", content: "David: Secretary, Tony: Gangster, Jason: Dancer, Benson: Duke, Andrew: Gangster, Thomas: Traitor, Matt: Lame", filesize: 0});
         storeUserDirectory.put({filepath: "", filename: "Results", content: "Folder", filesize: 0});
