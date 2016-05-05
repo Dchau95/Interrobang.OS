@@ -1,5 +1,16 @@
-var folderLocation = "root";
-var currentUser = "user";
+/**
+*   Filename: runCMD.js
+*   
+*   Contains all the command line functions.
+*/
+
+// Hardcoded default folderLocation and currentUser
+var folderLocation = "userDirectory";
+var currentUser = "SuperUser";
+
+// Set default path. Catching weird unbreaking error that displays on console log.
+try {document.getElementById("filepath").innerHTML += "C:\\Interrobang\\" + currentUser + ">";}
+catch(error){};
 
 function runCMD(userInput)
 {
@@ -13,6 +24,9 @@ function runCMD(userInput)
     
     switch(command[0].toLowerCase())
     {
+        case "useradd": case "adduser":
+            addUser(arrArguments[0]);
+            break;
         case "clear": case "cls":
             clearCMD();
             break;
@@ -105,6 +119,31 @@ function displayMemory() {
     device.postMessage(task);
 }
 
+function addUser(newUser)
+{
+    if (currentUser !== "SuperUser") {
+        commandOutput("You do not have priviledge to add a user.\n");
+        return;
+    }
+    
+    // Open database for transaction.
+    var transact = db.transaction(["root"], "readwrite");
+    var store = transact.objectStore("root");
+    var index = store.index("by_filename");
+    var request = index.get(newUser);
+    request.onsuccess = function(e) {
+        // User already exist.
+        if (request.result) {
+            commandOutput("That user already exist.");
+        }
+        // Create User.
+        else { 
+            store.put({filepath: "", filename: newUser, content: "Folder", filesize: 0});
+            commandOutput("User '" + newUser + "' has been created\n");
+        }
+    }
+}
+
 function cdCMD(folder)
 {
     //Make sure it's a folder
@@ -113,7 +152,8 @@ function cdCMD(folder)
     var store = transact.objectStore(folderLocation);
     var index = store.index("by_filename");
     
-    if (folder === ".." && folderLocation === currentUser) {
+    // If currently in userDirectory, move back to root (User List) if SuperUser.
+    if (folder === ".." && folderLocation === "userDirectory" && currentUser === "SuperUser") {
         document.getElementById("filepath").innerHTML = "C:\\Interrobang>";
         folderLocation = "root";
         return;
@@ -125,18 +165,27 @@ function cdCMD(folder)
         return;
     }
     
+    // Find available directories
     index.openCursor().onsuccess = function(event) {
         var cursor = event.target.result;
         if(cursor) {
             if (folder.toLowerCase() === cursor.value.filename.toLowerCase() && cursor.value.content === "Folder") {
                 document.getElementById("filepath").innerHTML = 
                     document.getElementById("filepath").innerHTML.slice(0,-4) + "\\" + folder + ">";
+                
+                // If currently in root, move to user directory
+                if (folderLocation === "root") {
+                    folderLocation = "userDirectory"
+                    return;
+                }
+                
+                // Else, move to selected folder directory
                 folderLocation = folder.toLowerCase().toString();
                 return;
             }
             cursor.continue();
         } else {
-            commandOutput("The system cannot find the path specified\n")
+            commandOutput("The system cannot find the path specified or you do not have priviledge to view that path.\n")
             return;
         }
     }   
@@ -321,6 +370,9 @@ function man()
     result += "memstats: Displays the remaining memory in the Operating System\n";
     result += "cd: Change directory, requires one parameter\n";
     result += "consumep: Copies the specified file over and over. Takes in one parameter\n";
+    result += "\nAssignment 6 Processes\n";
+    result += "------------------------------------------------------\n";
+    result += "adduser or useradd: Creates a new user; only available for SuperUser\n";
     commandOutput(result);
     return result;
 }
