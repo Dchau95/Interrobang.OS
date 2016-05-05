@@ -161,26 +161,55 @@ function addUser(newUser)
 
 function delUser(removedUser)
 {
+    if (removedUser === "SuperUser:superuser") {
+        commandOutput("You cannot remove the SuperUser.\n");
+        return;
+    }
+    
     if (currentUser !== "SuperUser") {
         commandOutput("You do not have priviledge to remove a user.\n");
         return;
     }
     
+    var parsedUser = removedUser.split(":");
+    
     // Open database for transaction.
     var transact = db.transaction(["root"], "readwrite");
     var store = transact.objectStore("root");
     var index = store.index("by_filename");
-    var request = index.getKey(removedUser);
+    var request = index.getKey(parsedUser[0]);
     
     request.onsuccess = function(e) {
         // Found user, deleting... 
         if (request.result) {
             store.delete(request.result);
-            commandOutput("'"+removedUser+"'" + " has been removed as a user.")
+            index.openCursor().onsuccess = function(event) {
+            var cursor = event.target.result;
+                if (cursor) {
+                    if (cursor.value.filename === "user.txt") {
+                        var hold = cursor.value;
+                        parsedUserList = hold.content.split(",")
+                        for (var i = 0; i < parsedUserList.length; i++) {
+                            if (parsedUserList[i] === removedUser) {
+                                parsedUserList.splice(i,1);
+                                hold.content = parsedUserList.join(",");
+                                break;
+                            }
+                        }
+                        var request = cursor.update(hold);
+                            request.onsuccess = function() {
+                                commandOutput("'"+parsedUser[0]+"'" + " has been removed as a user.")
+                                console.log("Updated");
+                                updateMemoryUsage();
+                            }
+                    }
+                    cursor.continue();
+                }
+            }
         }
         // No user found.
         else { 
-            commandOutput("'"+removedUser+"'" + " is not a user.")
+            commandOutput("'"+parsedUser[0]+"'" + " is not a user.")
         }
     }
 }
