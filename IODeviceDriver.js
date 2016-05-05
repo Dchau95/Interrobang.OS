@@ -51,9 +51,9 @@ function openDb() {
         storeResult.createIndex("by_content", "content");
         storeResult.createIndex("by_filesize", "filesize");
         
-        userStore.createIndex("by_Username", "username", {unique: true});
-        userStore.createIndex("by_Password", "password");
-        userStore.createIndex("by_Group", "groups");
+        userStore.createIndex("by_username", "username", {unique: true});
+        userStore.createIndex("by_password", "password");
+        userStore.createIndex("by_group", "groups");
         
         groupStore.createIndex("by_Group", "group", {unique: true});
         groupStore.createIndex("by_Clear", "clear");
