@@ -4,6 +4,7 @@ var userBox = document.getElementById("namebox");
 var passBox = document.getElementById("passwordbox");
 var button = document.getElementById("submitUserPass");
 var input = document.getElementById("inputbox");
+var currentUser = "";
 
 function initd() {
     device = new Worker('IODeviceDriver.js');
@@ -30,7 +31,7 @@ button.addEventListener("click", function(event){
         username: userBox.value,
         password: passBox.value,
         nProcessID: 1,
-        fileCsv: "david:chau,popchiek:hi,gamrgod88:l337420,slides:mcgee,taeyona:taeyona,thommy:commie"
+        fileCsv: "SuperUser:superuser"
     }
     console.log(userCheck);
     arrWorker[1].postMessage(userCheck);
@@ -49,6 +50,10 @@ function onMessageLogin(event) {
     } else {
         input.disabled = false;
         input.focus();
+        currentUser = userBox.value;
+        // Set default path. Catching weird unbreaking error that displays on console log.
+        try {document.getElementById("filepath").innerHTML += "C:\\Interrobang\\" + currentUser + ">";}
+        catch(error){};
         userBox.parentNode.removeChild(userBox);
         passBox.parentNode.removeChild(passBox);
         button.parentNode.removeChild(button);

@@ -6,11 +6,6 @@
 
 // Hardcoded default folderLocation and currentUser
 var folderLocation = "userDirectory";
-var currentUser = "SuperUser";
-
-// Set default path. Catching weird unbreaking error that displays on console log.
-try {document.getElementById("filepath").innerHTML += "C:\\Interrobang\\" + currentUser + ">";}
-catch(error){};
 
 function runCMD(userInput)
 {
