@@ -81,7 +81,7 @@ function openDb() {
         groupStore.createIndex("by_Memstats", "memstats");
         groupStore.createIndex("by_CD", "cd");
         
-        userStore.put({username: "d@v1d", password: "123123", groups: "1,2"});
+        userStore.put({username: "SuperUser", password: "superuser", groups: "1"});
         
         //r = read, w = write, e = execute, 0 = ---, 1 = --e, 2 = -w-, 3 = -we, 4 = r--, 5 = r-e, 6 = rw-, 7 = rwe
         //group 1
@@ -102,6 +102,7 @@ function openDb() {
         storeUserDirectory.put({filepath: "", filename: "maths.CSV", content: "98, 94, 63, 95, 95, 29, 89, 36, 23, 84, 10, 63, 70, 82, 00, 81, 79, 80, 78, 66", filesize: 0});
         storeUserDirectory.put({filepath: "", filename: "sleep.CSV", content: "!sleepy", filesize: 0});
         store.put({filepath: "", filename: "user.txt", content: "SuperUser:superuser,", filesize: 0});
+        store.put({filepath: "", filename: "group.txt", content: "SuperUser: 1", filesize: 0});
     };
 }
 

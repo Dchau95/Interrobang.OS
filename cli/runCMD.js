@@ -151,6 +151,9 @@ function addUser(newUser)
         // Create User.
         else { 
             store.put({filepath: "", filename: parsedUser[0], content: "Folder", filesize: 0});
+            var transact2 = db.transaction(["users"], "readwrite");
+            var store2 = transact2.objectStore("users");
+            store2.put({username: parsedUser[0], password: parsedUser[1], groups: ""});
             index.openCursor().onsuccess = function(event) {
                 var cursor = event.target.result;
                 if (cursor) {
