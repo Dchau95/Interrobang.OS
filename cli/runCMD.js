@@ -29,11 +29,11 @@ function runCMD(userInput)
         case "copy": case "cp":
             copyCMD(arrArguments[0], arrArguments[1]);
             break;
-        case "adduser":
-            runAddUser(arrArguments[0], arrArguments[1]);
+        case "addtogroup":
+            runAddUserGroup(arrArguments[0], arrArguments[1]);
             break;
-        case "removeuser":
-            runRemoveUser(arrArguments[0], arrArguments[1]);
+        case "removefromgroup":
+            runRemoveUserGroup(arrArguments[0], arrArguments[1]);
             break;
         case "ps":
             ps();
@@ -288,6 +288,10 @@ function man()
     commandOutput("------------------------------------------------------\n");
     commandOutput("memstats: Displays the remaining memory in the Operating System\n");
     commandOutput("cd: Change directory, requires one parameter\n");
+    commandOutput("\nAssignment 6 Processes\n");
+    commandOutput("------------------------------------------------------\n");
+    commandOutput("addtogroup: Takes two arguments, user and group, and adds the user to a group.\n");
+    commandOutput("removefromgroup: Takes two arguments, user and group, and removes the user from a group.\n");
     return errorCode;
 }
 

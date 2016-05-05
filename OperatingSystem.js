@@ -426,7 +426,7 @@ function runPhil()
     arrWorker[nStatesLength-1].postMessage({hi: "HI"});
 }
 
-function runAddUser(usr, group){
+function runAddUserGroup(usr, group){
     var transact = db.transaction(["users"], "readwrite");
     var store = transact.objectStore("users");
     var index = store.index("by_username");
@@ -449,6 +449,7 @@ function runAddUser(usr, group){
                     var request = cursor.update(hold);
                     request.onsuccess = function(){
                         console.log("User group updated");
+                        commandOutput("User: " + usr + " added to group: " + group);
                     }
                 }
             }
@@ -457,7 +458,7 @@ function runAddUser(usr, group){
     }
 }
 
-function runRemoveUser(usr, group){
+function runRemoveUserGroup(usr, group){
     var transact = db.transaction(["users"], "readwrite");
     var store = transact.objectStore("users");
     var index = store.index("by_username");
