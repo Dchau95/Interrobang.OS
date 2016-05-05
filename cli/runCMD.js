@@ -46,10 +46,10 @@ function runCMD(userInput)
         case "copy": case "cp":
             copyCMD(arrArguments[0], arrArguments[1]);
             break;
-        case "addtogroup":
+        case "usermod":
             runAddUserGroup(arrArguments[0], arrArguments[1]);
             break;
-        case "removefromgroup":
+        case "delusermod":
             runRemoveUserGroup(arrArguments[0], arrArguments[1]);
             break;
         case "ps":
@@ -547,8 +547,8 @@ function man()
     result += "------------------------------------------------------\n";
     result += "adduser or useradd: Creates a new user; only available for SuperUser, input is user:pass\n";
     result += "deluser or userdel: Removes a user; only available for SuperUser, input is user:pass\n";
-    result += "addtogroup: Takes two arguments, user and group, and adds the user to a group.\n";
-    result += "removefromgroup: Takes two arguments, user and group, and removes the user from a group.\n";
+    result += "usermod: Takes two arguments, user and group, and adds the user to a group.\n";
+    result += "delusermod: Takes two arguments, user and group, and removes the user from a group.\n";
     result += "su: Switches user from one user to another, input is user:pass"
     commandOutput(result);
     return result;
