@@ -21,7 +21,6 @@ function logInScreen() {
     login.onmessage = onMessageLogin;
     statesQueue.push({ process: "Starting", processName: "Login", EOF: false, result: "", resultCsv: "", fileCsv: ""});
     arrWorker.push(login);
-    nStatesLength+=1;
 }
 
 button.addEventListener("click", function(event){

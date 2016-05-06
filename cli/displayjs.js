@@ -41,7 +41,6 @@ txtbox.addEventListener("keypress", function (event) {
     }
     else {
         var hold = String.fromCharCode(event.charCode);
-        var processID = charWatchInfo.charPIndex;
         changeInput(hold);
         sendToCharWatch(event.charCode);
     }

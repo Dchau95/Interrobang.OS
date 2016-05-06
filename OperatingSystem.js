@@ -179,6 +179,7 @@ function whileLoop() {
             processNumberI = defaultStart;
         }
         processNumberI += 1;
+        console.log(processNumberI);
         console.log("Right fucking here " + processNumberI);
         //If statement checking from top to bottom 
         //which one is in Running
@@ -445,6 +446,8 @@ function runPhil()
     nStatesLength+=1;
     defaultStart += 1;
     //Post message here
+    console.log(nStatesLength);
+    console.log(arrWorker);
     arrWorker[nStatesLength-1].postMessage({hi: "HI"});
 }
 
@@ -561,6 +564,16 @@ function osCMD(userInput)
 function onPhilMessage(e) {
     //Do something
     commandOutput("The philosophers have reached a deadlock\n");
+    setTimeout(function(){
+        for(var i = 0; i<statesQueue.length; i++){
+            if (statesQueue[i].processName === "PhilosopherProcess") {
+                statesQueue.splice(i, 1);
+                arrWorker[i].terminate();
+                arrWorker.splice(i, 1);
+                defaultStart -= 1;
+            }
+        }
+    }, 5000);
 }
 
 function onSleepMessage(e){
