@@ -8,8 +8,8 @@ var totalMemoryUsed = 0;
 //Returns:
 function openDb() {
     console.log("Opening DB...");
-    //Opens DB with name of hashDirectory and version 1
-    var request = indexedDB.open("hashDirectory", 1);
+    //Opens DB with name of hashDirectory
+    var request = indexedDB.open("hashDirectory");
     
     //If DB already exists with same version then set db to that indexedDB
     //Also calls test function
