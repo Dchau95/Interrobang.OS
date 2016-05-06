@@ -472,6 +472,7 @@ function runAddUserGroup(usr, group){
                     request.onsuccess = function(){
                         console.log("User group updated");
                         commandOutput("User: " + usr + " added to group: " + group);
+                        remakeGroupTxt();
                     }
                 }
             }
@@ -503,6 +504,48 @@ function runRemoveUserGroup(usr, group){
                 var request = cursor.update(hold);
                 request.onsuccess = function(){
                     console.log("User group updated");
+                    remakeGroupTxt();
+                }
+            }
+            cursor.continue();
+        }
+    }
+}
+
+function remakeGroupTxt(){
+    var transact = db.transaction(["users"]);
+    var store = transact.objectStore("users");
+    var index = store.index("by_username");
+    var groupstext = "";
+    
+    index.openCursor().onsuccess = function(event){
+        var cursor = event.target.result;
+        if(cursor){
+            var hold = cursor.value;
+            groupstext += hold.username + ": " + hold.groups + ", ";
+            console.log(groupstext);
+            cursor.continue();
+            remakeGroupTxt2(groupstext);
+        }
+        
+    }
+}
+
+function remakeGroupTxt2(text){
+    var transact = db.transaction(["root"], "readwrite");
+    var store = transact.objectStore("root");
+    var index = store.index("by_filename");
+    
+    index.openCursor().onsuccess = function(event){
+        var cursor = event.target.result;
+        if(cursor){
+            if (cursor.value.filename === "group.txt"){
+                var hold = cursor.value;
+                hold.content = text;
+                var request = cursor.update(hold);
+                request.onsucces = function(){
+                    console.log("groups.txt remade");
+                    updateMemoryUsage();
                 }
             }
             cursor.continue();
