@@ -15,6 +15,10 @@ function openDb() {
     //Also calls test function
     request.onsuccess = function (event) {
         db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
         updateMemoryUsage();
         console.log("Finished opening DB...");
     };

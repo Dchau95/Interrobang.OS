@@ -491,23 +491,49 @@ function runConsume(argument){
 }
 
 function mkdirCMD(folder) {
-    db.close();
-    var request = indexedDB.open("hashDirectory", 2);
-    request.onupgradeneeded = function (event) {
-        console.log("I GOT HERE");
-        var store = db.createObjectStore(folder, {autoIncrement: true});
-        store.createIndex("by_filepath", "filepath");
-        store.createIndex("by_filename", "filename", {unique: true});
-        store.createIndex("by_content", "content");
-        store.createIndex("by_filesize", "filesize");
-        var transact = db.transaction([folderLocation], "readwrite");
-        var store2 = transact.objectStore(folderLocation);
-        store2.put({filepath: "", filename: folder, content: "Folder", filesize: 0});
+    var requestVersion = indexedDB.open("hashDirectory");
+    var fileExist = 0;
+    requestVersion.onsuccess = function (event) {
+        var currentVersion = parseInt(this.result.version);
+        var requestUpdate = indexedDB.open("hashDirectory", currentVersion + 1);
+        
+        this.result.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            requestVersion.result.close();
+        }
+        
+        requestUpdate.onsuccess = function(event) {
+            if (!fileExist) {
+                db = this.result;
+                var transact = db.transaction([folderLocation], "readwrite");
+                var store2 = transact.objectStore(folderLocation);
+                store2.put({filepath: "", filename: folder, content: "Folder", filesize: 0});
+                console.log("Successful!");
+            }
+            
+            db.onversionchange = function (event) {
+                console.log("Closing databse for version change");
+                db.close();
+            }
+        }
+        
+        requestUpdate.onupgradeneeded = function (event) {
+            try {
+                db = this.result;
+                console.log("I GOT HERE");
+                var store = db.createObjectStore(folder, {autoIncrement: true});
+                store.createIndex("by_filepath", "filepath");
+                store.createIndex("by_filename", "filename", {unique: true});
+                store.createIndex("by_content", "content");
+                store.createIndex("by_filesize", "filesize");
+            }
+            catch(error) {
+                commandOutput("That folder already exist.");
+                fileExist = 1;
+                return;
+            }
+        }
     }
-    request.onblocked = function(event) {
-        console.log("Heyyy");
-    }
-    
 }
 
 /**
