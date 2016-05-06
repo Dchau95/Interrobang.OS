@@ -28,6 +28,9 @@ function runCMD(userInput)
         case "passwd": case "pswd":
             passChange(arrArguments[0], arrArguments[1]);
             break;
+        case "checkpriv":
+            checkPriv(currentUser, "bankp");
+            break;
         case "su":
             switchUser(arrArguments[0]);
             break;

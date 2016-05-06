@@ -556,6 +556,35 @@ function remakeGroupTxt2(text){
     }
 }
 
+function checkPriv(currentUser, pname){
+    var transact = db.transaction(["users"]);
+    var store = transact.objectStore("users");
+    var index = store.index("by_username");
+    var request = index.get(currentUser);
+    request.onsuccess = function(event){
+        var hold = request.result.groups;
+        var holdsplit = hold.split(',');
+        for (var i = 0; i < holdsplit.length; i++){
+            if(holdsplit[i] !== ""){
+                checkPriv2(holdsplit[i], pname);
+            }
+        }
+    }
+}
+
+function checkPriv2(groupNum, pname){
+    var transact = db.transaction(["groups"]);
+    var store = transact.objectStore("groups");
+    var index = store.index("by_Group");
+    var request = index.get(groupNum);
+    request.onsuccess = function(event){
+        var hold = request.result.get(pname);
+        hold.onsucces = function(event){
+            console.log(hold.result);
+        }
+    }
+}
+
 function osCMD(userInput)
 {
     runCMD(userInput);
