@@ -491,6 +491,7 @@ function runConsume(argument){
 }
 
 function mkdirCMD(folder) {
+    db.close();
     var request = indexedDB.open("hashDirectory", 2);
     request.onupgradeneeded = function (event) {
         console.log("I GOT HERE");
