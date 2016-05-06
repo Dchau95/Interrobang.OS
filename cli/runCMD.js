@@ -486,7 +486,7 @@ function runConsume(argument){
         var output = "outputFile"+index+".file";
         index++;
         commandOutput("We're outputting "+index+"\n");
-        copyCMD(arguement, output);
+        copyCMD(argument, output);
     }, 3000);
 }
 
