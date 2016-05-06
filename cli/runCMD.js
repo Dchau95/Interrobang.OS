@@ -491,7 +491,7 @@ function runConsume(argument){
 }
 
 function mkdirCMD(folder) {
-    var request = indexedDB.open("hashDirectory", 1);
+    var request = indexedDB.open("hashDirectory", 2);
     request.onupgradeneeded = function (event) {
         console.log("I GOT HERE");
         var store = db.createObjectStore(folder, {autoIncrement: true});
@@ -502,6 +502,9 @@ function mkdirCMD(folder) {
         var transact = db.transaction([folderLocation], "readwrite");
         var store2 = transact.objectStore(folderLocation);
         store2.put({filepath: "", filename: folder, content: "Folder", filesize: 0});
+    }
+    request.onblocked = function(event) {
+        console.log("Heyyy");
     }
     
 }
