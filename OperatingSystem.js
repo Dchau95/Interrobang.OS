@@ -625,10 +625,13 @@ function checkPriv2(groupNum, pname){
         var index = store.index("by_Group");
         var request = index.get(groupNum);
         request.onsuccess = function(event){
-            var hold = request.result.get(pname);
-            hold.onsucces = function(event){
-                console.log(hold.result);
-            }
+            //request.result returns a hash
+            //Does not have onsuccess
+            var hold = request.result[pname];
+            console.log(hold);
+//            hold.onsucces = function(event){
+//                console.log(hold);
+//            }
         }
     }
 }
