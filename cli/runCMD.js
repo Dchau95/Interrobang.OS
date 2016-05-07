@@ -617,6 +617,7 @@ function man()
     result += "usermod: Takes two arguments, user and group, and adds the user to a group.\n";
     result += "delusermod: Takes two arguments, user and group, and removes the user from a group.\n";
     result += "su: Switches user from one user to another, input is user:pass"
+    result += "mkdir: Create new directory, requires one parameter\n";
     commandOutput(result);
     return result;
 }
