@@ -6,6 +6,7 @@
 
 // Hardcoded default folderLocation and currentUser
 var folderLocation = "userDirectory";
+var prevLocation = "root";
 
 function runCMD(userInput)
 {
@@ -334,9 +335,37 @@ function cdCMD(folder)
         return;
     }
     
+    // If current folder is results, go back to userDirectory.
     if (folder === ".." && folderLocation === "results") {
         document.getElementById("filepath").innerHTML = "C:\\Interrobang\\" + currentUser + ">";
+        prevLocation = folderLocation;
         folderLocation = "userDirectory";
+        return;
+    }
+    
+    // General case, Go back a directory.
+    if (folder === "..") {
+        transact = db.transaction([prevLocation]);
+        store = transact.objectStore(prevLocation);
+        index = store.index("by_filename");
+        var request = index.get(folderLocation)
+        request.onsuccess = function (event) {
+            document.getElementById("filepath").innerHTML = request.result.filepath;
+            parsePathLocation = request.result.filepath.split("\\");
+            if (parsePathLocation[parsePathLocation.length-1].slice(0,-4) === currentUser) {
+                folderLocation = "userDirectory";
+            }
+            else {
+                if (parsePathLocation[parsePathLocation.length-2] == currentUser) {
+                    prevLocation = "userDirectory";
+                }
+                else {
+                    prevLocation = parsePathLocation[parsePathLocation.length-2];
+                }
+                folderLocation = parsePathLocation[parsePathLocation.length-1].slice(0,-4);
+            }
+            
+        }
         return;
     }
     
@@ -350,11 +379,13 @@ function cdCMD(folder)
                 
                 // If currently in root, move to user directory
                 if (folderLocation === "root") {
+                    prevLocation = folderLocation;
                     folderLocation = "userDirectory"
                     return;
                 }
                 
                 // Else, move to selected folder directory
+                prevLocation = folderLocation;
                 folderLocation = folder.toLowerCase().toString();
                 return;
             }
@@ -510,7 +541,7 @@ function mkdirCMD(folder) {
                 db = this.result;
                 var transact = db.transaction([folderLocation], "readwrite");
                 var store2 = transact.objectStore(folderLocation);
-                store2.put({filepath: "", filename: folder, content: "Folder", filesize: 0});
+                store2.put({filepath: document.getElementById("filepath").innerHTML, filename: folder, content: "Folder", filesize: 0});
                 console.log("Successful!");
             }
             
