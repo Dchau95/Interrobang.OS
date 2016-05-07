@@ -561,6 +561,14 @@ function mkdirCMD(folder) {
                 store.createIndex("by_filename", "filename", {unique: true});
                 store.createIndex("by_content", "content");
                 store.createIndex("by_filesize", "filesize");
+                //Need this to pass to IODevice
+                //From there, add folderAdd.folder to the folderList variable in IODevice
+                //Then when you do memstats, it'll loop through folderList to add up
+                //the memory
+                var folderAdd = {
+                    sysCall: "Make Directory",
+                    folder: folder
+                }
             }
             catch(error) {
                 commandOutput("That folder already exist.");
@@ -611,6 +619,7 @@ function man()
     result += "memstats: Displays the remaining memory in the Operating System\n";
     result += "cd: Change directory, requires one parameter\n";
     result += "consumep: Copies the specified file over and over. Takes in one parameter\n";
+    result += "mkdir: Create new directory, requires one parameter\n";
     result += "\nAssignment 6 Processes\n";
     result += "------------------------------------------------------\n";
     result += "adduser or useradd: Creates a new user; only available for SuperUser, input is user:pass\n";
@@ -618,7 +627,6 @@ function man()
     result += "usermod: Takes two arguments, user and group, and adds the user to a group.\n";
     result += "delusermod: Takes two arguments, user and group, and removes the user from a group.\n";
     result += "su: Switches user from one user to another, input is user:pass\n";
-    result += "mkdir: Create new directory, requires one parameter\n";
     commandOutput(result);
     return result;
 }

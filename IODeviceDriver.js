@@ -2,6 +2,7 @@ var db;
 var totalMemoryLimit = 100000000;
 var totalMemoryUsed = 0;
 
+var folderList = ["root", "userDirectory", "Results"];
 //Opens the database and populates it with our basic files and their contents.
 //Inputs:
 //Outputs: Various messages depending on the situation, all sent to the console.
@@ -123,51 +124,30 @@ var arrOpenFiles = {
 
 function updateMemoryUsage(){
     console.log("Updating memory");
-    var transact = db.transaction(["userDirectory"], "readwrite");
-    var store = transact.objectStore("userDirectory");
-    var index = store.index("by_filename");
     totalMemoryUsed = 0;
     
-    // Results folder
-    console.log("Updating memory");
-    var transactResult = db.transaction(["Results"], "readwrite");
-    var storeResult = transactResult.objectStore("Results");
-    var indexResult = storeResult.index("by_filename");
-    
-    index.openCursor().onsuccess = function(event) {
-        var cursor = event.target.result;
-        if(cursor) {
-            var hold = cursor.value;
-            var memoryUsed = hold.content.length;
-            hold.filesize = memoryUsed;
-            var request = cursor.update(hold);
-            request.onsuccess = function() {
-                totalMemoryUsed += memoryUsed;
-                cursor.continue();
-            }
-            request.onerror = function(event){
-                console.log("File: " + hold.filename + " could not be updated.");
-                console.log(event.target.errorCode);
-                cursor.continue();
-            }
-        }
-    }
-    
-    indexResult.openCursor().onsuccess = function(event) {
-        var cursor = event.target.result;
-        if(cursor) {
-            var hold = cursor.value;
-            var memoryUsed = hold.content.length;
-            hold.filesize = memoryUsed;
-            var request = cursor.update(hold);
-            request.onsuccess = function() {
-                totalMemoryUsed += memoryUsed;
-                cursor.continue();
-            }
-            request.onerror = function(event){
-                console.log("File: " + hold.filename + " could not be updated.");
-                console.log(event.target.errorCode);
-                cursor.continue();
+    for(var i = 0; i < folderList.length; i++) {
+        console.log(folderList[i]);
+        var transact = db.transaction([folderList[i]], "readwrite");
+        var store = transact.objectStore(folderList[i]);
+        var index = store.index("by_filename");
+        
+        index.openCursor().onsuccess = function(event) {
+            var cursor = event.target.result;
+            if(cursor) {
+                var hold = cursor.value;
+                var memoryUsed = hold.content.length;
+                hold.filesize = memoryUsed;
+                var request = cursor.update(hold);
+                request.onsuccess = function() {
+                    totalMemoryUsed += memoryUsed;
+                    cursor.continue();
+                }
+                request.onerror = function(event){
+                    console.log("File: " + hold.filename + " could not be updated.");
+                    console.log(event.target.errorCode);
+                    cursor.continue();
+                }
             }
         }
     }
