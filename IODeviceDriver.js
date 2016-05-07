@@ -49,7 +49,7 @@ function openDb() {
         storeUserDirectory.createIndex("by_filesize", "filesize");
         
         //Create results directory
-        var storeResult = event.currentTarget.result.createObjectStore("results", {autoIncrement: true});
+        var storeResult = event.currentTarget.result.createObjectStore("Results", {autoIncrement: true});
         storeResult.createIndex("by_filepath", "filepath");
         storeResult.createIndex("by_filename", "filename", {unique: true});
         storeResult.createIndex("by_content", "content");
@@ -130,8 +130,8 @@ function updateMemoryUsage(){
     
     // Results folder
     console.log("Updating memory");
-    var transactResult = db.transaction(["results"], "readwrite");
-    var storeResult = transactResult.objectStore("results");
+    var transactResult = db.transaction(["Results"], "readwrite");
+    var storeResult = transactResult.objectStore("Results");
     var indexResult = storeResult.index("by_filename");
     
     index.openCursor().onsuccess = function(event) {
@@ -180,8 +180,8 @@ function onMessage(event) {
     var store = transact.objectStore("userDirectory");
     var index = store.index("by_filename");
     
-    var transactResult = db.transaction(["results"], "readwrite");
-    var storeResult = transactResult.objectStore("results");
+    var transactResult = db.transaction(["Results"], "readwrite");
+    var storeResult = transactResult.objectStore("Results");
     var indexResult = storeResult.index("by_filename");
     
     switch (task.sysCall) {

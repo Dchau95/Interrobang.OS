@@ -336,7 +336,7 @@ function cdCMD(folder)
     }
     
     // If current folder is results, go back to userDirectory.
-    if (folder === ".." && folderLocation === "results") {
+    if (folder === ".." && folderLocation === "Results") {
         document.getElementById("filepath").innerHTML = "C:\\Interrobang\\" + currentUser + ">";
         prevLocation = folderLocation;
         folderLocation = "userDirectory";
@@ -371,11 +371,12 @@ function cdCMD(folder)
     
     // Find available directories
     index.openCursor().onsuccess = function(event) {
+        console.log(folder);
         var cursor = event.target.result;
         if(cursor) {
-            if (folder.toLowerCase() === cursor.value.filename.toLowerCase() && cursor.value.content === "Folder") {
+            if (folder === cursor.value.filename && cursor.value.content === "Folder") {
                 document.getElementById("filepath").innerHTML = 
-                    document.getElementById("filepath").innerHTML.slice(0,-4) + "\\" + folder + ">";
+                    document.getElementById("filepath").innerHTML.slice(0,-4) + "\\" + cursor.value.filename + ">";
                 
                 // If currently in root, move to user directory
                 if (folderLocation === "root") {
@@ -386,7 +387,7 @@ function cdCMD(folder)
                 
                 // Else, move to selected folder directory
                 prevLocation = folderLocation;
-                folderLocation = folder.toLowerCase().toString();
+                folderLocation = cursor.value.filename;
                 return;
             }
             cursor.continue();
@@ -800,8 +801,8 @@ function ps()
 
 function script(fileName){
     setTimeout(function() {
-        var transact = db.transaction(["results"]);
-        var store = transact.objectStore("results");
+        var transact = db.transaction(["Results"]);
+        var store = transact.objectStore("Results");
         var index = store.index("by_filename");
         var request = index.get(fileName);
         request.onsuccess = function(event) {
