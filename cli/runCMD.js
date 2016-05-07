@@ -883,25 +883,17 @@ Display the process and the state of each running process
 */
 function ps()
 {
-    var requestOpen = indexedDB.open("hashDirectory");
-    requestOpen.onsuccess = function (event) {
-        var db = this.result;
-        db.onversionchange = function (event) {
-            console.log("Closing databse for version change");
-            db.close();
-        }
-        var errorCode = 0;
-        var result = "";
-        try {
-            for(var i = 0; i<statesQueue.length; i++)
-                result += "Process "+statesQueue[i].processName + " is currently "
-                        + statesQueue[i].process+"\n" ;
-            result += "Process ps is currently Running";
-            commandOutput(result);
-        }
-        catch(err) {
-            errorCode = -1;
-        }
+    var errorCode = 0;
+    var result = "";
+    try {
+        for(var i = 0; i<statesQueue.length; i++)
+            result += "Process "+statesQueue[i].processName + " is currently "
+                    + statesQueue[i].process+"\n" ;
+        result += "Process ps is currently Running";
+        commandOutput(result);
+    }
+    catch(err) {
+        errorCode = -1;
     }
     return result;
 }
