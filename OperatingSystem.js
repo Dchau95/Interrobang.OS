@@ -589,6 +589,10 @@ function remakeGroupTxt2(text){
 }
 
 function checkPriv(currentUser, pname){
+    if(pname === null || pname === undefined) {
+        commandOutput("You did not specify a process\n");
+        return;
+    }
     var requestOpen = indexedDB.open("hashDirectory");
     requestOpen.onsuccess = function (event) {
         var db = this.result;

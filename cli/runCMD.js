@@ -30,7 +30,7 @@ function runCMD(userInput)
             passChange(arrArguments[0], arrArguments[1]);
             break;
         case "checkpriv":
-            checkPriv(currentUser, "bankp");
+            checkPriv(currentUser, arrArguments[0]);
             break;
         case "su":
             switchUser(arrArguments[0]);
