@@ -532,71 +532,103 @@ function runRemoveUserGroup(usr, group) {
 }
 
 function remakeGroupTxt(){
-    var transact = db.transaction(["users"]);
-    var store = transact.objectStore("users");
-    var index = store.index("by_username");
-    var groupstext = "";
-    
-    index.openCursor().onsuccess = function(event){
-        var cursor = event.target.result;
-        if(cursor){
-            var hold = cursor.value;
-            groupstext += hold.username + ": " + hold.groups + ", ";
-            console.log(groupstext);
-            cursor.continue();
-            remakeGroupTxt2(groupstext);
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
         }
-        
+        var transact = db.transaction(["users"]);
+        var store = transact.objectStore("users");
+        var index = store.index("by_username");
+        var groupstext = "";
+
+        index.openCursor().onsuccess = function(event){
+            var cursor = event.target.result;
+            if(cursor){
+                var hold = cursor.value;
+                groupstext += hold.username + ": " + hold.groups + ", ";
+                console.log(groupstext);
+                cursor.continue();
+                remakeGroupTxt2(groupstext);
+            }
+
+        }
     }
 }
 
 function remakeGroupTxt2(text){
-    var transact = db.transaction(["root"], "readwrite");
-    var store = transact.objectStore("root");
-    var index = store.index("by_filename");
-    
-    index.openCursor().onsuccess = function(event){
-        var cursor = event.target.result;
-        if(cursor){
-            if (cursor.value.filename === "group.txt"){
-                var hold = cursor.value;
-                hold.content = text;
-                var request = cursor.update(hold);
-                request.onsucces = function(){
-                    console.log("groups.txt remade");
-                    updateMemoryUsage();
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        var transact = db.transaction(["root"], "readwrite");
+        var store = transact.objectStore("root");
+        var index = store.index("by_filename");
+
+        index.openCursor().onsuccess = function(event){
+            var cursor = event.target.result;
+            if(cursor){
+                if (cursor.value.filename === "group.txt"){
+                    var hold = cursor.value;
+                    hold.content = text;
+                    var request = cursor.update(hold);
+                    request.onsucces = function(){
+                        console.log("groups.txt remade");
+                        updateMemoryUsage();
+                    }
                 }
+                cursor.continue();
             }
-            cursor.continue();
         }
     }
 }
 
 function checkPriv(currentUser, pname){
-    var transact = db.transaction(["users"]);
-    var store = transact.objectStore("users");
-    var index = store.index("by_username");
-    var request = index.get(currentUser);
-    request.onsuccess = function(event){
-        var hold = request.result.groups;
-        var holdsplit = hold.split(',');
-        for (var i = 0; i < holdsplit.length; i++){
-            if(holdsplit[i] !== ""){
-                checkPriv2(holdsplit[i], pname);
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        var transact = db.transaction(["users"]);
+        var store = transact.objectStore("users");
+        var index = store.index("by_username");
+        var request = index.get(currentUser);
+        request.onsuccess = function(event){
+            var hold = request.result.groups;
+            var holdsplit = hold.split(',');
+            for (var i = 0; i < holdsplit.length; i++){
+                if(holdsplit[i] !== ""){
+                    checkPriv2(holdsplit[i], pname);
+                }
             }
         }
     }
 }
 
 function checkPriv2(groupNum, pname){
-    var transact = db.transaction(["groups"]);
-    var store = transact.objectStore("groups");
-    var index = store.index("by_Group");
-    var request = index.get(groupNum);
-    request.onsuccess = function(event){
-        var hold = request.result.get(pname);
-        hold.onsucces = function(event){
-            console.log(hold.result);
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        var transact = db.transaction(["groups"]);
+        var store = transact.objectStore("groups");
+        var index = store.index("by_Group");
+        var request = index.get(groupNum);
+        request.onsuccess = function(event){
+            var hold = request.result.get(pname);
+            hold.onsucces = function(event){
+                console.log(hold.result);
+            }
         }
     }
 }
