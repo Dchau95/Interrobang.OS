@@ -135,267 +135,307 @@ function displayMemory() {
 
 function addUser(newUser)
 {
-    if (currentUser !== "SuperUser") {
-        commandOutput("You do not have priviledge to add a user.\n");
-        return;
-    }
-    
-    var parsedUser = newUser.split(":");
-    
-    // Open database for transaction.
-    var transact = db.transaction(["root"], "readwrite");
-    var store = transact.objectStore("root");
-    var index = store.index("by_filename");
-    var request = index.get(parsedUser[0]);
-    request.onsuccess = function(e) {
-        // User already exist.
-        if (request.result) {
-            commandOutput("'"+parsedUser[0]+"'" + " already exists as a user.\n");
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
         }
-        // Create User.
-        else { 
-            store.put({filepath: "", filename: parsedUser[0], content: "Folder", filesize: 0});
-            var transact2 = db.transaction(["users"], "readwrite");
-            var store2 = transact2.objectStore("users");
-            store2.put({username: parsedUser[0], password: parsedUser[1], groups: ""});
-            index.openCursor().onsuccess = function(event) {
-                var cursor = event.target.result;
-                if (cursor) {
-                    if (cursor.value.filename === "user.txt"){
-                        var hold = cursor.value;
-                        hold.content += newUser + ",";
-                        var request = cursor.update(hold);
-                            request.onsuccess = function() {
-                                commandOutput("User '" + parsedUser[0] + "' has been created\n");
-                                console.log("Updated");
-                                updateMemoryUsage();
-                            }
-                    }
-                    cursor.continue();
-                }
+        if (currentUser !== "SuperUser") {
+            commandOutput("You do not have priviledge to add a user.\n");
+            return;
+        }
+
+        var parsedUser = newUser.split(":");
+
+        // Open database for transaction.
+        var transact = db.transaction(["root"], "readwrite");
+        var store = transact.objectStore("root");
+        var index = store.index("by_filename");
+        var request = index.get(parsedUser[0]);
+        request.onsuccess = function(e) {
+            // User already exist.
+            if (request.result) {
+                commandOutput("'"+parsedUser[0]+"'" + " already exists as a user.\n");
             }
-            
+            // Create User.
+            else { 
+                store.put({filepath: "", filename: parsedUser[0], content: "Folder", filesize: 0});
+                var transact2 = db.transaction(["users"], "readwrite");
+                var store2 = transact2.objectStore("users");
+                store2.put({username: parsedUser[0], password: parsedUser[1], groups: ""});
+                index.openCursor().onsuccess = function(event) {
+                    var cursor = event.target.result;
+                    if (cursor) {
+                        if (cursor.value.filename === "user.txt"){
+                            var hold = cursor.value;
+                            hold.content += newUser + ",";
+                            var request = cursor.update(hold);
+                                request.onsuccess = function() {
+                                    commandOutput("User '" + parsedUser[0] + "' has been created\n");
+                                    console.log("Updated");
+                                    updateMemoryUsage();
+                                }
+                        }
+                        cursor.continue();
+                    }
+                }
+
+            }
         }
     }
 }
 
 function delUser(removedUser)
 {
-    if (removedUser === "SuperUser:superuser") {
-        commandOutput("You cannot remove the SuperUser.\n");
-        return;
-    }
-    
-    if (removedUser === currentUser) {
-        commandOutput("You cannot remove yourself.\n");
-        return;
-    }
-    
-    if (currentUser !== "SuperUser") {
-        commandOutput("You do not have priviledge to remove a user.\n");
-        return;
-    }
-    
-    var parsedUser = removedUser.split(":");
-    
-    // Open database for transaction.
-    var transact = db.transaction(["root"], "readwrite");
-    var store = transact.objectStore("root");
-    var index = store.index("by_filename");
-    var request = index.getKey(parsedUser[0]);
-    
-    request.onsuccess = function(e) {
-        // Found user, deleting... 
-        if (request.result) {
-            store.delete(request.result);
-            index.openCursor().onsuccess = function(event) {
-            var cursor = event.target.result;
-                if (cursor) {
-                    if (cursor.value.filename === "user.txt") {
-                        var hold = cursor.value;
-                        parsedUserList = hold.content.split(",")
-                        for (var i = 0; i < parsedUserList.length; i++) {
-                            if (parsedUserList[i] === removedUser) {
-                                parsedUserList.splice(i,1);
-                                hold.content = parsedUserList.join(",");
-                                break;
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        if (removedUser === "SuperUser:superuser") {
+            commandOutput("You cannot remove the SuperUser.\n");
+            return;
+        }
+
+        if (removedUser === currentUser) {
+            commandOutput("You cannot remove yourself.\n");
+            return;
+        }
+
+        if (currentUser !== "SuperUser") {
+            commandOutput("You do not have priviledge to remove a user.\n");
+            return;
+        }
+
+        var parsedUser = removedUser.split(":");
+
+        // Open database for transaction.
+        var transact = db.transaction(["root"], "readwrite");
+        var store = transact.objectStore("root");
+        var index = store.index("by_filename");
+        var request = index.getKey(parsedUser[0]);
+
+        request.onsuccess = function(e) {
+            // Found user, deleting... 
+            if (request.result) {
+                store.delete(request.result);
+                index.openCursor().onsuccess = function(event) {
+                var cursor = event.target.result;
+                    if (cursor) {
+                        if (cursor.value.filename === "user.txt") {
+                            var hold = cursor.value;
+                            parsedUserList = hold.content.split(",")
+                            for (var i = 0; i < parsedUserList.length; i++) {
+                                if (parsedUserList[i] === removedUser) {
+                                    parsedUserList.splice(i,1);
+                                    hold.content = parsedUserList.join(",");
+                                    break;
+                                }
                             }
+                            var request = cursor.update(hold);
+                                request.onsuccess = function() {
+                                    commandOutput("'"+parsedUser[0]+"'" + " has been removed as a user.")
+                                    console.log("Updated");
+                                    updateMemoryUsage();
+                                }
                         }
-                        var request = cursor.update(hold);
-                            request.onsuccess = function() {
-                                commandOutput("'"+parsedUser[0]+"'" + " has been removed as a user.")
-                                console.log("Updated");
-                                updateMemoryUsage();
-                            }
+                        cursor.continue();
                     }
-                    cursor.continue();
                 }
             }
-        }
-        // No user found.
-        else { 
-            commandOutput("'"+parsedUser[0]+"'" + " is not a user.")
+            // No user found.
+            else { 
+                commandOutput("'"+parsedUser[0]+"'" + " is not a user.")
+            }
         }
     }
 }
 
 function passChange(currentCredentials, newPassword)
 {
-    var parsedUser = currentCredentials.split(":");
-    var flag = 0;
-    
-    // Open database for transaction.
-    var transact = db.transaction(["root"], "readwrite");
-    var store = transact.objectStore("root");
-    var index = store.index("by_filename");
-    
-    index.openCursor().onsuccess = function(event) {
-    var cursor = event.target.result;
-        if (cursor) {
-            if (cursor.value.filename === "user.txt") {
-                var hold = cursor.value;
-                parsedUserList = hold.content.split(",");
-                // Loop through list of users.
-                for (var i = 0; i < parsedUserList.length; i++) {
-                    if (parsedUserList[i] === currentCredentials) {
-                        parsedUserList.splice(i,1);
-                        hold.content = parsedUserList.join(",");
-                        hold.content += parsedUser[0] + ":" + newPassword+ ",";
-                        flag = 1;
-                        commandOutput("Password successfully updated for " + "'"+parsedUser[0]+"'" )
-                        break;
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        var parsedUser = currentCredentials.split(":");
+        var flag = 0;
+
+        // Open database for transaction.
+        var transact = db.transaction(["root"], "readwrite");
+        var store = transact.objectStore("root");
+        var index = store.index("by_filename");
+
+        index.openCursor().onsuccess = function(event) {
+        var cursor = event.target.result;
+            if (cursor) {
+                if (cursor.value.filename === "user.txt") {
+                    var hold = cursor.value;
+                    parsedUserList = hold.content.split(",");
+                    // Loop through list of users.
+                    for (var i = 0; i < parsedUserList.length; i++) {
+                        if (parsedUserList[i] === currentCredentials) {
+                            parsedUserList.splice(i,1);
+                            hold.content = parsedUserList.join(",");
+                            hold.content += parsedUser[0] + ":" + newPassword+ ",";
+                            flag = 1;
+                            commandOutput("Password successfully updated for " + "'"+parsedUser[0]+"'" )
+                            break;
+                        }
                     }
+                    // message not found
+                    if (!flag)
+                        commandOutput("Your credentials are not correct.\n")
+                    var request = cursor.update(hold);
+                        request.onsuccess = function() {
+                            console.log("Updated");
+                            updateMemoryUsage();
+                        }
                 }
-                // message not found
-                if (!flag)
-                    commandOutput("Your credentials are not correct.\n")
-                var request = cursor.update(hold);
-                    request.onsuccess = function() {
-                        console.log("Updated");
-                        updateMemoryUsage();
-                    }
+                cursor.continue();
             }
-            cursor.continue();
         }
     }
 }
 
 function switchUser(credentials)
 {
-    var parsedUser = credentials.split(":");
-    var flag = 0;
-    
-    // Open database for transaction.
-    var transact = db.transaction(["root"], "readwrite");
-    var store = transact.objectStore("root");
-    var index = store.index("by_filename");
-    
-    index.openCursor().onsuccess = function(event) {
-    var cursor = event.target.result;
-        if (cursor) {
-            if (cursor.value.filename === "user.txt") {
-                var hold = cursor.value;
-                parsedUserList = hold.content.split(",");
-                
-                for (var i = 0; i < parsedUserList.length; i++) {
-                    if (parsedUserList[i] === credentials) {
-                        currentUser = parsedUser[0];
-                        flag = 1;
-                        document.getElementById("filepath").innerHTML = "C:\\Interrobang\\" + currentUser + ">";
-                        folderLocation = "userDirectory";
-                        break;
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        var parsedUser = credentials.split(":");
+        var flag = 0;
+
+        // Open database for transaction.
+        var transact = db.transaction(["root"], "readwrite");
+        var store = transact.objectStore("root");
+        var index = store.index("by_filename");
+
+        index.openCursor().onsuccess = function(event) {
+        var cursor = event.target.result;
+            if (cursor) {
+                if (cursor.value.filename === "user.txt") {
+                    var hold = cursor.value;
+                    parsedUserList = hold.content.split(",");
+
+                    for (var i = 0; i < parsedUserList.length; i++) {
+                        if (parsedUserList[i] === credentials) {
+                            currentUser = parsedUser[0];
+                            flag = 1;
+                            document.getElementById("filepath").innerHTML = "C:\\Interrobang\\" + currentUser + ">";
+                            folderLocation = "userDirectory";
+                            break;
+                        }
                     }
+                    // message not found
+                    if (!flag)
+                        commandOutput("Your credentials are not correct.\n")
+                    var request = cursor.update(hold);
+                        request.onsuccess = function() {
+                            console.log("Updated");
+                            updateMemoryUsage();
+                        }
                 }
-                // message not found
-                if (!flag)
-                    commandOutput("Your credentials are not correct.\n")
-                var request = cursor.update(hold);
-                    request.onsuccess = function() {
-                        console.log("Updated");
-                        updateMemoryUsage();
-                    }
+                cursor.continue();
             }
-            cursor.continue();
         }
     }
 }
 
 function cdCMD(folder)
 {
-    //Make sure it's a folder
-    //Make sure it goes back a folder
-    var transact = db.transaction([folderLocation]);
-    var store = transact.objectStore(folderLocation);
-    var index = store.index("by_filename");
-    
-    // If currently in userDirectory, move back to root (User List) if SuperUser.
-    if (folder === ".." && folderLocation === "userDirectory" && currentUser === "SuperUser") {
-        document.getElementById("filepath").innerHTML = "C:\\Interrobang>";
-        folderLocation = "root";
-        return;
-    }
-    
-    // If current folder is results, go back to userDirectory.
-    if (folder === ".." && folderLocation === "Results") {
-        document.getElementById("filepath").innerHTML = "C:\\Interrobang\\" + currentUser + ">";
-        prevLocation = folderLocation;
-        folderLocation = "userDirectory";
-        return;
-    }
-    
-    // General case, Go back a directory.
-    if (folder === "..") {
-        transact = db.transaction([prevLocation]);
-        store = transact.objectStore(prevLocation);
-        index = store.index("by_filename");
-        var request = index.get(folderLocation)
-        request.onsuccess = function (event) {
-            document.getElementById("filepath").innerHTML = request.result.filepath;
-            parsePathLocation = request.result.filepath.split("\\");
-            if (parsePathLocation[parsePathLocation.length-1].slice(0,-4) === currentUser) {
-                folderLocation = "userDirectory";
-            }
-            else {
-                if (parsePathLocation[parsePathLocation.length-2] == currentUser) {
-                    prevLocation = "userDirectory";
-                }
-                else {
-                    prevLocation = parsePathLocation[parsePathLocation.length-2];
-                }
-                folderLocation = parsePathLocation[parsePathLocation.length-1].slice(0,-4);
-            }
-            
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
         }
-        return;
-    }
-    
-    // Find available directories
-    index.openCursor().onsuccess = function(event) {
-        console.log(folder);
-        var cursor = event.target.result;
-        if(cursor) {
-            if (folder.toLowerCase() === cursor.value.filename.toLowerCase() && cursor.value.content === "Folder") {
-                document.getElementById("filepath").innerHTML = 
-                    document.getElementById("filepath").innerHTML.slice(0,-4) + "\\" + cursor.value.filename + ">";
-                
-                // If currently in root, move to user directory
-                if (folderLocation === "root") {
-                    prevLocation = folderLocation;
-                    folderLocation = "userDirectory"
-                    return;
-                }
-                
-                // Else, move to selected folder directory
-                prevLocation = folderLocation;
-                folderLocation = cursor.value.filename;
-                return;
-            }
-            cursor.continue();
-        } else {
-            commandOutput("The system cannot find the path specified or you do not have priviledge to view that path.\n")
+        //Make sure it's a folder
+        //Make sure it goes back a folder
+        var transact = db.transaction([folderLocation]);
+        var store = transact.objectStore(folderLocation);
+        var index = store.index("by_filename");
+
+        // If currently in userDirectory, move back to root (User List) if SuperUser.
+        if (folder === ".." && folderLocation === "userDirectory" && currentUser === "SuperUser") {
+            document.getElementById("filepath").innerHTML = "C:\\Interrobang>";
+            folderLocation = "root";
             return;
         }
-    }   
+
+        // If current folder is results, go back to userDirectory.
+        if (folder === ".." && folderLocation === "Results") {
+            document.getElementById("filepath").innerHTML = "C:\\Interrobang\\" + currentUser + ">";
+            prevLocation = folderLocation;
+            folderLocation = "userDirectory";
+            return;
+        }
+
+        // General case, Go back a directory.
+        if (folder === "..") {
+            transact = db.transaction([prevLocation]);
+            store = transact.objectStore(prevLocation);
+            index = store.index("by_filename");
+            var request = index.get(folderLocation)
+            request.onsuccess = function (event) {
+                document.getElementById("filepath").innerHTML = request.result.filepath;
+                parsePathLocation = request.result.filepath.split("\\");
+                if (parsePathLocation[parsePathLocation.length-1].slice(0,-4) === currentUser) {
+                    folderLocation = "userDirectory";
+                }
+                else {
+                    if (parsePathLocation[parsePathLocation.length-2] == currentUser) {
+                        prevLocation = "userDirectory";
+                    }
+                    else {
+                        prevLocation = parsePathLocation[parsePathLocation.length-2];
+                    }
+                    folderLocation = parsePathLocation[parsePathLocation.length-1].slice(0,-4);
+                }
+
+            }
+            return;
+        }
+
+        // Find available directories
+        index.openCursor().onsuccess = function(event) {
+            console.log(folder);
+            var cursor = event.target.result;
+            if(cursor) {
+                if (folder.toLowerCase() === cursor.value.filename.toLowerCase() && cursor.value.content === "Folder") {
+                    document.getElementById("filepath").innerHTML = 
+                        document.getElementById("filepath").innerHTML.slice(0,-4) + "\\" + cursor.value.filename + ">";
+
+                    // If currently in root, move to user directory
+                    if (folderLocation === "root") {
+                        prevLocation = folderLocation;
+                        folderLocation = "userDirectory"
+                        return;
+                    }
+
+                    // Else, move to selected folder directory
+                    prevLocation = folderLocation;
+                    folderLocation = cursor.value.filename;
+                    return;
+                }
+                cursor.continue();
+            } else {
+                commandOutput("The system cannot find the path specified or you do not have priviledge to view that path.\n")
+                return;
+            }
+        }   
+    }
 }
 
 function clearCMD()
@@ -412,41 +452,26 @@ function reset(){
 
 function lsCMD(directories)
 {
-    console.log(folderLocation);
-    console.log(directories);
-    var result = "";
-    try {
-        //List current directory
-        if(directories.length === 0 || directories[0] === "") {
-            var transact = db.transaction([folderLocation]);
-            var store = transact.objectStore(folderLocation);
-            var index = store.index("by_filename");
-            index.openCursor().onsuccess = function(event) {
-                var cursor = event.target.result;
-                if(cursor) {
-                    result = result.concat(cursor.value.filename + "\n");
-                    cursor.continue();
-                } else {
-                    console.log("All Entries Displayed.");
-                    commandOutput(result);
-                    return result;
-                }
-            }
-            index.openCursor().onerror = function(event) {
-                console.log("An error has occured.");
-                console.log(event.target.errorCode);
-            }
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
         }
-        //List one or more directories listed
-        else {
-            for(var i = 0; i < directories.length; i++) {
-                var transact = db.transaction([directories[i].toLowerCase()]);
-                var store = transact.objectStore(directories[i].toLowerCase());
+        console.log(folderLocation);
+        console.log(directories);
+        var result = "";
+        try {
+            //List current directory
+            if(directories.length === 0 || directories[0] === "") {
+                var transact = db.transaction([folderLocation]);
+                var store = transact.objectStore(folderLocation);
                 var index = store.index("by_filename");
                 index.openCursor().onsuccess = function(event) {
                     var cursor = event.target.result;
                     if(cursor) {
-                        result= result.concat(cursor.value.filename + "\n");
+                        result = result.concat(cursor.value.filename + "\n");
                         cursor.continue();
                     } else {
                         console.log("All Entries Displayed.");
@@ -459,58 +484,96 @@ function lsCMD(directories)
                     console.log(event.target.errorCode);
                 }
             }
+            //List one or more directories listed
+            else {
+                for(var i = 0; i < directories.length; i++) {
+                    var transact = db.transaction([directories[i].toLowerCase()]);
+                    var store = transact.objectStore(directories[i].toLowerCase());
+                    var index = store.index("by_filename");
+                    index.openCursor().onsuccess = function(event) {
+                        var cursor = event.target.result;
+                        if(cursor) {
+                            result= result.concat(cursor.value.filename + "\n");
+                            cursor.continue();
+                        } else {
+                            console.log("All Entries Displayed.");
+                            commandOutput(result);
+                            return result;
+                        }
+                    }
+                    index.openCursor().onerror = function(event) {
+                        console.log("An error has occured.");
+                        console.log(event.target.errorCode);
+                    }
+                }
+            }
+        } 
+        catch (error){
+            commandOutput("That directory does not exist.\n");
+            return;
         }
-    } 
-    catch (error){
-        commandOutput("That directory does not exist.\n");
-        return;
     }
 }
 
 function deleteCMD(fileName)
 {
-    var transact = db.transaction([folderLocation], "readwrite");
-    var store = transact.objectStore(folderLocation);
-    var index = store.index("by_filename");
-
-    index.openCursor().onsuccess = function(event){
-        var cursor = event.target.result;
-        if(cursor) {
-            if (cursor.value.filename === fileName){
-                var request = store.delete(cursor.primaryKey);
-                request.onsuccess = function(){
-                    console.log(request.result);
-                    console.log("File Deleted: " + fileName)
-                    commandOutput("File Removed")
-                }
-            }
-            cursor.continue();
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
         }
+        var transact = db.transaction([folderLocation], "readwrite");
+        var store = transact.objectStore(folderLocation);
+        var index = store.index("by_filename");
 
+        index.openCursor().onsuccess = function(event){
+            var cursor = event.target.result;
+            if(cursor) {
+                if (cursor.value.filename === fileName){
+                    var request = store.delete(cursor.primaryKey);
+                    request.onsuccess = function(){
+                        console.log(request.result);
+                        console.log("File Deleted: " + fileName)
+                        commandOutput("File Removed")
+                    }
+                }
+                cursor.continue();
+            }
+
+        }
     }
-
 }
 
 //Maybe todo CopyFilename be directories + filename
 function copyCMD(fileName, copyFileName)
 {
-    var errorCode = 0;
-    var transact = db.transaction([folderLocation], "readwrite");
-    var store = transact.objectStore(folderLocation);
-    var index = store.index("by_filename");
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        var errorCode = 0;
+        var transact = db.transaction([folderLocation], "readwrite");
+        var store = transact.objectStore(folderLocation);
+        var index = store.index("by_filename");
 
-    var request = index.get(fileName);
-    request.onsuccess = function() {
-        console.log("Copying File: " + fileName + " to: copyFileName: " + copyFileName);
-        var hold = request.result.content;
-        
-        os.create(copyFileName, "write", 10);
-        os.write(copyFileName, 1, hold, "result");
+        var request = index.get(fileName);
+        request.onsuccess = function() {
+            console.log("Copying File: " + fileName + " to: copyFileName: " + copyFileName);
+            var hold = request.result.content;
+
+            os.create(copyFileName, "write", 10);
+            os.write(copyFileName, 1, hold, "result");
+        }
+        request.onerror = function(event){
+            console.log("An error has occured.");
+        }
+        return errorCode;
     }
-    request.onerror = function(event){
-        console.log("An error has occured.");
-    }
-    return errorCode;
 }
 
 var index = 0;
@@ -526,54 +589,66 @@ function runConsume(argument){
 }
 
 function mkdirCMD(folder) {
-    var requestVersion = indexedDB.open("hashDirectory");
-    var fileExist = 0;
-    requestVersion.onsuccess = function (event) {
-        var currentVersion = parseInt(this.result.version);
-        var requestUpdate = indexedDB.open("hashDirectory", currentVersion + 1);
-        
-        this.result.onversionchange = function (event) {
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
             console.log("Closing databse for version change");
-            requestVersion.result.close();
+            db.close();
         }
-        
-        requestUpdate.onsuccess = function(event) {
-            if (!fileExist) {
-                db = this.result;
-                var transact = db.transaction([folderLocation], "readwrite");
-                var store2 = transact.objectStore(folderLocation);
-                store2.put({filepath: document.getElementById("filepath").innerHTML, filename: folder, content: "Folder", filesize: 0});
-                console.log("Successful!");
-            }
-            
-            db.onversionchange = function (event) {
+        var requestVersion = indexedDB.open("hashDirectory");
+        var fileExist = 0;
+        requestVersion.onsuccess = function (event) {
+            var currentVersion = parseInt(this.result.version);
+            var requestUpdate = indexedDB.open("hashDirectory", currentVersion + 1);
+
+            this.result.onversionchange = function (event) {
                 console.log("Closing databse for version change");
-                db.close();
+                requestVersion.result.close();
             }
-        }
-        
-        requestUpdate.onupgradeneeded = function (event) {
-            try {
-                db = this.result;
-                console.log("I GOT HERE");
-                var store = db.createObjectStore(folder, {autoIncrement: true});
-                store.createIndex("by_filepath", "filepath");
-                store.createIndex("by_filename", "filename", {unique: true});
-                store.createIndex("by_content", "content");
-                store.createIndex("by_filesize", "filesize");
-                //Need this to pass to IODevice
-                //From there, add folderAdd.folder to the folderList variable in IODevice
-                //Then when you do memstats, it'll loop through folderList to add up
-                //the memory
-                var folderAdd = {
-                    sysCall: "Make Directory",
-                    folder: folder
+
+            requestUpdate.onblocked = function (event) {
+                console.log("BLOCKED");
+            }
+
+            requestUpdate.onsuccess = function(event) {
+                if (!fileExist) {
+                    db = this.result;
+                    var transact = db.transaction([folderLocation], "readwrite");
+                    var store2 = transact.objectStore(folderLocation);
+                    store2.put({filepath: document.getElementById("filepath").innerHTML, filename: folder, content: "Folder", filesize: 0});
+                    console.log("Successful!");
+                }
+
+                db.onversionchange = function (event) {
+                    console.log("Closing databse for version change");
+                    db.close();
                 }
             }
-            catch(error) {
-                commandOutput("That folder already exist.");
-                fileExist = 1;
-                return;
+
+            requestUpdate.onupgradeneeded = function (event) {
+                try {
+                    db = this.result;
+                    console.log("I GOT HERE");
+                    var store = db.createObjectStore(folder, {autoIncrement: true});
+                    store.createIndex("by_filepath", "filepath");
+                    store.createIndex("by_filename", "filename", {unique: true});
+                    store.createIndex("by_content", "content");
+                    store.createIndex("by_filesize", "filesize");
+                    //Need this to pass to IODevice
+                    //From there, add folderAdd.folder to the folderList variable in IODevice
+                    //Then when you do memstats, it'll loop through folderList to add up
+                    //the memory
+                    var folderAdd = {
+                        sysCall: "Make Directory",
+                        folder: folder
+                    }
+                }
+                catch(error) {
+                    commandOutput("That folder already exist.");
+                    fileExist = 1;
+                    return;
+                }
             }
         }
     }
@@ -639,36 +714,44 @@ file elements matching hastable(array of files)
 */
 function cat(arrFiles, rec)
 {
-    var transact = db.transaction([folderLocation]);
-    var store = transact.objectStore(folderLocation);
-    var index = store.index("by_filename");
-    var i = rec;
-    var errorCode = 0;
-    var request = index.get(arrFiles[i]);
-    request.onsuccess = function(){
-        if(request.result === undefined){
-            console.log("File Not Found");
-            commandOutput("File not found.\n");
-        } else {
-        console.log("Reading File: " + arrFiles[i] + " Contents: " + request.result.content);
-        if (request.result.content !== "Folder")
-            commandOutput(request.result.content + "\n");
-        else
-            commandOutput(arrFiles[i] +": Is a directory " + "\n");
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
         }
-        i++;
-        if(i < arrFiles.length){
-            cat(arrFiles, i);
+        var transact = db.transaction([folderLocation]);
+        var store = transact.objectStore(folderLocation);
+        var index = store.index("by_filename");
+        var i = rec;
+        var errorCode = 0;
+        var request = index.get(arrFiles[i]);
+        request.onsuccess = function(){
+            if(request.result === undefined){
+                console.log("File Not Found");
+                commandOutput("File not found.\n");
+            } else {
+            console.log("Reading File: " + arrFiles[i] + " Contents: " + request.result.content);
+            if (request.result.content !== "Folder")
+                commandOutput(request.result.content + "\n");
+            else
+                commandOutput(arrFiles[i] +": Is a directory " + "\n");
+            }
+            i++;
+            if(i < arrFiles.length){
+                cat(arrFiles, i);
+            }
         }
+        request.onerror = function(event) {
+            console.log("An error occured");
+            i++;
+            if(i < arrFiles.length){
+                cat(arrFiles, i);
+            }
+        }
+        return errorCode;
     }
-    request.onerror = function(event) {
-        console.log("An error occured");
-        i++;
-        if(i < arrFiles.length){
-            cat(arrFiles, i);
-        }
-    }
-    return errorCode;
 }
 
 /**
@@ -681,108 +764,116 @@ Display output one screen at a time
 var moreIncrement = 0;
 function more(fileName)
 {  
-    var transact = db.transaction([folderLocation], "readwrite");
-    var store = transact.objectStore(folderLocation);
-    var index = store.index("by_filename");
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        var transact = db.transaction([folderLocation], "readwrite");
+        var store = transact.objectStore(folderLocation);
+        var index = store.index("by_filename");
 
-    moreFlag = 1;
-    var request = index.get(fileName);
-    request.onsuccess = function(){
+        moreFlag = 1;
+        var request = index.get(fileName);
+        request.onsuccess = function(){
 
-        var splitFile = request.result.content.match(/.{1,129}/g);
-        document.getElementById("filepath").innerHTML = "--more (" + Math.round(100 * (moreIncrement / splitFile.length)) + "%)--";
-        var moreInput = contentin.innerText;
-        contentin.innerText = "";
-        inputbox.value = "";
-        //variable that represents how much to print per screen
-        var screenful = 5;
+            var splitFile = request.result.content.match(/.{1,129}/g);
+            document.getElementById("filepath").innerHTML = "--more (" + Math.round(100 * (moreIncrement / splitFile.length)) + "%)--";
+            var moreInput = contentin.innerText;
+            contentin.innerText = "";
+            inputbox.value = "";
+            //variable that represents how much to print per screen
+            var screenful = 5;
 
-        if(moreIncrement === 0)
-        {
-        //Show initial amount comparable to screen size
-            while((moreIncrement < screenful) && (moreIncrement < splitFile.length))
+            if(moreIncrement === 0)
             {
-                commandOutput(splitFile[moreIncrement]+"\n");
-                moreIncrement = moreIncrement + 1;
+            //Show initial amount comparable to screen size
+                while((moreIncrement < screenful) && (moreIncrement < splitFile.length))
+                {
+                    commandOutput(splitFile[moreIncrement]+"\n");
+                    moreIncrement = moreIncrement + 1;
+                }
             }
-        }
 
-        switch(moreInput)
-        {
-            //If input == space, Display next page/Next amount of text the browser can show/allowed to show
-            //z is the same, however, any argument will become the new default. Is not implemented
-            case "\u00A0": case "z":
-                var temp = moreIncrement;
-                while(moreIncrement < temp+screenful && moreIncrement < splitFile.length){
+            switch(moreInput)
+            {
+                //If input == space, Display next page/Next amount of text the browser can show/allowed to show
+                //z is the same, however, any argument will become the new default. Is not implemented
+                case "\u00A0": case "z":
+                    var temp = moreIncrement;
+                    while(moreIncrement < temp+screenful && moreIncrement < splitFile.length){
+                        commandOutput(splitFile[moreIncrement]+"\n");
+                        moreIncrement = moreIncrement + 1;
+                    }
+                    break;
+                //Display next line, wrapped around screen, how do capture enter
+                case "e":
                     commandOutput(splitFile[moreIncrement]+"\n");
                     moreIncrement = moreIncrement + 1;
-                }
-                break;
-            //Display next line, wrapped around screen, how do capture enter
-            case "e":
-                commandOutput(splitFile[moreIncrement]+"\n");
-                moreIncrement = moreIncrement + 1;
-                break;
-            //Skip forward k lines and then does SPACEBAR case, where k is defaulted to 1.
-            case "s":
-                moreIncrement = moreIncrement + 1;
-                var temp = moreIncrement;
-                commandOutput("... skipping 1 line\n");
-                while(moreIncrement < temp+screenful && moreIncrement < splitFile.length){
-                    commandOutput(splitFile[moreIncrement]+"\n");
+                    break;
+                //Skip forward k lines and then does SPACEBAR case, where k is defaulted to 1.
+                case "s":
                     moreIncrement = moreIncrement + 1;
-                }
-                break;
-            //display next file? Google says Skip forward k screenfuls of text. Defaults to 1.
-            // Made it do basically the same thing with "s", but with the screenful part.
-            case "f":
-                var arrCount = 1;
-                moreIncrement = moreIncrement + screenful;
-                var temp = moreIncrement;
-                commandOutput("... skipping 1 screenful of text\n");
-                while(moreIncrement < temp+screenful && moreIncrement < splitFile.length){
-                    commandOutput(splitFile[moreIncrement]+"\n");
-                    moreIncrement = moreIncrement + 1;
-                }
-                console.log("Display next file");
-                break;
-            //quit
-            case "q": case "Q":
-                moreInput = "q";
-                break;
-            //Shows current file name and current line number
-            case ":f":
-                commandOutput("Current file is: "+fileName+" Current line number is: "+moreIncrement+"\n");
-                break;
-            //show available commands
-            case "?": case "h":
-                commandOutput("-------------------------------------------------\n");
-                commandOutput("? or H - Shows Help page\n");
-                commandOutput("SPACEBAR or z - Display next page. With z, any argument becomes new default\n");
-                commandOutput("ENTER(e for now) - Display next line\n");
-                commandOutput("s - Skips k lines where k is defaulted to 1\n");
-                commandOutput("f - Display next file\n");
-                commandOutput("q or Q - quit more command\n");
-                commandOutput(":f - show current file and line number\n");
-                commandOutput("= - show current line number\n");
-                commandOutput("-------------------------------------------------\n");
-                break;
-            //show current line number
-            case "=":
-                commandOutput("THE CURRENT LINE NUMBER IS: "+moreIncrement+"\n");
-                break;
-        }// ENd "more" switch loop
-        if(moreInput === "q" || moreIncrement >= splitFile.length)
-        {
-            document.getElementById("filepath").innerHTML = "C:\\Interrobang>";
-            moreIncrement = 0;
-            moreFlag = 0;
-        }
-        else
-        {
-            setTimeout(function(){
-                more(fileName);
-            }, 10);
+                    var temp = moreIncrement;
+                    commandOutput("... skipping 1 line\n");
+                    while(moreIncrement < temp+screenful && moreIncrement < splitFile.length){
+                        commandOutput(splitFile[moreIncrement]+"\n");
+                        moreIncrement = moreIncrement + 1;
+                    }
+                    break;
+                //display next file? Google says Skip forward k screenfuls of text. Defaults to 1.
+                // Made it do basically the same thing with "s", but with the screenful part.
+                case "f":
+                    var arrCount = 1;
+                    moreIncrement = moreIncrement + screenful;
+                    var temp = moreIncrement;
+                    commandOutput("... skipping 1 screenful of text\n");
+                    while(moreIncrement < temp+screenful && moreIncrement < splitFile.length){
+                        commandOutput(splitFile[moreIncrement]+"\n");
+                        moreIncrement = moreIncrement + 1;
+                    }
+                    console.log("Display next file");
+                    break;
+                //quit
+                case "q": case "Q":
+                    moreInput = "q";
+                    break;
+                //Shows current file name and current line number
+                case ":f":
+                    commandOutput("Current file is: "+fileName+" Current line number is: "+moreIncrement+"\n");
+                    break;
+                //show available commands
+                case "?": case "h":
+                    commandOutput("-------------------------------------------------\n");
+                    commandOutput("? or H - Shows Help page\n");
+                    commandOutput("SPACEBAR or z - Display next page. With z, any argument becomes new default\n");
+                    commandOutput("ENTER(e for now) - Display next line\n");
+                    commandOutput("s - Skips k lines where k is defaulted to 1\n");
+                    commandOutput("f - Display next file\n");
+                    commandOutput("q or Q - quit more command\n");
+                    commandOutput(":f - show current file and line number\n");
+                    commandOutput("= - show current line number\n");
+                    commandOutput("-------------------------------------------------\n");
+                    break;
+                //show current line number
+                case "=":
+                    commandOutput("THE CURRENT LINE NUMBER IS: "+moreIncrement+"\n");
+                    break;
+            }// ENd "more" switch loop
+            if(moreInput === "q" || moreIncrement >= splitFile.length)
+            {
+                document.getElementById("filepath").innerHTML = "C:\\Interrobang>";
+                moreIncrement = 0;
+                moreFlag = 0;
+            }
+            else
+            {
+                setTimeout(function(){
+                    more(fileName);
+                }, 10);
+            }
         }
     }
 }//END more function
@@ -792,48 +883,64 @@ Display the process and the state of each running process
 */
 function ps()
 {
-    var errorCode = 0;
-    var result = "";
-    try {
-        for(var i = 0; i<statesQueue.length; i++)
-            result += "Process "+statesQueue[i].processName + " is currently "
-                    + statesQueue[i].process+"\n" ;
-        result += "Process ps is currently Running";
-        commandOutput(result);
-    }
-    catch(err) {
-        errorCode = -1;
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        var errorCode = 0;
+        var result = "";
+        try {
+            for(var i = 0; i<statesQueue.length; i++)
+                result += "Process "+statesQueue[i].processName + " is currently "
+                        + statesQueue[i].process+"\n" ;
+            result += "Process ps is currently Running";
+            commandOutput(result);
+        }
+        catch(err) {
+            errorCode = -1;
+        }
     }
     return result;
 }
 
 function script(fileName){
-    setTimeout(function() {
-        var transact = db.transaction(["Results"]);
-        var store = transact.objectStore("Results");
-        var index = store.index("by_filename");
-        var request = index.get(fileName);
-        request.onsuccess = function(event) {
-            try {
-                commands = request.result.content.split(",")
-                commandOutput("<>.Script Commands: " + commands +  ".<>\n");
-
-                // Checking for valid script file from directory.
-                if (commands[0].indexOf("run:") >= 0){
-                    for (var i = 0; i < commands.length; i++){
-                        command = commands[i].replace(/\s*run:\s*/, '');
-                        osCMD(command);
-                    }
-                }
-                else{
-                    commandOutput("This file contains invalid commands.\n")
-                }
-            } 
-            catch(err) {
-                script(fileName);
-            }
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
         }
-    },1250);
+        setTimeout(function() {
+            var transact = db.transaction(["Results"]);
+            var store = transact.objectStore("Results");
+            var index = store.index("by_filename");
+            var request = index.get(fileName);
+            request.onsuccess = function(event) {
+                try {
+                    commands = request.result.content.split(",")
+                    commandOutput("<>.Script Commands: " + commands +  ".<>\n");
+
+                    // Checking for valid script file from directory.
+                    if (commands[0].indexOf("run:") >= 0){
+                        for (var i = 0; i < commands.length; i++){
+                            command = commands[i].replace(/\s*run:\s*/, '');
+                            osCMD(command);
+                        }
+                    }
+                    else{
+                        commandOutput("This file contains invalid commands.\n")
+                    }
+                } 
+                catch(err) {
+                    script(fileName);
+                }
+            }
+        },1250);
+    }
 }
 
 /**

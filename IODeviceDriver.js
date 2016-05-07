@@ -1,4 +1,3 @@
-var db;
 var totalMemoryLimit = 100000000;
 var totalMemoryUsed = 0;
 
@@ -15,7 +14,7 @@ function openDb() {
     //If DB already exists with same version then set db to that indexedDB
     //Also calls test function
     request.onsuccess = function (event) {
-        db = this.result;
+        var db = this.result;
         db.onversionchange = function (event) {
             console.log("Closing databse for version change");
             db.close();
@@ -125,229 +124,247 @@ var arrOpenFiles = {
 function updateMemoryUsage(){
     console.log("Updating memory");
     totalMemoryUsed = 0;
+    var request = indexedDB.open("hashDirectory");
     
-    for(var i = 0; i < folderList.length; i++) {
-        console.log(folderList[i]);
-        var transact = db.transaction([folderList[i]], "readwrite");
-        var store = transact.objectStore(folderList[i]);
-        var index = store.index("by_filename");
-        
-        index.openCursor().onsuccess = function(event) {
-            var cursor = event.target.result;
-            if(cursor) {
-                var hold = cursor.value;
-                var memoryUsed = hold.content.length;
-                hold.filesize = memoryUsed;
-                var request = cursor.update(hold);
-                request.onsuccess = function() {
-                    totalMemoryUsed += memoryUsed;
-                    cursor.continue();
-                }
-                request.onerror = function(event){
-                    console.log("File: " + hold.filename + " could not be updated.");
-                    console.log(event.target.errorCode);
-                    cursor.continue();
+    request.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        for(var i = 0; i < folderList.length; i++) {
+            console.log(folderList[i]);
+            var transact = db.transaction([folderList[i]], "readwrite");
+            var store = transact.objectStore(folderList[i]);
+            var index = store.index("by_filename");
+
+            index.openCursor().onsuccess = function(event) {
+                var cursor = event.target.result;
+                if(cursor) {
+                    var hold = cursor.value;
+                    var memoryUsed = hold.content.length;
+                    hold.filesize = memoryUsed;
+                    var request = cursor.update(hold);
+                    request.onsuccess = function() {
+                        totalMemoryUsed += memoryUsed;
+                        cursor.continue();
+                    }
+                    request.onerror = function(event){
+                        console.log("File: " + hold.filename + " could not be updated.");
+                        console.log(event.target.errorCode);
+                        cursor.continue();
+                    }
                 }
             }
-        }
     }
+        
+    };
+    
 }
 
 //The function where the IODevice received its messages from the OS
 function onMessage(event) {
-    var task = event.data;
-    var transact = db.transaction(["userDirectory"], "readwrite");
-    var store = transact.objectStore("userDirectory");
-    var index = store.index("by_filename");
-    
-    var transactResult = db.transaction(["Results"], "readwrite");
-    var storeResult = transactResult.objectStore("Results");
-    var indexResult = storeResult.index("by_filename");
-    
-    switch (task.sysCall) {
-        case "Open File": {
-            console.log("Opening File");
-            
-            var request = index.get(task.fileName);
-            request.onsuccess = function(){
-                var hold = request.result.content;
-                arrOpenFiles[task.fileName] = {
-                    szMode: task.Mode,
-                    nPosition: 0,
-                    nLength: (hold.match(/.{1,100}/g)).length,
-                    contents: hold.match(/.{1,100}/g)
-                };
+    var requestDB = indexedDB.open("hashDirectory");
+    requestDB.onsuccess = function () {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change I/O");
+            db.close();
+        }
+        var task = event.data;
+        var transact = db.transaction(["userDirectory"], "readwrite");
+        var store = transact.objectStore("userDirectory");
+        var index = store.index("by_filename");
+        
+        var transactResult = db.transaction(["Results"], "readwrite");
+        var storeResult = transactResult.objectStore("Results");
+        var indexResult = storeResult.index("by_filename");
+        switch (task.sysCall) {
+            case "Open File": {
+                console.log("Opening File");
+
+                var request = index.get(task.fileName);
+                request.onsuccess = function(){
+                    var hold = request.result.content;
+                    arrOpenFiles[task.fileName] = {
+                        szMode: task.Mode,
+                        nPosition: 0,
+                        nLength: (hold.match(/.{1,100}/g)).length,
+                        contents: hold.match(/.{1,100}/g)
+                    };
+                    console.log(arrOpenFiles[task.fileName]);
+                    postMessage(task);
+                }
+            } break;
+            case "Close File": {
+                console.log("Closing File");
+                console.log(task.fileName);
+                console.log(arrOpenFiles[task.fileName]);
+                delete arrOpenFiles[task.fileName];
+                //arrOpenFiles.splice(task.filePointer-1, 1); 
+                postMessage(task);
+            } break;
+            case "Create File": {
+                console.log("Creating File");
+                var request = storeResult.put({filepath: "", filename: task.fileName, content: "", filesize: 0})
+                request.onsuccess = function(event) {
+                    arrOpenFiles[task.fileName] = {
+                        szMode: task.mode,
+                        nPosition: 0,
+                        nLength: 0,
+                        contents: []
+                    };
+                    console.log()
+                    postMessage(task);
+                }
+            } break;
+            case "Delete File": {
+                index.openCursor().onsuccess = function(event) {
+                    var cursor = event.target.result;
+                    if(cursor) {
+                        if (cursor.value.filename === task.fileName){
+                            var request = store.delete(cursor.primaryKey);
+                            request.onsuccess = function() {
+                                console.log("File Deleted: " + task.fileName);
+                                updateMemoryUsage();
+                            }
+                        }
+                        cursor.continue();
+                    }
+                }
+                postMessage(task);
+            } break;
+            case "Read File": {
+                console.log("Reading File");
+                console.log(task.filePointer);
+                console.log((arrOpenFiles[task.fileName].nPosition));
+                console.log(arrOpenFiles);
+                task.data = arrOpenFiles[task.fileName].contents[(arrOpenFiles[task.fileName].nPosition)];
+                task.position = arrOpenFiles[task.fileName].nPosition + 1;
+                arrOpenFiles[task.fileName].nPosition += 1;
+                console.log("This is the data being read " + task.data);
                 console.log(arrOpenFiles[task.fileName]);
                 postMessage(task);
-            }
-        } break;
-        case "Close File": {
-            console.log("Closing File");
-            console.log(task.fileName);
-            console.log(arrOpenFiles[task.fileName]);
-            delete arrOpenFiles[task.fileName];
-            //arrOpenFiles.splice(task.filePointer-1, 1); 
-            postMessage(task);
-        } break;
-        case "Create File": {
-            console.log("Creating File");
-            var request = storeResult.put({filepath: "", filename: task.fileName, content: "", filesize: 0})
-            request.onsuccess = function(event) {
-                arrOpenFiles[task.fileName] = {
-                    szMode: task.mode,
-                    nPosition: 0,
-                    nLength: 0,
-                    contents: []
-                };
-                console.log()
-                postMessage(task);
-            }
-        } break;
-        case "Delete File": {
-            index.openCursor().onsuccess = function(event) {
-                var cursor = event.target.result;
-                if(cursor) {
-                    if (cursor.value.filename === task.fileName){
-                        var request = store.delete(cursor.primaryKey);
-                        request.onsuccess = function() {
-                            console.log("File Deleted: " + task.fileName);
-                            updateMemoryUsage();
-                        }
-                    }
-                    cursor.continue();
-                }
-            }
-            postMessage(task);
-        } break;
-        case "Read File": {
-            console.log("Reading File");
-            console.log(task.filePointer);
-            console.log((arrOpenFiles[task.fileName].nPosition));
-            console.log(arrOpenFiles);
-            task.data = arrOpenFiles[task.fileName].contents[(arrOpenFiles[task.fileName].nPosition)];
-            task.position = arrOpenFiles[task.fileName].nPosition + 1;
-            arrOpenFiles[task.fileName].nPosition += 1;
-            console.log("This is the data being read " + task.data);
-            console.log(arrOpenFiles[task.fileName]);
-            postMessage(task);
-        } break;
-        case "Write File": {
-            console.log("Writing File");
-            console.log(task.data);
-            var testLimit = task.data.length;
-            if(testLimit+totalMemoryUsed >= totalMemoryLimit) {
-                var memoryError = {
-                    sysCall: "Memory failure"
-                };
-                postMessage(memoryError);
-            }
-            else {
-                if(task.location === "result") {
-                    indexResult.openCursor().onsuccess = function(event){
-                    var cursor = event.target.result;
-                        if (cursor) {
-                            if (cursor.value.filename === task.fileName){
-                                var hold = cursor.value;
-                                if (task.data === parseInt(task.data, 10)){
-                                    hold.content += ((task.data.toString()).match(/.{1,100}/g)).toString();
-                                    hold.filesize = (hold.content).length;
-                                     arrOpenFiles[task.fileName].contents[arrOpenFiles[task.fileName].nPosition] = ((task.data.toString()).match(/.{1,100}/g)).toString();
-
-                                    var request = cursor.update(hold);
-                                    request.onsuccess = function() {
-                                        console.log("File Updated: " + task.fileName);
-                                        updateMemoryUsage();
-                                    }
-                                } else {
-                                    hold.content += "\n"+((task.data).match(/.{1,100}/g)).toString();
-        //                            hold.content += task.data;
-        //                            hold.filesize = (hold.content).length;
-                                    arrOpenFiles[task.fileName].contents[arrOpenFiles[task.fileName].nPosition] = ((task.data).match(/.{1,100}/g)).toString();
-
-                                    var request = cursor.update(hold);
-                                    request.onsuccess = function() {
-                                        console.log("File Updated: " + task.fileName);
-                                        updateMemoryUsage();
-                                    }
-                                }
-                            }
-                            cursor.continue();
-                        }
-                    }
+            } break;
+            case "Write File": {
+                console.log("Writing File");
+                console.log(task.data);
+                var testLimit = task.data.length;
+                if(testLimit+totalMemoryUsed >= totalMemoryLimit) {
+                    var memoryError = {
+                        sysCall: "Memory failure"
+                    };
+                    postMessage(memoryError);
                 }
                 else {
-                    index.openCursor().onsuccess = function(event){
-                    var cursor = event.target.result;
-                        if (cursor) {
-                            if (cursor.value.filename === task.fileName){
-                                var hold = cursor.value;
-                                if (task.data === parseInt(task.data, 10)){
-                                    hold.content += ((task.data.toString()).match(/.{1,100}/g)).toString();
-                                    hold.filesize = (hold.content).length;
-                                     arrOpenFiles[task.fileName].contents[arrOpenFiles[task.fileName].nPosition] = ((task.data.toString()).match(/.{1,100}/g)).toString();
+                    if(task.location === "result") {
+                        indexResult.openCursor().onsuccess = function(event){
+                        var cursor = event.target.result;
+                            if (cursor) {
+                                if (cursor.value.filename === task.fileName){
+                                    var hold = cursor.value;
+                                    if (task.data === parseInt(task.data, 10)){
+                                        hold.content += ((task.data.toString()).match(/.{1,100}/g)).toString();
+                                        hold.filesize = (hold.content).length;
+                                         arrOpenFiles[task.fileName].contents[arrOpenFiles[task.fileName].nPosition] = ((task.data.toString()).match(/.{1,100}/g)).toString();
 
-                                    var request = cursor.update(hold);
-                                    request.onsuccess = function() {
-                                        console.log("File Updated: " + task.fileName);
-                                        updateMemoryUsage();
-                                    }
-                                } else {
-                                    hold.content += ((task.data).match(/.{1,100}/g)).toString();
-        //                            hold.content += task.data;
-        //                            hold.filesize = (hold.content).length;
-                                    arrOpenFiles[task.fileName].contents[arrOpenFiles[task.fileName].nPosition] = ((task.data).match(/.{1,100}/g)).toString();
+                                        var request = cursor.update(hold);
+                                        request.onsuccess = function() {
+                                            console.log("File Updated: " + task.fileName);
+                                            updateMemoryUsage();
+                                        }
+                                    } else {
+                                        hold.content += "\n"+((task.data).match(/.{1,100}/g)).toString();
+            //                            hold.content += task.data;
+            //                            hold.filesize = (hold.content).length;
+                                        arrOpenFiles[task.fileName].contents[arrOpenFiles[task.fileName].nPosition] = ((task.data).match(/.{1,100}/g)).toString();
 
-                                    var request = cursor.update(hold);
-                                    request.onsuccess = function() {
-                                        console.log("File Updated: " + task.fileName);
-                                        updateMemoryUsage();
+                                        var request = cursor.update(hold);
+                                        request.onsuccess = function() {
+                                            console.log("File Updated: " + task.fileName);
+                                            updateMemoryUsage();
+                                        }
                                     }
                                 }
+                                cursor.continue();
                             }
-                            cursor.continue();
                         }
                     }
+                    else {
+                        index.openCursor().onsuccess = function(event){
+                        var cursor = event.target.result;
+                            if (cursor) {
+                                if (cursor.value.filename === task.fileName){
+                                    var hold = cursor.value;
+                                    if (task.data === parseInt(task.data, 10)){
+                                        hold.content += ((task.data.toString()).match(/.{1,100}/g)).toString();
+                                        hold.filesize = (hold.content).length;
+                                         arrOpenFiles[task.fileName].contents[arrOpenFiles[task.fileName].nPosition] = ((task.data.toString()).match(/.{1,100}/g)).toString();
+
+                                        var request = cursor.update(hold);
+                                        request.onsuccess = function() {
+                                            console.log("File Updated: " + task.fileName);
+                                            updateMemoryUsage();
+                                        }
+                                    } else {
+                                        hold.content += ((task.data).match(/.{1,100}/g)).toString();
+            //                            hold.content += task.data;
+            //                            hold.filesize = (hold.content).length;
+                                        arrOpenFiles[task.fileName].contents[arrOpenFiles[task.fileName].nPosition] = ((task.data).match(/.{1,100}/g)).toString();
+
+                                        var request = cursor.update(hold);
+                                        request.onsuccess = function() {
+                                            console.log("File Updated: " + task.fileName);
+                                            updateMemoryUsage();
+                                        }
+                                    }
+                                }
+                                cursor.continue();
+                            }
+                        }
+                    }
+
+                    task.length = task.data.length;
+                    task.position = (arrOpenFiles[task.fileName].nPosition)+ 1;
+                    postMessage(task);
                 }
-                
-                task.length = task.data.length;
-                task.position = (arrOpenFiles[task.fileName].nPosition)+ 1;
-                postMessage(task);
+                } break;
+                case "Length of File": {
+                    var request = index.get(task.fileName);
+                    request.onsuccess = function(){
+                        var hold = request.result.content;
+                        task.length = hold.length;
+                        postMessage(task);
+                    }
+                } break;
+                case "Seek": {
+                    arrOpenFiles [task.filePointer].nPosition = task.position;
+                    postMessage(task);
+                } break;
+                case "Position of File": {
+                    //Call Position function
+                    postMessage(task);
+                } break;
+                case "End of File": {
+                    console.log(task.filePointer);
+                    if(arrOpenFiles[task.fileName].nPosition >= arrOpenFiles[task.fileName].nLength-1)
+                    {
+                        console.log("This is the end of the file, says the IO Device");
+                        console.log("This is the position" + arrOpenFiles[task.fileName].nPosition);
+                       task.checkEOF = true; 
+                    }
+                        postMessage(task);
+                } break;
+                case "Memory Stats":
+                    var response = {
+                        sysCall: "Memory Stats",
+                        memoryLimit: totalMemoryLimit,
+                        memoryUsed: totalMemoryUsed,
+                    }
+                    postMessage(response);
+                    break;
             }
-        } break;
-        case "Length of File": {
-            var request = index.get(task.fileName);
-            request.onsuccess = function(){
-                var hold = request.result.content;
-                task.length = hold.length;
-                postMessage(task);
-            }
-        } break;
-        case "Seek": {
-            arrOpenFiles [task.filePointer].nPosition = task.position;
-            postMessage(task);
-        } break;
-        case "Position of File": {
-            //Call Position function
-            postMessage(task);
-        } break;
-        case "End of File": {
-            console.log(task.filePointer);
-            if(arrOpenFiles[task.fileName].nPosition >= arrOpenFiles[task.fileName].nLength-1)
-            {
-                console.log("This is the end of the file, says the IO Device");
-                console.log("This is the position" + arrOpenFiles[task.fileName].nPosition);
-               task.checkEOF = true; 
-            }
-                postMessage(task);
-        } break;
-        case "Memory Stats":
-            var response = {
-                sysCall: "Memory Stats",
-                memoryLimit: totalMemoryLimit,
-                memoryUsed: totalMemoryUsed,
-            }
-            postMessage(response);
-            break;
+       
     }
 }
 
