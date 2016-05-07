@@ -374,7 +374,7 @@ function cdCMD(folder)
         console.log(folder);
         var cursor = event.target.result;
         if(cursor) {
-            if (folder === cursor.value.filename && cursor.value.content === "Folder") {
+            if (folder.toLowerCase() === cursor.value.filename.toLowerCase() && cursor.value.content === "Folder") {
                 document.getElementById("filepath").innerHTML = 
                     document.getElementById("filepath").innerHTML.slice(0,-4) + "\\" + cursor.value.filename + ">";
                 
