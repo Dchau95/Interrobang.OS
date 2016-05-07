@@ -60,7 +60,7 @@ function onMessageLogin(event) {
         passBox.parentNode.removeChild(passBox);
         button.parentNode.removeChild(button);
         window.onmousedown = function(){return false};
-        contentout.innerText = "Welcome! This is Interrobang.OS. It was created by David Chau, Hao Xian Zheng(Benson) Andrew Goff, Tony Tran and Hin Vong. We hope you have fun exploring our OS just as much as we had fun making it. Type Help and hit enter to see the commands!\n";
+        contentout.innerHTML = "Welcome! This is Interrobang.OS. <p>Created by David Chau, Hao Xian Zheng(Benson) Andrew Goff, Tony Tran and Hin Vong. We hope you have fun exploring our OS just as much as we had fun making it.</p> <p><b>Type Help and hit enter to see the commands!<b></p>\n";
         statesQueue.splice(1, 1);
         arrWorker[1].terminate();
         arrWorker.splice(1, 1);
