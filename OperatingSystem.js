@@ -650,7 +650,7 @@ function onPhilMessage(e) {
                 defaultStart -= 1;
             }
         }
-    }, 5000);
+    }, 500);
 }
 
 function onSleepMessage(e){
