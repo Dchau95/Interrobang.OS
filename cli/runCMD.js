@@ -702,6 +702,7 @@ function man()
     result += "usermod: Takes two arguments, user and group, and adds the user to a group.\n";
     result += "delusermod: Takes two arguments, user and group, and removes the user from a group.\n";
     result += "su: Switches user from one user to another, input is user:pass\n";
+    result += "checkpriv:checks what access rights the processes have, takes two arguments i.e. checkpriv bankp\n";
     commandOutput(result);
     return result;
 }
