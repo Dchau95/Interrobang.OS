@@ -89,7 +89,7 @@ function openDb() {
         
         //r = read, w = write, e = execute, 0 = ---, 1 = --e, 2 = -w-, 3 = -we, 4 = r--, 5 = r-e, 6 = rw-, 7 = rwe
         //group 1
-        groupStore.put({group: "1", clear: "7", ls: "7", man: "7", delete: "7", copy: "7", ps: "7", kill: "7", more: "7", cat: "7", script: "7", contactp: "7", bankp: "7", passwordp: "7", readp: "7", statsp: "7", vectorp: "7", scriptp: "7", charwatchp: "7", starterp: "7", sleepp: "7", philp: "7", resetp: "7", memstats: "7", cd: "7",})
+        groupStore.put({group: "1", clear: "7", ls: "7", man: "7", delete: "7", copy: "7", ps: "7", kill: "7", more: "7", cat: "7", script: "7", contactp: "1", bankp: "3", passwordp: "5", readp: "7", statsp: "4", vectorp: "3", scriptp: "7", charwatchp: "7", starterp: "7", sleepp: "7", philp: "7", resetp: "7", memstats: "7", cd: "7",})
         //group 2
         groupStore.put({group: "2", clear: "7", ls: "7", man: "7", delete: "7", copy: "7", ps: "7", kill: "7", more: "7", cat: "7", script: "7", contactp: "7", bankp: "7", passwordp: "7", readp: "7", statsp: "7", vectorp: "7", scriptp: "7", charwatchp: "7", starterp: "7", sleepp: "7", philp: "7", resetp: "7", memstats: "7", cd: "7",})
         
