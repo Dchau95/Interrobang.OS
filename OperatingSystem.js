@@ -632,7 +632,27 @@ function checkPriv2(groupNum, pname){
             //request.result returns a hash
             //Does not have onsuccess
             var hold = request.result[pname];
-            console.log(hold);
+               if (hold == 7){
+            console.log(hold+ " r/w/e by group ?");
+            } else if(hold == 4){
+                console.log(hold+ " r only");
+            }
+            else if (hold == 1){
+                console.log(hold+ " e only ");
+                
+            }
+            else if (hold==2){
+                console.log(hold + " w only");
+            }
+            else if (hold ==3){
+                console.log(hold + " w/e only");
+            }
+            else if (hold == 5){
+                console.log(hold + " r/e only")
+            }
+            else if ( hold == 6 ){
+                console.log(hold+ " r/w only")
+            }
 //            hold.onsucces = function(event){
 //                console.log(hold);
 //            }
