@@ -4,6 +4,9 @@
 *   Contains all the command line functions.
 */
 
+//Create code or make functions in IODeviceDriver and here to check if
+//read/write mode is on.
+
 // Hardcoded default folderLocation and currentUser
 var folderLocation = "userDirectory";
 var prevLocation = "root";
@@ -77,34 +80,35 @@ function runCMD(userInput)
             script(arrArguments[0])
             break;
         case "contactp":
-            runContact();
+            confirmExec("Contact.CSV", runContact);
             break;
         case "bankp":
-            runBank();
+            confirmExec("Bank.CSV", runBank);
             break;
         case "passwordp":
-            runPassword();
+            confirmExec("password.CSV", runPassword);
             break;
         case "readp":
-            runRead();
+            confirmExec("read.CSV", runRead);
             break;
         case "statsp":
-            runStats();
+            confirmExec("stats.CSV", runStats);
             break;
         case "vectorp":
-            runVector();
+            confirmExec("vector.CSV", runVector);
             break;
         case "scriptp":
-            runScript();
+            confirmExec("commands.CSV", runScript);
             break;
         case "charwatchp":
+            //Nothing
             runCharWatch();
             break;
         case "starterp":
-            runStarter();
+            confirmExec("maths.CSV", runStarter);
             break;
         case "sleepp":
-            runSleep();
+            confirmExec("sleep.CSV", runSleep);
             break;
         case "consumep":
             runConsumeProcess(arrArguments[0]);
@@ -141,6 +145,44 @@ function runCMD(userInput)
             break;
     }
 }
+
+function confirmExec(fileP, process) {
+    if(fileP === null || fileP === undefined) {
+        commandOutput("You did not specify a file\n");
+        return;
+    }
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        var transact = db.transaction([folderLocation]);
+        var store = transact.objectStore(folderLocation);
+        var index = store.index("by_filename");
+        index.openCursor().onsuccess = function(event) {
+            var cursor = event.target.result;
+            try{
+                if(cursor.key === fileP) {
+                    var permission = cursor.value.permission;
+                    if(permission == 1 || permission == 3 || permission == 5 || permission == 7) {
+                        process();
+                    }
+                    else {
+                        commandOutput("The process does not have permission to execute\n");
+                    }
+                }
+                else {
+                    cursor.continue();
+                }
+            }
+            catch(exception){
+                commandOutput("The file does not exist\n");
+            }
+        }
+    }
+} 
 
 function checkExec(fileP) {
     if(fileP === null || fileP === undefined) {
