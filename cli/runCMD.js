@@ -187,8 +187,37 @@ function checkExec(fileP) {
 }
 
 function checkExecUser(fileP) {
-    //Does the same thing as above
-    //except it lists all users associated with the file
+    if(fileP === null || fileP === undefined) {
+        commandOutput("You did not specify a file\n");
+        return;
+    }
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        var transact = db.transaction([folderLocation]);
+        var store = transact.objectStore(folderLocation);
+        var index = store.index("by_filename");
+        index.openCursor().onsuccess = function(event) {
+            var cursor = event.target.result;
+            try{
+                if(cursor.key === fileP) {
+                    commandOutput(cursor.value.owner+" is the owner of the file.\n");
+                    return cursor.value.owner;
+                }
+                else {
+                    cursor.continue();
+                }
+            }
+            catch(exception){
+                commandOutput("The file does not exist\n");
+                return false;
+            }
+        }
+    }
 }
 
 function chmodCMD(mode, fileP) {
@@ -234,7 +263,45 @@ function chmodCMD(mode, fileP) {
 }
 
 function chown(newOwner, fileP) {
-    
+    if(fileP === null || fileP === undefined || newOwner === null || newOwner === undefined) {
+        commandOutput("You did not specify a file and/or owner\n");
+        return;
+    }
+
+    //Check if user exists
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        var transact = db.transaction([folderLocation], "readwrite");
+        var store = transact.objectStore(folderLocation);
+        var index = store.index("by_filename");
+        index.openCursor().onsuccess = function(event) {
+            var cursor = event.target.result;
+            try{
+                if(cursor.key === fileP) {
+                    var hold = cursor.value;
+                    hold.owner = newOwner;
+                    console.log(hold);
+                    var request = cursor.update(hold);
+                    request.onsuccess = function() {
+                        console.log("success owner!");
+                        return 0;
+                    }
+                }
+                else {
+                    cursor.continue();
+                }
+            }
+            catch(exception){
+                commandOutput("The file does not exist\n");
+                return false;
+            }
+        }
+    }
 }
 
 function displayMemory() {
@@ -727,7 +794,7 @@ function mkdirCMD(folder) {
                     db = this.result;
                     var transact = db.transaction([folderLocation], "readwrite");
                     var store2 = transact.objectStore(folderLocation);
-                    store2.put({filepath: document.getElementById("filepath").innerHTML, filename: folder, content: "Folder", filesize: 0, permission: "0"});
+                    store2.put({filepath: document.getElementById("filepath").innerHTML, filename: folder, content: "Folder", filesize: 0, permission: "0", owner: "SuperUser"});
                     console.log("Successful!");
                 }
 
@@ -746,6 +813,8 @@ function mkdirCMD(folder) {
                     store.createIndex("by_filename", "filename", {unique: true});
                     store.createIndex("by_content", "content");
                     store.createIndex("by_filesize", "filesize");
+                    store.createIndex("by_permission", "permission");
+                    store.createIndex("by_owner", "owner");
                     //Need this to pass to IODevice
                     //From there, add folderAdd.folder to the folderList variable in IODevice
                     //Then when you do memstats, it'll loop through folderList to add up
@@ -906,7 +975,7 @@ function man(command) {
             commandOutput(result);
             break;
         default:
-            result = "What manual page do you want?";
+            result = "What manual page do you want?\n";
             commandOutput(result);
             return result;
             break;
