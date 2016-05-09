@@ -97,7 +97,7 @@ function openDb() {
         groupStore.put({group: "2", clear: "7", ls: "7", man: "7", delete: "7", copy: "7", ps: "7", kill: "7", more: "7", cat: "7", script: "7", contactp: "7", bankp: "7", passwordp: "7", readp: "7", statsp: "7", vectorp: "7", scriptp: "7", charwatchp: "7", starterp: "7", sleepp: "7", philp: "7", resetp: "7", memstats: "7", cd: "7",})
         
         store.put({filepath: "C:\\Interrobang\\" + currentUser + "&gt;", filename: "SuperUser", content: "Folder", filesize: 0, permission: "7"});
-        storeUserDirectory.put({filepath: "", filename: "Contact.CSV", content: "David: Secretary, Tony: Gangster, Jason: Dancer, Benson: Duke, Andrew: Gangster, Thomas: Traitor, Matt: Lame", filesize: 0});
+        storeUserDirectory.put({filepath: "", filename: "Contact.CSV", content: "David: Secretary, Tony: Gangster, Jason: Dancer, Benson: Duke, Andrew: Gangster, Thomas: Traitor, Matt: Lame", filesize: 0, permission: "7"});
         storeUserDirectory.put({filepath: "C:\\Interrobang\\" + currentUser + "\Results&gt;", filename: "Results", content: "Folder", filesize: 0, permission: "7"});
         storeUserDirectory.put({filepath: "", filename: "Bank.CSV", content: "100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000, 100, -50, 200, 300, -1000, 2000", filesize: 0, permission: "7"});
         storeUserDirectory.put({filepath: "", filename: "password.CSV", content: "popchiek:hi,gamrgod88:l337420,slides:mcgee,taeyona:taeyona,thommy:commie", filesize: 0, permission: "7"});
@@ -159,7 +159,7 @@ function updateMemoryUsage(){
                     }
                 }
             }
-    }
+        }
         
     };
     

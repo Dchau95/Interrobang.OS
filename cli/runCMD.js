@@ -138,11 +138,49 @@ function runCMD(userInput)
 }
 
 function checkExec(fileP) {
+    if(fileP === null || fileP === undefined) {
+        commandOutput("You did not specify a file\n");
+        return;
+    }
     //Open database/table in current directory
     //search through the table until you find fileP
     //Check for the following permissions: 1/3/5/7
     //Return true if the file/process has any of those permissions
     //else return false
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        var transact = db.transaction([folderLocation]);
+        var store = transact.objectStore(folderLocation);
+        var index = store.index("by_filename");
+        index.openCursor().onsuccess = function(event) {
+            var cursor = event.target.result;
+            try{
+                if(cursor.key === fileP) {
+                    var permission = cursor.value.permission;
+                    if(permission == 1 || permission == 3 || permission == 5 || permission == 7) {
+                        commandOutput("The "+fileP+" has permission to execute\n");
+                        return true;
+                    }
+                    else {
+                        commandOutput("The "+fileP+" does not have permission to execute\n");
+                        return false;
+                    }
+                }
+                else {
+                    cursor.continue();
+                }
+            }
+            catch(exception){
+                commandOutput("The file does not exist\n");
+                return false;
+            }
+        }
+    }
 }
 
 function checkExecUser(fileP) {
@@ -520,8 +558,8 @@ function lsCMD(directories)
             //List one or more directories listed
             else {
                 for(var i = 0; i < directories.length; i++) {
-                    var transact = db.transaction([directories[i].toLowerCase()]);
-                    var store = transact.objectStore(directories[i].toLowerCase());
+                    var transact = db.transaction([directories[i]]);
+                    var store = transact.objectStore(directories[i]);
                     var index = store.index("by_filename");
                     index.openCursor().onsuccess = function(event) {
                         var cursor = event.target.result;
