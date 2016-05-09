@@ -29,7 +29,7 @@ function runCMD(userInput)
         case "passwd": case "pswd":
             passChange(arrArguments[0], arrArguments[1]);
             break;
-        case "checkpriv":
+        case "checkexecgrp":
             checkPriv(currentUser, arrArguments[0]);
             break;
         case "su":
@@ -119,12 +119,45 @@ function runCMD(userInput)
         case "mkdir":
             mkdirCMD(arrArguments[0]);
             break;
+        case "checkexec":
+            checkExec(arrArguments[0]);
+            break;
+        case "checkexecuser":
+            checkExecUser(arrArguments[0]);
+            break;
+        case "chmod":
+            chmodCMD(arrArguments[0], arrArguments[1]);
+            break;
+        case "chown":
+            chown(arrArguments[0], arrArguments[1]);
+            break;
         default:
             commandOutput("'"+userInput+"'" + " is not a valid command.\n");
             break;
     }
 }
 
+function checkExec(fileP) {
+    //Open database/table in current directory
+    //search through the table until you find fileP
+    //Check for the following permissions: 1/3/5/7
+    //Return true if the file/process has any of those permissions
+    //else return false
+}
+
+function checkExecUser(fileP) {
+    //Does the same thing as above
+    //except it lists all users associated with the file
+}
+
+function chmodCMD(mode, fileP) {
+    //Does the same as checkExec
+    //Except instead of returning true or false, it alters the permission to the specified mode
+}
+
+function chown(newOwner, fileP) {
+    
+}
 
 function displayMemory() {
     var task = {
@@ -702,7 +735,11 @@ function man()
     result += "usermod: Takes two arguments, user and group, and adds the user to a group.\n";
     result += "delusermod: Takes two arguments, user and group, and removes the user from a group.\n";
     result += "su: Switches user from one user to another, input is user:pass\n";
-    result += "checkpriv:checks what access rights the processes have, takes two arguments i.e. checkpriv bankp\n";
+    result += "checkexecgrp:checks what access rights the processes have for a group, takes one argument\n";
+    result += "checkexec: Checks if the file/process can be executed, takes in one parameter, a file/process\n";
+    result += "checkexecuser: Checks who can execute the file/process, takes in one parameter, a file/process\n";
+    result += "chmod: Changes the permissions of files and directories, tales two parameters, the mode to change it to and the file/directory\n";
+    result += "chown: Change the owner of a file or directory, takes in two parameters, the new owner and the file/directory\n";
     commandOutput(result);
     return result;
 }

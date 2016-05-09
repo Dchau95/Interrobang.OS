@@ -632,30 +632,29 @@ function checkPriv2(groupNum, pname){
             //request.result returns a hash
             //Does not have onsuccess
             var hold = request.result[pname];
-               if (hold == 7){
-            console.log(hold+ " r/w/e by group ?");
+            if (hold == 7){
+                commandOutput("Group "+groupNum+" has read/write/execute permissions for "+pname);
             } else if(hold == 4){
-                console.log(hold+ " r only");
+                commandOutput("Group "+groupNum+" has read permissions for "+pname);
             }
             else if (hold == 1){
-                console.log(hold+ " e only ");
-                
+                commandOutput("Group "+groupNum+" has execute permissions for "+pname);
             }
             else if (hold==2){
-                console.log(hold + " w only");
+                commandOutput("Group "+groupNum+" has write permissions for "+pname);
             }
             else if (hold ==3){
-                console.log(hold + " w/e only");
+                commandOutput("Group "+groupNum+" has write/execute permissions for "+pname);
             }
             else if (hold == 5){
-                console.log(hold + " r/e only")
+                commandOutput("Group "+groupNum+" has read/execute permissions for "+pname);
             }
             else if ( hold == 6 ){
-                console.log(hold+ " r/w only")
+                commandOutput("Group "+groupNum+" has read/write permissions for "+pname);
             }
-//            hold.onsucces = function(event){
-//                console.log(hold);
-//            }
+            else {
+                commandOutput("Group "+groupNum+" has no permissions for "+pname);
+            }
         }
     }
 }
