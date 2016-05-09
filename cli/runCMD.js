@@ -18,6 +18,8 @@ function runCMD(userInput)
         arrArguments.push(command[i]);
     }
     
+    //Must do setTimeout before doing an if statement, 1000 milliseconds
+    //Have a global variable for if statement since I can't return shit
     switch(command[0].toLowerCase())
     {
         case "useradd": case "adduser":
@@ -167,11 +169,9 @@ function checkExec(fileP) {
                     var permission = cursor.value.permission;
                     if(permission == 1 || permission == 3 || permission == 5 || permission == 7) {
                         commandOutput("The "+fileP+" has permission to execute\n");
-                        return true;
                     }
                     else {
                         commandOutput("The "+fileP+" does not have permission to execute\n");
-                        return false;
                     }
                 }
                 else {
@@ -180,7 +180,6 @@ function checkExec(fileP) {
             }
             catch(exception){
                 commandOutput("The file does not exist\n");
-                return false;
             }
         }
     }
@@ -206,7 +205,6 @@ function checkExecUser(fileP) {
             try{
                 if(cursor.key === fileP) {
                     commandOutput(cursor.value.owner+" is the owner of the file.\n");
-                    return cursor.value.owner;
                 }
                 else {
                     cursor.continue();
@@ -245,10 +243,6 @@ function chmodCMD(mode, fileP) {
                     hold.permission = mode;
                     console.log(hold);
                     var request = cursor.update(hold);
-                    request.onsuccess = function() {
-                        console.log("success!");
-                        return 0;
-                    }
                 }
                 else {
                     cursor.continue();
@@ -256,7 +250,6 @@ function chmodCMD(mode, fileP) {
             }
             catch(exception){
                 commandOutput("The file does not exist\n");
-                return -1;
             }
         }
     }
@@ -287,10 +280,6 @@ function chown(newOwner, fileP) {
                     hold.owner = newOwner;
                     console.log(hold);
                     var request = cursor.update(hold);
-                    request.onsuccess = function() {
-                        console.log("success owner!");
-                        return 0;
-                    }
                 }
                 else {
                     cursor.continue();
@@ -298,7 +287,6 @@ function chown(newOwner, fileP) {
             }
             catch(exception){
                 commandOutput("The file does not exist\n");
-                return false;
             }
         }
     }
