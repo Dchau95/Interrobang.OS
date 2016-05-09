@@ -41,8 +41,11 @@ function runCMD(userInput)
         case "ls": case "dir":
             lsCMD(arrArguments);
             break;
-        case "man": case "help":
-            man();
+        case "help":
+            help();
+            break;
+        case "man":
+            man(arrArguments[0]);
             break;
         case "delete": case "rm":
             deleteCMD(arrArguments[0]);
@@ -724,7 +727,7 @@ function mkdirCMD(folder) {
                     db = this.result;
                     var transact = db.transaction([folderLocation], "readwrite");
                     var store2 = transact.objectStore(folderLocation);
-                    store2.put({filepath: document.getElementById("filepath").innerHTML, filename: folder, content: "Folder", filesize: 0});
+                    store2.put({filepath: document.getElementById("filepath").innerHTML, filename: folder, content: "Folder", filesize: 0, permission: "0"});
                     console.log("Successful!");
                 }
 
@@ -764,9 +767,8 @@ function mkdirCMD(folder) {
 
 /**
 Help manual
-clear, ls or dir, delete, copy, ps, kill, more, cat, man …
 */
-function man()
+function help()
 {
     var errorCode = 0;
     var result = "\nAssignment 2 Processes\n";
@@ -780,7 +782,7 @@ function man()
     result += "kill : Ends current process. Requires one parameter\n";
     result += "more : Display file output screen. Requires one parameter\n";
     result += "cat : Display file(s) content. Requires one or more parameters\n";
-    result += "man or help : Display help manual\n";
+    result += "man : Display help manual, requires one parameter\n";
     result += "\nAssignment 1 Processes\n";
     result += "------------------------------------------------------\n";
     result += "contactp : Initiates the contact manager process\n";
@@ -807,6 +809,7 @@ function man()
     result += "------------------------------------------------------\n";
     result += "adduser or useradd: Creates a new user; only available for SuperUser, input is user:pass\n";
     result += "deluser or userdel: Removes a user; only available for SuperUser, input is user:pass\n";
+    result += "pswd or passwd: Adds or changes password for the given user, requires two variables, username:pass and new password"
     result += "usermod: Takes two arguments, user and group, and adds the user to a group.\n";
     result += "delusermod: Takes two arguments, user and group, and removes the user from a group.\n";
     result += "su: Switches user from one user to another, input is user:pass\n";
@@ -816,6 +819,98 @@ function man()
     result += "chmod: Changes the permissions of files and directories, tales two parameters, the mode to change it to and the file/directory\n";
     result += "chown: Change the owner of a file or directory, takes in two parameters, the new owner and the file/directory\n";
     commandOutput(result);
+    return result;
+}
+
+function man(command) {
+    var result = "";
+    switch(command) {
+        case "useradd": case "adduser":
+            result = "adduser [user:pass] or useradd [user:pass]\nAdds user to the system, only used by SuperUser\n"
+            commandOutput(result);
+            break;
+        case "deluser": case "userdel":
+            result = "deluser [user:pass] or userdel [user:pass]\nDeletes user from the system, only used by SuperUser\n"
+            commandOutput(result);
+            break;
+        case "passwd": case "pswd":
+            result = "passwd [user:pass] [newpass] or pswd [user:pass] [newpass]\nChanges password for the given user.\n"
+            commandOutput(result);
+            break;
+        case "checkexecgrp":
+            result = "checkexecgrp [process]\nChecks what access rights a process have for one group\n"
+            commandOutput(result);
+            break;
+        case "su":
+            result = "su [user:pass]\nSwitches user from one user to another\n"
+            commandOutput(result);
+            break;
+        case "clear": case "cls":
+            result = "clear or cls\nClear the terminal screen\n"
+            commandOutput(result);
+            break;
+        case "ls": case "dir":
+            result = "ls [directory] or dir [directory], directory optional\nLists the files in the current directory or the directory specified\n"
+            commandOutput(result);
+            break;
+        case "man":
+            result = "man [command]\nShows the manual for the specified command\n"
+            commandOutput(result);
+            break;
+        case "delete": case "rm":
+            result = "delete [file] or rm [file]\nDeletes the specified file\n"
+            commandOutput(result);
+            break;
+        case "copy": case "cp":
+            result = "copy [file1] [file2] or cp [file1] [file2]\nCopies the contents of the specified file and pastes it into a new specified file\n"
+            commandOutput(result);
+            break;
+        case "usermod":
+            result = "usermod [user] [group]\nAdds a specified user to a specified group\n"
+            commandOutput(result);
+            break;
+        case "delusermod":
+            result = "delusermod [user] [group]\nDeletes a specified user to a specified group\n"
+            commandOutput(result);
+            break;
+        case "ps":
+            result = "ps\nReport a snapshot of the current processes\n"
+            commandOutput(result);
+            break;
+        case "kill":
+            result = "kill [process]]\nKills a specified process\n"
+            commandOutput(result);
+            break;
+        case "more":
+            result = "more [file]\nFile perusal filter for crt viewing\n"
+            commandOutput(result);
+            break;
+        case "cat":
+            result = "cat [file1] [file2] [...]\nConcatenates the listed files and displays them to the screen\n"
+            commandOutput(result);
+            break;
+        case "cd":
+            result = "cd [directory]\nChange directory into the specified path or go up one path\n"
+            commandOutput(result);
+            break;
+        case "mkdir":
+            result = "mkdir [new directory]\nCreates a new directory\n"
+            commandOutput(result);
+            break;
+        case "chmod":
+            result = "chmod [mode] [file]\nChanges permission mode of a specified file\n"
+            commandOutput(result);
+            break;
+        case "chown":
+            result = "chown [new owner] [file]\nChanges the owner to a new specified owner of a specified file\n"
+            commandOutput(result);
+            break;
+        default:
+            result = "What manual page do you want?";
+            commandOutput(result);
+            return result;
+            break;
+    }
     return result;
 }
 
