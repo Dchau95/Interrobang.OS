@@ -109,16 +109,44 @@ function OperatingSystem() {
               contents: Data retreived from the process to be written
      */
     this.write = function (fileName, filePointer, contents, location) {
-        var task = {
-//            nProcessID: processID,
-            sysCall : "Write File",
-            fileName: fileName,
-            filePointer : filePointer,
-            data : contents,
-            location: location
-        };
-        commandOutput("Writing File\n");
-        device.postMessage(task);
+        var requestOpen = indexedDB.open("hashDirectory");
+        requestOpen.onsuccess = function (event) {
+            var db = this.result;
+            db.onversionchange = function (event) {
+                console.log("Closing databse for version change");
+                db.close();
+            }
+            var transact = db.transaction(["Results"]);
+            var store = transact.objectStore("Results");
+            var index = store.index("by_filename");
+            index.openCursor().onsuccess = function(event) {
+                var cursor = event.target.result;
+                if(cursor.key === fileName) {
+                    var permission = cursor.value.permission;
+                    if(permission == 2 || permission == 3 || permission == 6 || permission == 7) {
+                        var task = {
+                //          nProcessID: processID,
+                            sysCall : "Write File",
+                            fileName: fileName,
+                            filePointer : filePointer,
+                            data : contents,
+                            location: location
+                        };
+                        commandOutput("Writing File\n");
+                        device.postMessage(task);
+                    }
+                    else {
+                        commandOutput("The "+statesQueue[filePointer].fileCsv+" does not have permission to be read\n");
+                        nStatesLength-=1;
+                        statesQueue.splice(filePointer,1);
+                        arrWorker.splice(filePointer,1);
+                    }
+                }
+                else {
+                    cursor.continue();
+                }
+            }
+        }
     };
     
     /*
