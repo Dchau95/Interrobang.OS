@@ -65,14 +65,42 @@ function OperatingSystem() {
               filePointer: The number/index that points to the file in arrOpenFiles in IODeviceDriver.js
      */
     this.read = function (fileName, filePointer) {
-        var task = {
-            nProcessID: filePointer,
-            sysCall : "Read File",
-            fileName: fileName,
-            filePointer : filePointer
-        };
-        commandOutput("Reading File\n");
-        device.postMessage(task);
+        var requestOpen = indexedDB.open("hashDirectory");
+        requestOpen.onsuccess = function (event) {
+            var db = this.result;
+            db.onversionchange = function (event) {
+                console.log("Closing databse for version change");
+                db.close();
+            }
+            var transact = db.transaction([folderLocation]);
+            var store = transact.objectStore(folderLocation);
+            var index = store.index("by_filename");
+            index.openCursor().onsuccess = function(event) {
+                var cursor = event.target.result;
+                if(cursor.key === fileName) {
+                    var permission = cursor.value.permission;
+                    if(permission == 4 || permission == 5 || permission == 6 || permission == 7) {
+                        var task = {
+                            nProcessID: filePointer,
+                            sysCall : "Read File",
+                            fileName: fileName,
+                            filePointer : filePointer
+                        };
+                        commandOutput("Reading File\n");
+                        device.postMessage(task);
+                    }
+                    else {
+                        commandOutput("The "+statesQueue[filePointer].fileCsv+" does not have permission to be read\n");
+                        nStatesLength-=1;
+                        statesQueue.splice(filePointer,1);
+                        arrWorker.splice(filePointer,1);
+                    }
+                }
+                else {
+                    cursor.continue();
+                }
+            }
+        }
     };
     
     /*
@@ -202,7 +230,7 @@ function whileLoop() {
                 statesQueue[processNumberI].process = "Stopping";
             } else {
                 setTimeout(function(){
-                    os.read(statesQueue[processNumberI].fileCsv, processNumberI)
+                    os.read(statesQueue[processNumberI].fileCsv, processNumberI);
                 }, 1000);
                 statesQueue[processNumberI].process = "Waiting";
             }
