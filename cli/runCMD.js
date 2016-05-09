@@ -191,6 +191,43 @@ function checkExecUser(fileP) {
 function chmodCMD(mode, fileP) {
     //Does the same as checkExec
     //Except instead of returning true or false, it alters the permission to the specified mode
+    if(fileP === null || fileP === undefined) {
+        commandOutput("You did not specify a file\n");
+        return;
+    }
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        var transact = db.transaction([folderLocation], "readwrite");
+        var store = transact.objectStore(folderLocation);
+        var index = store.index("by_filename");
+        index.openCursor().onsuccess = function(event) {
+            var cursor = event.target.result;
+            try{
+                if(cursor.key === fileP) {
+                    var hold = cursor.value;
+                    hold.permission = mode;
+                    console.log(hold);
+                    var request = cursor.update(hold);
+                    request.onsuccess = function() {
+                        console.log("success!");
+                        return 0;
+                    }
+                }
+                else {
+                    cursor.continue();
+                }
+            }
+            catch(exception){
+                commandOutput("The file does not exist\n");
+                return -1;
+            }
+        }
+    }
 }
 
 function chown(newOwner, fileP) {
