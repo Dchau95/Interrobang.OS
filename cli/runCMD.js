@@ -128,6 +128,9 @@ function runCMD(userInput)
         case "mkdir":
             mkdirCMD(arrArguments[0]);
             break;
+        case "touch":
+            touchCMD(arrArguments[0]);
+            break;
         case "checkexec":
             checkExec(arrArguments[0]);
             break;
@@ -796,6 +799,22 @@ function runConsume(argument){
     }, 3000);
 }
 
+function touchCMD(file) {
+    var requestOpen = indexedDB.open("hashDirectory");
+    requestOpen.onsuccess = function (event) {
+        var db = this.result;
+        db.onversionchange = function (event) {
+            console.log("Closing databse for version change");
+            db.close();
+        }
+        var transact = db.transaction([folderLocation], "readwrite");
+        var store = transact.objectStore(folderLocation);
+        var index = store.index("by_filename");
+        store.put({filepath: "", filename: file, content: "This is an empty file", filesize: 0, permission: "7", owner: currentUser});
+        commandOutput("The file '" + file + "' has been created.")
+    }
+}
+
 function mkdirCMD(folder) {
     var requestOpen = indexedDB.open("hashDirectory");
     requestOpen.onsuccess = function (event) {
@@ -904,6 +923,7 @@ function help()
     result += "cd: Change directory, requires one parameter\n";
     result += "consumep: Copies the specified file over and over. Takes in one parameter\n";
     result += "mkdir: Create new directory, requires one parameter\n";
+    result += "touch: Create empty file, requires one parameter\n";
     result += "\nAssignment 6 Processes\n";
     result += "------------------------------------------------------\n";
     result += "adduser or useradd: Creates a new user; only available for SuperUser, input is user:pass\n";
@@ -994,6 +1014,10 @@ function man(command) {
             break;
         case "mkdir":
             result = "mkdir [new directory]\nCreates a new directory\n"
+            commandOutput(result);
+            break;
+        case "touch":
+            result = "touch [new filename]\nCreates an empty file\n"
             commandOutput(result);
             break;
         case "chmod":
