@@ -346,6 +346,12 @@ function displayMemory() {
 
 function addUser(newUser)
 {
+    if (!newUser.match(/.:./)) {
+        commandOutput("That is a invalid input.\n");
+        commandOutput("adduser [user:pass]\n");
+        return;
+    }
+    
     var requestOpen = indexedDB.open("hashDirectory");
     requestOpen.onsuccess = function (event) {
         var db = this.result;
@@ -400,6 +406,11 @@ function addUser(newUser)
 
 function delUser(removedUser)
 {
+    if (!removedUser.match(/.:./)) {
+        commandOutput("That is a invalid input.\n");
+        commandOutput("deluser [user:pass]\n");
+        return;
+    }
     var requestOpen = indexedDB.open("hashDirectory");
     requestOpen.onsuccess = function (event) {
         var db = this.result;
@@ -429,13 +440,11 @@ function delUser(removedUser)
         var store = transact.objectStore("root");
         var index = store.index("by_filename");
         var request = index.getKey(parsedUser[0]);
-
         request.onsuccess = function(e) {
-            // Found user, deleting... 
+            // Found user, trying to delete... 
             if (request.result) {
-                store.delete(request.result);
                 index.openCursor().onsuccess = function(event) {
-                var cursor = event.target.result;
+                    var cursor = event.target.result;
                     if (cursor) {
                         if (cursor.value.filename === "user.txt") {
                             var hold = cursor.value;
@@ -444,23 +453,22 @@ function delUser(removedUser)
                                 if (parsedUserList[i] === removedUser) {
                                     parsedUserList.splice(i,1);
                                     hold.content = parsedUserList.join(",");
-                                    break;
-                                }
-                            }
-                            var request = cursor.update(hold);
-                                request.onsuccess = function() {
+                                    store.delete(request.result);
                                     commandOutput("'"+parsedUser[0]+"'" + " has been removed as a user.")
                                     console.log("Updated");
                                     updateMemoryUsage();
+                                    return;
                                 }
+                            }
+                            commandOutput("Invalid credentials!\n");
+                            var requestUpdate = cursor.update(hold);
                         }
                         cursor.continue();
                     }
                 }
             }
-            // No user found.
-            else { 
-                commandOutput("'"+parsedUser[0]+"'" + " is not a user.")
+            else {
+                commandOutput("'" + parsedUser[0] +"' is not a user");
             }
         }
     }
@@ -800,6 +808,21 @@ function runConsume(argument){
 }
 
 function touchCMD(file) {
+    // Get Current Time
+    var now = new Date();
+    var date = [ now.getMonth() + 1, now.getDate(), now.getFullYear() ];
+    var time = [ now.getHours(), now.getMinutes(), now.getSeconds() ];
+    var suffix = (time[0] < 12) ? "AM" : "PM";
+    time[0] = (time[0] < 12) ? time[0] : time[0] - 12;
+    time[0] = time[0] || 12;
+    for (var i = 1; i < 3; i++ ) {
+        if (time[i] < 10 ) {
+          time[i] = "0" + time[i];
+        }
+    }
+    var currentTime = date.join("/") + " " + time.join(":") + " " + suffix;
+    
+    // Open Database
     var requestOpen = indexedDB.open("hashDirectory");
     requestOpen.onsuccess = function (event) {
         var db = this.result;
@@ -810,7 +833,7 @@ function touchCMD(file) {
         var transact = db.transaction([folderLocation], "readwrite");
         var store = transact.objectStore(folderLocation);
         var index = store.index("by_filename");
-        store.put({filepath: "", filename: file, content: "This is an empty file", filesize: 0, permission: "7", owner: currentUser});
+        store.put({filepath: "", filename: file, content: "Created on: "+ currentTime, filesize: 0, permission: "7", owner: currentUser});
         commandOutput("The file '" + file + "' has been created.")
     }
 }
@@ -923,7 +946,7 @@ function help()
     result += "cd: Change directory, requires one parameter\n";
     result += "consumep: Copies the specified file over and over. Takes in one parameter\n";
     result += "mkdir: Create new directory, requires one parameter\n";
-    result += "touch: Create empty file, requires one parameter\n";
+    result += "touch: Create a file with a time stamp, requires one parameter\n";
     result += "\nAssignment 6 Processes\n";
     result += "------------------------------------------------------\n";
     result += "adduser or useradd: Creates a new user; only available for SuperUser, input is user:pass\n";
@@ -1017,7 +1040,7 @@ function man(command) {
             commandOutput(result);
             break;
         case "touch":
-            result = "touch [new filename]\nCreates an empty file\n"
+            result = "touch [new filename]\nCreates a file with a time stamp\n"
             commandOutput(result);
             break;
         case "chmod":
